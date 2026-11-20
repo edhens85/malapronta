@@ -355,6 +355,55 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
   .frow{grid-template-columns:1fr}
 }
 
+/* ── LAYOUT VERTICAL (portrait / tela estreita) ── */
+body.layout-vertical .topbar{
+  flex-direction:column;
+  height:auto;
+  padding:.6rem .75rem .4rem;
+  gap:.4rem;
+}
+body.layout-vertical .nav-tabs{
+  width:100%;
+  justify-content:center;
+  border-top:1px solid var(--border);
+  padding-top:.4rem;
+}
+body.layout-vertical .topbar-right{
+  position:absolute;
+  top:.6rem;
+  right:.75rem;
+}
+body.layout-vertical .brand{
+  align-self:flex-start;
+}
+body.layout-vertical .summary-bar{
+  flex-wrap:wrap;
+}
+/* alternativa: sidebar vertical esquerda quando muito estreito */
+@media(max-width:480px){
+  body.layout-vertical .nav-tabs{
+    flex-direction:column;
+    width:52px;
+    position:fixed;
+    left:0;top:0;bottom:0;
+    background:var(--surface);
+    border-right:1px solid var(--border);
+    padding:.6rem 0;
+    justify-content:flex-start;
+    gap:4px;
+    z-index:300;
+  }
+  body.layout-vertical .nav-tab{
+    writing-mode:vertical-lr;
+    transform:rotate(180deg);
+    padding:.7rem .4rem;
+    font-size:.7rem;
+  }
+  body.layout-vertical .topbar{
+    padding-left:60px;
+  }
+}
+
 /* ── AUTH SCREEN ── */
 .auth-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:2rem}
 .auth-screen.hidden{display:none}
@@ -2253,7 +2302,7 @@ function renderRotasSaldos(){
     ">
       ${dot}<span style="font-weight:600;color:var(--text)">${esc(p.name)}</span>
       <span style="color:var(--text-muted)">|</span>
-      <span style="color:var(--text)">${fmtPts(bal)} <span style="color:var(--text-muted)">${label}</span></span>
+      <span style="color:var(--text)">${fmt(bal)} <span style="color:var(--text-muted)">${label}</span></span>
       <span style="color:var(--text-muted)">|</span>
       <span style="color:var(--text-muted)">${cpmLabel} <span style="color:var(--text)">${cpmVal}</span></span>
     </div>`;
@@ -2261,6 +2310,12 @@ function renderRotasSaldos(){
 }
 
 function renderRoutes(){
+  if(!db.routes) db.routes=[];
+  const empty = document.getElementById('routesEmptyState');
+  const wrap  = document.getElementById('routesTblWrap');
+  const tbody = document.getElementById('routesTbody');
+  if(!empty||!wrap||!tbody) return;
+
   const search = (document.getElementById('routeSearch').value||'').toLowerCase();
   let routes = [...db.routes];
   // fav filter
@@ -2287,10 +2342,6 @@ function renderRoutes(){
   });
   // fav always first
   routes.sort((a,b)=>(b.fav?1:0)-(a.fav?1:0));
-
-  const empty = document.getElementById('routesEmptyState');
-  const wrap  = document.getElementById('routesTblWrap');
-  const tbody = document.getElementById('routesTbody');
 
   if(!db.routes.length){ empty.classList.remove('hidden'); wrap.style.display='none'; return; }
   if(!routes.length){ empty.classList.remove('hidden'); wrap.style.display='none'; return; }
@@ -2886,7 +2937,7 @@ function showPage(page, el){
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page'+cap(page)).classList.add('active');
   if(el) el.classList.add('active');
-  if(page==='rotas'){ renderRotasSaldos(); renderRoutes(); }
+  if(page==='rotas'){ if(!db.routes) db.routes=[]; renderRotasSaldos(); renderRoutes(); }
   if(page==='emissoes'){ renderEmissoes(); }
   // close col filter dropdowns on page change
   document.querySelectorAll('.col-filter-dropdown').forEach(d=>d.classList.remove('open'));
@@ -3371,6 +3422,17 @@ async function signOut(){
       openAddProgram();
     }
   });
+})();
+
+// ── LAYOUT RESPONSIVO AUTOMÁTICO ──
+(function(){
+  function checkLayout(){
+    const isVertical = window.innerHeight > window.innerWidth || window.innerWidth < 700;
+    document.body.classList.toggle('layout-vertical', isVertical);
+  }
+  checkLayout();
+  window.addEventListener('resize', checkLayout);
+  if(screen.orientation) screen.orientation.addEventListener('change', checkLayout);
 })();
 </script>
 </body>
