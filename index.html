@@ -161,6 +161,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .topbar-right{display:flex;align-items:center;gap:6px}
 .btn-icon{width:32px;height:32px;border:1px solid var(--border);background:var(--surface2);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-dim);transition:color .12s,background .12s}
 .btn-icon:hover{background:var(--surface3);color:var(--text)}
+/* ── PAGE LABEL ── */
+.page-label{font-size:.8rem;font-weight:600;color:var(--text-dim);padding:.2rem .5rem;user-select:none}
 /* ── MENU DROPDOWN ── */
 .menu-wrap{position:relative}
 .btn-menu{display:flex;align-items:center;gap:5px;padding:.32rem .7rem;border:1px solid var(--border);background:var(--surface2);border-radius:var(--radius-sm);cursor:pointer;color:var(--text-dim);font-size:.78rem;font-weight:500;font-family:'Inter',sans-serif;transition:color .12s,background .12s;white-space:nowrap}
@@ -170,6 +172,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .menu-item{display:flex;align-items:center;gap:10px;width:100%;padding:.6rem 1rem;background:none;border:none;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;transition:background .1s}
 .menu-item:hover{background:var(--surface2)}
 .menu-item svg{flex-shrink:0;color:var(--text-dim)}
+.menu-item.menu-nav-item.active{color:var(--gold);background:var(--surface2)}
+.menu-item.menu-nav-item.active svg{color:var(--gold)}
 .menu-sep{height:1px;background:var(--border);margin:.25rem 0}
 /* global search */
 .global-search-wrap{position:relative;flex:1;max-width:420px}
@@ -453,59 +457,19 @@ body.layout-vertical .dash-grid{grid-template-columns:repeat(4,1fr)}
 
 /* ── LAYOUT VERTICAL (portrait / tela estreita) ── */
 body.layout-vertical .topbar{
-  flex-direction:column;
   height:auto;
-  padding:.6rem .75rem .4rem;
-  gap:.4rem;
+  padding:.5rem .75rem;
+  gap:.5rem;
 }
-body.layout-vertical .nav-tabs{
-  width:100%;
-  justify-content:center;
-  border-top:1px solid var(--border);
-  padding-top:.4rem;
-}
-body.layout-vertical .topbar-right{
-  position:absolute;
-  top:.6rem;
-  right:.75rem;
-}
-body.layout-vertical .brand{align-self:flex-start}
+body.layout-vertical .topbar-right{gap:4px}
 body.layout-vertical .summary-bar{flex-wrap:wrap}
+body.layout-vertical .page-label{display:none}
 
-/* ── MOBILE PEQUENO: navbar fixa no fundo, sem sobreposição ── */
+/* ── MOBILE PEQUENO ── */
 @media(max-width:480px){
-  body.layout-vertical .topbar{
-    padding-left:.75rem;
-    padding-bottom:60px; /* espaço para navbar inferior */
-  }
-  body.layout-vertical .nav-tabs{
-    flex-direction:row;
-    width:100%;
-    position:fixed;
-    left:0;right:0;bottom:0;top:auto;
-    height:56px;
-    background:var(--surface);
-    border-top:1px solid var(--border);
-    border-right:none;
-    padding:0;
-    justify-content:space-around;
-    align-items:center;
-    gap:0;
-    z-index:300;
-    writing-mode:horizontal-tb;
-  }
-  body.layout-vertical .nav-tab{
-    writing-mode:horizontal-tb;
-    transform:none;
-    padding:.5rem .75rem;
-    font-size:.65rem;
-    flex-direction:column;
-    display:flex;
-    align-items:center;
-    gap:3px;
-  }
-  .main-content{padding-bottom:64px!important}
-  .page{padding-bottom:64px!important}
+  .topbar{flex-wrap:wrap;padding:.45rem .6rem;gap:.4rem}
+  .page-label{display:none!important}
+  .menu-dropdown{right:0;left:auto;min-width:220px}
 }
 
 /* ── AUTH SCREEN ── */
@@ -563,20 +527,8 @@ body.layout-vertical .summary-bar{flex-wrap:wrap}
     </svg>
     Gestão de Milhas
   </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('milhas',this)">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Milhas
-    </button>
-    <button class="nav-tab" onclick="showPage('rotas',this)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin-right:4px;vertical-align:middle"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 3.5 9A15 15 0 0 1 12 21A15 15 0 0 1 8.5 12A15 15 0 0 1 12 3z"/><path d="M6 5.5l5 3 2-1 4-1" stroke-width="1.5"/><path d="M4.5 8l2.5 1.5 1-.5 2-.5" stroke-width="1.5" style="display:none"/></svg>
-      Rotas de Emissão
-    </button>
-    <button class="nav-tab" onclick="showPage('emissoes',this)">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Emissões
-    </button>
-  </div>
+  <!-- página ativa exibida no topbar como breadcrumb leve -->
+  <span class="page-label" id="pageLabel">Milhas</span>
   <div class="global-search-wrap" id="globalSearchWrap" style="display:none">
     <input class="global-search-input" id="globalSearchInput" placeholder="Buscar programas e movimentos… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){focusGlobalResult(0);}">
     <div class="global-search-results" id="globalSearchResults"></div>
@@ -598,6 +550,20 @@ body.layout-vertical .summary-bar{flex-wrap:wrap}
         Menu
       </button>
       <div class="menu-dropdown" id="appMenuDropdown">
+        <!-- navegação -->
+        <button class="menu-item menu-nav-item" id="mnMilhas" onclick="showPage('milhas');closeAppMenu()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Milhas
+        </button>
+        <button class="menu-item menu-nav-item" id="mnRotas" onclick="showPage('rotas');closeAppMenu()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 3.5 9A15 15 0 0 1 12 21A15 15 0 0 1 8.5 12A15 15 0 0 1 12 3z"/></svg>
+          Rotas de Emissão
+        </button>
+        <button class="menu-item menu-nav-item" id="mnEmissoes" onclick="showPage('emissoes');closeAppMenu()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Emissões
+        </button>
+        <div class="menu-sep"></div>
         <button class="menu-item" onclick="openSimulador();closeAppMenu()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           Simulador de transferência
@@ -3235,6 +3201,12 @@ function showPage(page, el){
   if(page==='emissoes'){ renderEmissoes(); }
   // close col filter dropdowns on page change
   document.querySelectorAll('.col-filter-dropdown').forEach(d=>d.classList.remove('open'));
+  // atualiza page-label e item ativo no menu
+  const labels={milhas:'Milhas',rotas:'Rotas de Emissão',emissoes:'Emissões'};
+  const lbl=document.getElementById('pageLabel'); if(lbl) lbl.textContent=labels[page]||'';
+  document.querySelectorAll('.menu-nav-item').forEach(b=>b.classList.remove('active'));
+  const mn={milhas:'mnMilhas',rotas:'mnRotas',emissoes:'mnEmissoes'};
+  const mi=document.getElementById(mn[page]); if(mi) mi.classList.add('active');
 }
 
 
@@ -3633,6 +3605,8 @@ function _showApp(user){
   // mostrar Sair no menu
   const ms=document.getElementById('menuSignout'); if(ms) ms.style.display='flex';
   const mss=document.getElementById('menuSepSignout'); if(mss) mss.style.display='block';
+  // marcar Milhas como ativo no menu (página inicial)
+  const mi=document.getElementById('mnMilhas'); if(mi) mi.classList.add('active');
 }
 function _hideApp(){
   document.getElementById('authScreen').classList.remove('hidden');
