@@ -689,6 +689,7 @@ body.layout-vertical .summary-bar{
                 <div class="col-filter-dropdown" id="cfd-ciaAerea"></div>
               </div>
             </th>
+            <th style="width:1%;white-space:nowrap">Aliança</th>
             <th>Onde Pesquisar</th>
             <th>Onde Emitir</th>
             <th style="width:100%" onclick="sortRoutes('obs')">Observação <span class="col-filter-icon" id="sf-obs">▾</span></th>
@@ -1051,11 +1052,22 @@ body.layout-vertical .summary-bar{
         <div class="iata-hint" id="iataHint"></div>
       </div>
     </div>
-    <div class="fg">
-      <label>Cia Aérea</label>
-      <div class="ac-wrap">
-        <input class="fi" id="rCia" placeholder="Digite para buscar…" oninput="filterCia()" onkeydown="navCia(event)" autocomplete="off">
-        <div class="ac-dropdown" id="acCia"></div>
+    <div class="frow">
+      <div class="fg">
+        <label>Cia Aérea</label>
+        <div class="ac-wrap">
+          <input class="fi" id="rCia" placeholder="Digite para buscar…" oninput="filterCia()" onkeydown="navCia(event)" autocomplete="off">
+          <div class="ac-dropdown" id="acCia"></div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Aliança</label>
+        <select class="fi" id="rAlianca">
+          <option value="">—</option>
+          <option value="Star Alliance">Star Alliance</option>
+          <option value="Oneworld">Oneworld</option>
+          <option value="SkyTeam">SkyTeam</option>
+        </select>
       </div>
     </div>
     <div class="fg">
@@ -2373,6 +2385,7 @@ function renderRoutes(){
         ${destCell}
         <td style="vertical-align:middle"><div class="route-trecho">${esc(r.trecho||'—')}</div></td>
         <td style="vertical-align:middle">${r.ciaAerea?`<span class="badge b-compra" style="background:var(--surface3);color:var(--text)">${esc(r.ciaAerea)}</span>`:'—'}</td>
+        <td style="vertical-align:middle;white-space:nowrap;font-size:.72rem">${r.alianca?`<span class="badge" style="background:var(--surface3);color:var(--text-dim)">${esc(r.alianca)}</span>`:'—'}</td>
         <td style="vertical-align:middle"><div class="links-cell">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
         <td style="vertical-align:middle"><div class="links-cell">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
         <td class="route-obs" title="${esc(r.obs||'')}" style="vertical-align:middle">${esc(r.obs||'—')}</td>
@@ -2879,6 +2892,7 @@ function openAddRoute(){
   editRouteId=null;
   document.getElementById('mrTitle').textContent='Nova rota';
   ['rDestino','rTrecho','rCia','rP1Text','rP1Url','rP2Text','rP2Url','rE1Text','rE1Url','rE2Text','rE2Url','rObs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rAlianca').value='';
   document.getElementById('iataHint').textContent='';
   document.getElementById('rDanger').classList.add('hidden');
   openModal('modalRoute');
@@ -2890,6 +2904,7 @@ function openEditRoute(id){
   document.getElementById('rDestino').value=r.destino||'';
   document.getElementById('rTrecho').value=r.trecho||'';
   document.getElementById('rCia').value=r.ciaAerea||'';
+  document.getElementById('rAlianca').value=r.alianca||'';
   document.getElementById('rP1Text').value=r.p1Text||'';
   document.getElementById('rP1Url').value=r.p1Url||'';
   document.getElementById('rP2Text').value=r.p2Text||'';
@@ -2909,6 +2924,7 @@ function saveRoute(){
   const data={
     destino, trecho:document.getElementById('rTrecho').value.trim().replace(/\s*->\s*/g,' → '),
     ciaAerea:document.getElementById('rCia').value.trim(),
+    alianca:document.getElementById('rAlianca').value,
     p1Text:document.getElementById('rP1Text').value.trim(), p1Url:document.getElementById('rP1Url').value.trim(),
     p2Text:document.getElementById('rP2Text').value.trim(), p2Url:document.getElementById('rP2Url').value.trim(),
     e1Text:document.getElementById('rE1Text').value.trim(), e1Url:document.getElementById('rE1Url').value.trim(),
