@@ -2363,7 +2363,7 @@ function renderRoutes(){
   tbody.innerHTML = groups.map(g=>{
     const count = g.routes.length;
     return g.routes.map((r,i)=>{
-      const favCell = `<td onclick="event.stopPropagation()" style="vertical-align:middle"><button class="fav-btn${r.fav?' on':''}" onclick="toggleFav('${r.id}')" title="Favorita">${r.fav?'⭐':'☆'}</button></td>`;
+      const favCell = `<td style="vertical-align:middle"><button class="fav-btn${r.fav?' on':''}" onclick="event.stopPropagation();toggleFav('${r.id}')" title="Favorita">${r.fav?'⭐':'☆'}</button></td>`;
       const destCell = i===0
         ? `<td rowspan="${count}" style="font-weight:600;white-space:nowrap;vertical-align:middle;border-right:1px solid var(--border2)">${esc(g.destino)}</td>`
         : '';
@@ -2373,10 +2373,10 @@ function renderRoutes(){
         ${destCell}
         <td style="vertical-align:middle"><div class="route-trecho">${esc(r.trecho||'—')}</div></td>
         <td style="vertical-align:middle">${r.ciaAerea?`<span class="badge b-compra" style="background:var(--surface3);color:var(--text)">${esc(r.ciaAerea)}</span>`:'—'}</td>
-        <td onclick="event.stopPropagation()" style="vertical-align:middle"><div class="links-cell">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
-        <td onclick="event.stopPropagation()" style="vertical-align:middle"><div class="links-cell">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
+        <td style="vertical-align:middle"><div class="links-cell">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
+        <td style="vertical-align:middle"><div class="links-cell">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
         <td class="route-obs" title="${esc(r.obs||'')}" style="vertical-align:middle">${esc(r.obs||'—')}</td>
-        <td onclick="event.stopPropagation()"></td>
+        <td></td>
       </tr>`;
     }).join('');
   }).join('');
@@ -2387,8 +2387,8 @@ function linkCell(r, prefix, routeId){
   const text = r[prefix+'Text'], url = r[prefix+'Url'];
   if(!text && !url) return '';
   const display = text || (url?'Link':'');
-  const link = url ? `<a class="link-anchor" href="${esc(url)}" target="_blank" rel="noopener">${esc(display)}</a>` : `<span style="color:var(--text-dim);font-size:.75rem">${esc(display)}</span>`;
-  return `<div class="link-item">${link}<button class="link-edit-btn" onclick="openEditLink('${routeId}','${prefix}')" title="Editar link"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div>`;
+  const link = url ? `<a class="link-anchor" href="${esc(url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(display)}</a>` : `<span style="color:var(--text-dim);font-size:.75rem">${esc(display)}</span>`;
+  return `<div class="link-item">${link}<button class="link-edit-btn" onclick="event.stopPropagation();openEditLink('${routeId}','${prefix}')" title="Editar link"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></div>`;
 }
 
 function iataLabel(trecho){
