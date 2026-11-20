@@ -2351,20 +2351,35 @@ function renderRoutes(){
   if(!routes.length){ empty.classList.remove('hidden'); wrap.style.display='none'; return; }
   empty.classList.add('hidden'); wrap.style.display='';
 
-  tbody.innerHTML = routes.map(r=>`
-    <tr style="cursor:pointer" onclick="openEditRoute('${r.id}')">
-      <td onclick="event.stopPropagation()"><button class="fav-btn${r.fav?' on':''}" onclick="toggleFav('${r.id}')" title="Favorita">${r.fav?'⭐':'☆'}</button></td>
-      <td style="font-weight:600;white-space:nowrap">${esc(r.destino||'—')}</td>
-      <td>
-        <div class="route-trecho">${esc(r.trecho||'—')}</div>
-      </td>
-      <td>${r.ciaAerea?`<span class="badge b-compra" style="background:var(--surface3);color:var(--text)">${esc(r.ciaAerea)}</span>`:'—'}</td>
-      <td onclick="event.stopPropagation()"><div class="links-cell">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
-      <td onclick="event.stopPropagation()"><div class="links-cell">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
-      <td class="route-obs" title="${esc(r.obs||'')}">${esc(r.obs||'—')}</td>
-      <td onclick="event.stopPropagation()"></td>
-    </tr>
-  `).join('');
+  // agrupar por destino mantendo a ordem
+  const groups = [];
+  const seenDest = {};
+  routes.forEach(r=>{
+    const key = (r.destino||'—').toLowerCase();
+    if(seenDest[key]===undefined){ seenDest[key]=groups.length; groups.push({destino:r.destino||'—',routes:[r]}); }
+    else groups[seenDest[key]].routes.push(r);
+  });
+
+  tbody.innerHTML = groups.map(g=>{
+    const count = g.routes.length;
+    return g.routes.map((r,i)=>{
+      const favCell = `<td onclick="event.stopPropagation()" style="vertical-align:middle"><button class="fav-btn${r.fav?' on':''}" onclick="toggleFav('${r.id}')" title="Favorita">${r.fav?'⭐':'☆'}</button></td>`;
+      const destCell = i===0
+        ? `<td rowspan="${count}" style="font-weight:600;white-space:nowrap;vertical-align:middle;border-right:1px solid var(--border2)">${esc(g.destino)}</td>`
+        : '';
+      const borderTop = i>0 ? 'border-top:1px dashed var(--border2);' : '';
+      return `<tr style="cursor:pointer;${borderTop}" onclick="openEditRoute('${r.id}')">
+        ${favCell}
+        ${destCell}
+        <td style="vertical-align:middle"><div class="route-trecho">${esc(r.trecho||'—')}</div></td>
+        <td style="vertical-align:middle">${r.ciaAerea?`<span class="badge b-compra" style="background:var(--surface3);color:var(--text)">${esc(r.ciaAerea)}</span>`:'—'}</td>
+        <td onclick="event.stopPropagation()" style="vertical-align:middle"><div class="links-cell">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
+        <td onclick="event.stopPropagation()" style="vertical-align:middle"><div class="links-cell">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
+        <td class="route-obs" title="${esc(r.obs||'')}" style="vertical-align:middle">${esc(r.obs||'—')}</td>
+        <td onclick="event.stopPropagation()"></td>
+      </tr>`;
+    }).join('');
+  }).join('');
   buildColFilterDropdown('ciaAerea');
 }
 
