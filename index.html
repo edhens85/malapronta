@@ -31,9 +31,19 @@
     return auth.signInWithPopup(provider);
   };
   window._fbSignOut = () => auth.signOut();
+  // Renova token a cada 50min e cacheia para uso no beforeunload
+  setInterval(async ()=>{
+    try{
+      if(auth.currentUser){
+        window._fbLastToken = await auth.currentUser.getIdToken(true);
+      }
+    }catch(e){}
+  }, 50*60*1000);
+
   // Busca via REST API — ignora completamente o cache do SDK e restrições do Safari ITP
   window._fbGetDocREST = async (uid) => {
     const token = await auth.currentUser.getIdToken(true); // força refresh do token
+    window._fbLastToken = token;
     const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?t=${Date.now()}`;
     const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
     if(!res.ok) throw new Error('REST ' + res.status);
@@ -1402,24 +1412,45 @@ function saveDB(){
     _pendingSave = true;
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
+    // Salva imediatamente sem delay — garante sync antes de fechar
     _saveTimer = setTimeout(async ()=>{
       try{
         await window._fbSetDoc(window._fbCurrentUid, { db });
         _pendingSave = false;
         _setSyncStatus('ok');
       }catch(e){ console.error('Firestore save error', e); _setSyncStatus('offline'); }
-    }, 400);
+    }, 0);
   }
 }
-// Garante save antes de fechar a aba
+// Garante save antes de fechar a aba via XHR síncrono (único método garantido)
 window.addEventListener('beforeunload', ()=>{
-  if(_pendingSave && window._fbCurrentUid){
-    // Usa sendBeacon para garantir envio mesmo ao fechar
-    const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${window._fbCurrentUid}`;
-    navigator.sendBeacon && clearTimeout(_saveTimer);
-    // Fallback: tenta salvar síncrono via XMLHttpRequest
+  clearTimeout(_saveTimer);
+  if(window._fbCurrentUid){
     try{
-      window._fbSetDoc(window._fbCurrentUid, { db });
+      // Converte db para formato REST do Firestore e envia via XHR síncrono
+      const toFV = (v) => {
+        if(v===null||v===undefined) return {nullValue:null};
+        if(typeof v==='boolean') return {booleanValue:v};
+        if(typeof v==='number') return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+        if(typeof v==='string') return {stringValue:v};
+        if(Array.isArray(v)) return {arrayValue:{values:v.map(toFV)}};
+        if(typeof v==='object'){
+          const fields={};
+          for(const [k,val] of Object.entries(v)) fields[k]=toFV(val);
+          return {mapValue:{fields}};
+        }
+        return {nullValue:null};
+      };
+      const body = JSON.stringify({fields:{db:toFV(db)}});
+      const uid = window._fbCurrentUid;
+      const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=db`;
+      const xhr = new XMLHttpRequest();
+      xhr.open('PATCH', url, false); // false = síncrono, bloqueia até terminar
+      xhr.setRequestHeader('Content-Type','application/json');
+      // Tenta com token cacheado
+      const token = window._fbLastToken;
+      if(token) xhr.setRequestHeader('Authorization','Bearer '+token);
+      xhr.send(body);
     }catch(e){}
   }
 });
