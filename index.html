@@ -107,7 +107,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .dash-section{margin-bottom:2rem}
 .dash-section-title{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
 .dash-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.85rem}
+.dash-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.85rem}
 .prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.15rem;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .prog-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
 .prog-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
@@ -354,6 +354,9 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
   .stats{grid-template-columns:1fr 1fr}
   .frow{grid-template-columns:1fr}
 }
+
+/* ── GRID: 6 colunas horizontal, 4 vertical ── */
+body.layout-vertical .dash-grid{grid-template-columns:repeat(4,1fr)}
 
 /* ── LAYOUT VERTICAL (portrait / tela estreita) ── */
 body.layout-vertical .topbar{
