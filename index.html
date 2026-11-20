@@ -14,7 +14,7 @@
 (function(){
   const firebaseConfig = {
     apiKey: "AIzaSyCufFcO6tQL4YH106nb5VhACc28KLCSI_s",
-    authDomain: "malapronta-a4v.pages.dev",
+    authDomain: "gestao-de-milhas-eb741.firebaseapp.com",
     projectId: "gestao-de-milhas-eb741",
     storageBucket: "gestao-de-milhas-eb741.firebasestorage.app",
     messagingSenderId: "381444088838",
@@ -28,8 +28,19 @@
   window._fbFirestore = firestore;
   window._fbSignInGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
+    // Safari bloqueia sessionStorage em popups — usa redirect no Safari
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if(isSafari){
+      return auth.signInWithRedirect(provider);
+    }
     return auth.signInWithPopup(provider);
   };
+  // Captura resultado do redirect (Safari)
+  auth.getRedirectResult().then(result => {
+    // resultado tratado pelo onAuthStateChanged
+  }).catch(err => {
+    if(err.code !== 'auth/no-current-user') console.error('redirect result error', err);
+  });
   window._fbSignOut = () => auth.signOut();
   // Renova token a cada 50min e cacheia para uso no beforeunload
   setInterval(async ()=>{
