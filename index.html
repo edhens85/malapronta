@@ -76,9 +76,10 @@
     return firestore.collection('users').doc(uid).set(data);
   };
   window._fbOnAuthStateChanged = (cb) => auth.onAuthStateChanged(cb);
-  // Listener em tempo real: sincroniza dados entre computadores automaticamente
+  // Listener em tempo real: onSnapshot + polling REST a cada 10s como garantia
   window._fbSubscribe = (uid, onData) => {
-    return firestore.collection('users').doc(uid).onSnapshot(
+    // onSnapshot para atualizações em tempo real
+    const unsub = firestore.collection('users').doc(uid).onSnapshot(
       snap => {
         if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites){
           onData(snap.data().db);
@@ -86,6 +87,39 @@
       },
       err => console.error('onSnapshot error', err)
     );
+    // Polling REST a cada 10s — garante sync mesmo se onSnapshot falhar (Safari ITP etc)
+    let _lastUpdateTime = Date.now();
+    const _pollInterval = setInterval(async ()=>{
+      if(window._fbCurrentUid !== uid){ clearInterval(_pollInterval); return; }
+      if(window._pendingSave) return; // não sobrescreve enquanto está salvando
+      try{
+        const token = window._fbLastToken || (auth.currentUser ? await auth.currentUser.getIdToken() : null);
+        if(!token) return;
+        window._fbLastToken = token;
+        const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?t=${Date.now()}`;
+        const res = await fetch(url, { headers:{ Authorization:`Bearer ${token}` }, cache:'no-store' });
+        if(!res.ok) return;
+        const json = await res.json();
+        const updatedAt = json.updateTime ? new Date(json.updateTime).getTime() : 0;
+        if(updatedAt > _lastUpdateTime){
+          _lastUpdateTime = updatedAt;
+          // Tem versão mais nova no servidor — parseia e atualiza
+          const parseFirestoreValue = (v) => {
+            if(v.stringValue!==undefined) return v.stringValue;
+            if(v.integerValue!==undefined) return Number(v.integerValue);
+            if(v.doubleValue!==undefined) return v.doubleValue;
+            if(v.booleanValue!==undefined) return v.booleanValue;
+            if(v.nullValue!==undefined) return null;
+            if(v.arrayValue) return (v.arrayValue.values||[]).map(parseFirestoreValue);
+            if(v.mapValue){ const o={}; for(const [k,v2] of Object.entries(v.mapValue.fields||{})) o[k]=parseFirestoreValue(v2); return o; }
+            return null;
+          };
+          const fields = json.fields||{};
+          if(fields.db){ onData(parseFirestoreValue(fields.db)); }
+        }
+      }catch(e){}
+    }, 10000);
+    return ()=>{ unsub(); clearInterval(_pollInterval); };
   };
 
   window._fbReady = true;
@@ -1398,7 +1432,8 @@ async function loadDBFromFirestore(uid){
   }
 }
 let _saveTimer = null;
-let _pendingSave = false;
+window._pendingSave = false;
+let _pendingSave = false; // alias local
 function _setSyncStatus(s){ // 'ok'|'pending'|'offline'
   const dot = document.getElementById('syncDot');
   if(!dot) return;
@@ -1409,14 +1444,14 @@ function _setSyncStatus(s){ // 'ok'|'pending'|'offline'
 function saveDB(){
   try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
   if(window._fbCurrentUid){
-    _pendingSave = true;
+    _pendingSave = true; window._pendingSave = true;
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
     // Salva imediatamente sem delay — garante sync antes de fechar
     _saveTimer = setTimeout(async ()=>{
       try{
         await window._fbSetDoc(window._fbCurrentUid, { db });
-        _pendingSave = false;
+        _pendingSave = false; window._pendingSave = false;
         _setSyncStatus('ok');
       }catch(e){ console.error('Firestore save error', e); _setSyncStatus('offline'); }
     }, 0);
