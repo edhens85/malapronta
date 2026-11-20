@@ -32,7 +32,7 @@
   };
   window._fbSignOut = () => auth.signOut();
   window._fbGetDoc = async (uid) => {
-    return firestore.collection('users').doc(uid).get();
+    return firestore.collection('users').doc(uid).get({ source: 'server' });
   };
   window._fbSetDoc = async (uid, data) => {
     return firestore.collection('users').doc(uid).set(data);
@@ -3548,37 +3548,43 @@ async function signOut(){
         window._fbCurrentUid = user.uid;
         const btn2 = document.getElementById('btnGoogle');
         if(btn2){ btn2.disabled=true; btn2.textContent='Carregando dados…'; }
-        // Usa onSnapshot como única fonte de verdade — primeira emissão carrega os dados
         if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
-        let _firstLoad = true;
-        window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
-          if(_firstLoad){
-            _firstLoad = false;
-            db = remoteDB;
-            ensureDBDefaults();
-            try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
-            selProg = db.programs[0]?.id || null;
-            _showApp(user);
-            render();
-          } else if(!_pendingSave){
-            // Atualização de outro dispositivo
-            db = remoteDB;
-            ensureDBDefaults();
-            try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
-            selProg = selProg || db.programs[0]?.id || null;
-            render();
-            renderRoutes();
+
+        // 1) Busca DIRETO DO SERVIDOR (ignora cache local — garante dado fresco em qualquer browser)
+        let _appShown = false;
+        const _showFromServer = async () => {
+          try {
+            const snap = await window._fbGetDoc(user.uid); // source:'server' forçado
+            if(snap.exists() && snap.data().db){
+              db = snap.data().db;
+            } else {
+              db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
+            }
+          } catch(e) {
+            console.error('server get error', e);
+            // fallback localStorage apenas se servidor inacessível
+            try { const s=localStorage.getItem('milhas_v3'); if(s) db=JSON.parse(s); } catch(_){}
           }
-        });
-        // Timeout: se onSnapshot não disparar em 6s, mostra tela mesmo assim
-        setTimeout(()=>{
-          if(_firstLoad){
-            _firstLoad = false;
-            ensureDBDefaults();
-            _showApp(user);
-            render();
-          }
-        }, 6000);
+          ensureDBDefaults();
+          try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+          selProg = db.programs[0]?.id || null;
+          _appShown = true;
+          _showApp(user);
+          render();
+
+          // 2) Após carregar, ativa onSnapshot para atualizações em tempo real de outros devices
+          window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
+            if(!_pendingSave){
+              db = remoteDB;
+              ensureDBDefaults();
+              try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+              selProg = selProg || db.programs[0]?.id || null;
+              render();
+              renderRoutes();
+            }
+          });
+        };
+        _showFromServer();
       } else {
         window._fbCurrentUid=null;
         if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
