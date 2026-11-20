@@ -1062,7 +1062,7 @@ body.layout-vertical .summary-bar{
       </div>
       <div class="fg">
         <label>Aliança</label>
-        <select class="fi" id="rAlianca">
+        <select class="fi" id="rAlianca" onchange="onAliancaChange()">
           <option value="">—</option>
           <option value="Star Alliance">Star Alliance</option>
           <option value="Oneworld">Oneworld</option>
@@ -1237,7 +1237,7 @@ const IATA_DB = {
 // ═══════════════════════════════════════════════
 //  DATABASE
 // ═══════════════════════════════════════════════
-let db = {programs:[], movements:[], routes:[], airlines:[]};
+let db = {programs:[], movements:[], routes:[], airlines:[], aliancaMap:{}};
 let selProg = null;
 let editProgId = null;
 let editMovId = null;
@@ -1321,6 +1321,7 @@ function ensureDBDefaults(){
   if(!db.movements) db.movements=[];
   if(!db.airlines) db.airlines=[...CIAS_PRESET];
   if(!db.routes || !db.routes.length){ db.routes = DEFAULT_ROUTES.map(r=>({...r})); }
+  if(!db.aliancaMap) db.aliancaMap={};
 }
 function loadDB(){
   // Carrega do localStorage como fallback offline
@@ -2540,9 +2541,25 @@ const CIA_ALIASES = {
 function pickCia(val){
   document.getElementById('rCia').value=val;
   document.getElementById('acCia').classList.remove('open');
-  // Busca aliança pelo nome exato ou pelo alias do valor digitado
-  const alianca=CIA_ALIANCA[val]||CIA_ALIANCA[CIA_ALIASES[val.toLowerCase().trim()]]||'';
-  if(alianca) document.getElementById('rAlianca').value=alianca;
+  // Consulta mapa do usuário primeiro, depois o mapa padrão
+  const alianca=(db.aliancaMap&&db.aliancaMap[val])||CIA_ALIANCA[val]||CIA_ALIANCA[CIA_ALIASES[val.toLowerCase().trim()]]||'';
+  document.getElementById('rAlianca').value=alianca;
+}
+function onAliancaChange(){
+  const cia=document.getElementById('rCia').value.trim();
+  const alianca=document.getElementById('rAlianca').value;
+  if(!cia) return;
+  // Salva o mapeamento definido pelo usuário
+  if(!db.aliancaMap) db.aliancaMap={};
+  if(alianca) db.aliancaMap[cia]=alianca;
+  else delete db.aliancaMap[cia];
+  // Aplica retroativamente em todas as rotas com essa cia aérea
+  let updated=false;
+  db.routes.forEach(r=>{
+    if(r.ciaAerea===cia){ r.alianca=alianca; updated=true; }
+  });
+  if(updated){ saveDB(); renderRoutes(); }
+  else saveDB();
 }
 function addAndPickCia(val){
   const proper=val.trim().replace(/\b\w/g,c=>c.toUpperCase());
