@@ -1338,19 +1338,23 @@ function loadDB(){
 }
 async function loadDBFromFirestore(uid){
   try{
-    const timeoutPromise = new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 5000));
+    const timeoutPromise = new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000));
     const snap = await Promise.race([window._fbGetDoc(uid), timeoutPromise]);
     if(snap.exists() && snap.data().db){
+      // Dados encontrados no Firestore — usa sempre o Firestore como fonte de verdade
       db = snap.data().db;
       ensureDBDefaults();
       try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
     } else {
-      loadDB();
-      if(db.programs && db.programs.length > 0){
-        try{ await window._fbSetDoc(uid, { db }); }catch(e){ console.error('Migração falhou', e); }
-      }
+      // Documento não existe ainda — começa vazio (não usa localStorage de outro dispositivo)
+      db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
+      ensureDBDefaults();
     }
-  }catch(e){ console.error('Firestore load error', e); loadDB(); }
+  }catch(e){
+    console.error('Firestore load error', e);
+    // Só usa localStorage como fallback offline real (sem conexão)
+    loadDB();
+  }
 }
 let _saveTimer = null;
 let _pendingSave = false;
