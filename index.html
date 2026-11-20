@@ -54,10 +54,8 @@
   // Listener em tempo real: sincroniza dados entre computadores automaticamente
   window._fbSubscribe = (uid, onData) => {
     return firestore.collection('users').doc(uid).onSnapshot(
-      { includeMetadataChanges: false },
       snap => {
-        // Só processa snapshots do servidor (não escrita local pendente)
-        if(snap.exists() && snap.data().db && snap.metadata.fromCache === false){
+        if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites){
           onData(snap.data().db);
         }
       },
@@ -3563,25 +3561,37 @@ async function signOut(){
         window._fbCurrentUid = user.uid;
         const btn2 = document.getElementById('btnGoogle');
         if(btn2){ btn2.disabled=true; btn2.textContent='Carregando dados…'; }
-        await loadDBFromFirestore(user.uid);
-        selProg=db.programs[0]?.id||null;
-        _showApp(user);
-        render();
-        // Listener em tempo real: atualiza automaticamente quando outro computador salva
-        if(window._fbSubscribe){
-          if(window._fbUnsubscribe) window._fbUnsubscribe();
-          window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
-            // Só aplica se não há save pendente local (evita sobrescrever o que o usuário acabou de digitar)
-            if(!_pendingSave){
-              db = remoteDB;
-              ensureDBDefaults();
-              try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
-              selProg = selProg || db.programs[0]?.id || null;
-              render();
-              renderRoutes();
-            }
-          });
-        }
+        // Usa onSnapshot como única fonte de verdade — primeira emissão carrega os dados
+        if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
+        let _firstLoad = true;
+        window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
+          if(_firstLoad){
+            _firstLoad = false;
+            db = remoteDB;
+            ensureDBDefaults();
+            try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+            selProg = db.programs[0]?.id || null;
+            _showApp(user);
+            render();
+          } else if(!_pendingSave){
+            // Atualização de outro dispositivo
+            db = remoteDB;
+            ensureDBDefaults();
+            try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+            selProg = selProg || db.programs[0]?.id || null;
+            render();
+            renderRoutes();
+          }
+        });
+        // Timeout: se onSnapshot não disparar em 6s, mostra tela mesmo assim
+        setTimeout(()=>{
+          if(_firstLoad){
+            _firstLoad = false;
+            ensureDBDefaults();
+            _showApp(user);
+            render();
+          }
+        }, 6000);
       } else {
         window._fbCurrentUid=null;
         if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
