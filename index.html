@@ -26,23 +26,10 @@
 
   window._fbAuth = auth;
   window._fbFirestore = firestore;
-  window._fbSignInGoogle = async () => {
+  window._fbSignInGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    // Safari bloqueia popups — tenta popup, cai em redirect se falhar
-    try {
-      return await auth.signInWithPopup(provider);
-    } catch(e) {
-      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-        await auth.signInWithRedirect(provider);
-      } else {
-        throw e;
-      }
-    }
+    return auth.signInWithPopup(provider);
   };
-  // Captura resultado do redirect (Safari)
-  auth.getRedirectResult().then(result => {
-    // resultado já tratado pelo onAuthStateChanged
-  }).catch(e => { if(e.code !== 'auth/no-current-user') console.error('redirect result', e); });
   window._fbSignOut = () => auth.signOut();
   window._fbGetDoc = async (uid) => {
     return firestore.collection('users').doc(uid).get();
