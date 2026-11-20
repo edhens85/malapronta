@@ -2231,7 +2231,6 @@ function loadMarketQuotes(){
 function saveMarketQuotes(quotes){
   quotes.sort((a,b)=>a.name.localeCompare(b.name,'pt-BR',{sensitivity:'base'}));
   localStorage.setItem('malapronta_quotes',JSON.stringify(quotes));
-  localStorage.setItem('malapronta_quotes_ts',Date.now().toString());
 }
 let MARKET_QUOTES = loadMarketQuotes();
 
@@ -2250,13 +2249,12 @@ function renderTicker(){
 /* ── POPOVER COTAÇÃO ── */
 let _cotacaoEditName = null;
 
-function _showCotacaoLastUpdate(){
+function _showCotacaoLastUpdate(name){
   const el = document.getElementById('cotacaoLastUpdate');
-  try{
-    const ts = localStorage.getItem('malapronta_quotes_ts');
-    if(ts){ const d=new Date(parseInt(ts)); el.textContent='Atualizado em: '+d.toLocaleString('pt-BR'); }
-    else el.textContent='';
-  }catch(e){ el.textContent=''; }
+  if(!name){ el.textContent=''; return; }
+  const q = MARKET_QUOTES.find(x=>x.name===name);
+  if(q&&q.ts){ const d=new Date(q.ts); el.textContent='Atualizado em: '+d.toLocaleString('pt-BR'); }
+  else el.textContent='Sem registro de atualização';
 }
 function openCotacaoPopover(){
   _cotacaoEditName = null;
@@ -2267,7 +2265,7 @@ function openCotacaoPopover(){
   document.getElementById('cotacaoSugg').style.display='none';
   document.getElementById('cotacaoOverlay').style.display='block';
   document.getElementById('cotacaoPopover').style.display='block';
-  _showCotacaoLastUpdate();
+  _showCotacaoLastUpdate(null);
   setTimeout(()=>document.getElementById('cotacaoNome').focus(),50);
 }
 function openCotacaoEdit(name){
@@ -2281,7 +2279,7 @@ function openCotacaoEdit(name){
   document.getElementById('cotacaoSugg').style.display='none';
   document.getElementById('cotacaoOverlay').style.display='block';
   document.getElementById('cotacaoPopover').style.display='block';
-  _showCotacaoLastUpdate();
+  _showCotacaoLastUpdate(name);
   setTimeout(()=>document.getElementById('cotacaoValor').focus(),50);
 }
 function closeCotacaoPopover(){
@@ -2308,6 +2306,7 @@ function selectCotacaoSugg(name){
   document.getElementById('cotacaoValor').value = '';  // valor zerado para digitar novo
   document.getElementById('cotacaoDelBtn').style.display='inline-block';
   document.getElementById('cotacaoSugg').style.display='none';
+  _showCotacaoLastUpdate(name);
   setTimeout(()=>document.getElementById('cotacaoValor').focus(),50);
 }
 function saveCotacao(){
@@ -2318,9 +2317,10 @@ function saveCotacao(){
   if(!nome){ err.textContent='Informe o nome do programa.'; err.style.display='block'; return; }
   if(isNaN(val)||val<=0){ err.textContent='Informe um valor válido.'; err.style.display='block'; return; }
   err.style.display='none';
+  const now = Date.now();
   const idx = MARKET_QUOTES.findIndex(x=>x.name===(_cotacaoEditName||nome));
-  if(idx>=0){ MARKET_QUOTES[idx].name=nome; MARKET_QUOTES[idx].val=val; }
-  else MARKET_QUOTES.push({name:nome,val});
+  if(idx>=0){ MARKET_QUOTES[idx].name=nome; MARKET_QUOTES[idx].val=val; MARKET_QUOTES[idx].ts=now; }
+  else MARKET_QUOTES.push({name:nome,val,ts:now});
   saveMarketQuotes(MARKET_QUOTES);
   MARKET_QUOTES = loadMarketQuotes();
   renderTicker();
