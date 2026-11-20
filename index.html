@@ -571,11 +571,6 @@ body.layout-vertical .page-label{display:none}
       </button>
       <div class="menu-dropdown" id="appMenuDropdown">
         <div class="menu-dropdown-inner">
-        <button class="menu-item" onclick="openCotacaoPopover();closeAppMenu()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          Adicionar cotação
-        </button>
-        <div class="menu-sep"></div>
         <button class="menu-item" onclick="openSimulador();closeAppMenu()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           Simulador de transferência
@@ -2242,10 +2237,14 @@ let MARKET_QUOTES = loadMarketQuotes();
 
 function renderTicker(){
   const items = MARKET_QUOTES.map(q=>
-    `<div class="ticker-item" onclick="openCotacaoEdit('${esc(q.name)}')" style="cursor:pointer;" title="Editar cotação">` +
+    `<div class="ticker-item" onclick="openCotacaoEdit('${esc(q.name)}')" style="cursor:pointer;" title="Clique para editar">` +
     `<span class="ticker-name">${esc(q.name)}</span><span class="ticker-val">R$ ${fmtBRL(q.val)}</span></div>`
   );
-  document.getElementById('tickerInner').innerHTML = items.join('');
+  // item "+ Adicionar" no final
+  const add = `<div class="ticker-item" onclick="openCotacaoPopover()" style="cursor:pointer;color:var(--gold);font-weight:600;" title="Adicionar cotação">` +
+    `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>` +
+    `<span style="font-size:.7rem;font-weight:700;">Cotação</span></div>`;
+  document.getElementById('tickerInner').innerHTML = items.join('') + add;
 }
 
 /* ── POPOVER COTAÇÃO ── */
@@ -2306,9 +2305,10 @@ function selectCotacaoSugg(name){
   if(!q) return;
   _cotacaoEditName = name;
   document.getElementById('cotacaoNome').value = q.name;
-  document.getElementById('cotacaoValor').value = fmtBRL(q.val);
+  document.getElementById('cotacaoValor').value = '';  // valor zerado para digitar novo
   document.getElementById('cotacaoDelBtn').style.display='inline-block';
   document.getElementById('cotacaoSugg').style.display='none';
+  setTimeout(()=>document.getElementById('cotacaoValor').focus(),50);
 }
 function saveCotacao(){
   const nome = document.getElementById('cotacaoNome').value.trim().toUpperCase();
