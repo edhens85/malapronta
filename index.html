@@ -1231,7 +1231,7 @@ let editMovId = null;
 let editRouteId = null;
 let selColor = COLORS[0];
 let transferType = 'padrao';
-let routeSortCol = null;
+let routeSortCol = 'destino';
 let routeSortDir = 1;
 let routeColFilters = {};
 let showFavOnly = false;
@@ -2341,12 +2341,14 @@ function renderRoutes(){
     (r.e2Text||'').toLowerCase().includes(search)
   );
   // sort
-  if(routeSortCol) routes.sort((a,b)=>{
+  // fav primeiro, dentro de cada grupo ordena pela coluna selecionada
+  routes.sort((a,b)=>{
+    const favDiff = (b.fav?1:0)-(a.fav?1:0);
+    if(favDiff!==0) return favDiff;
+    if(!routeSortCol) return 0;
     const va=(a[routeSortCol]||'').toLowerCase(), vb=(b[routeSortCol]||'').toLowerCase();
     return va<vb?-routeSortDir:va>vb?routeSortDir:0;
   });
-  // fav always first
-  routes.sort((a,b)=>(b.fav?1:0)-(a.fav?1:0));
 
   if(!db.routes.length){ empty.classList.remove('hidden'); wrap.style.display='none'; return; }
   if(!routes.length){ empty.classList.remove('hidden'); wrap.style.display='none'; return; }
