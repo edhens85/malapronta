@@ -2460,18 +2460,15 @@ function lookupIATA(){
 let acIndex=-1;
 function filterCia(){
   const raw=document.getElementById('rCia').value||'';
-  const q=raw.toLowerCase();
+  const q=raw.toLowerCase().trim();
   const dd=document.getElementById('acCia');
   acIndex=-1;
   if(!q){dd.classList.remove('open');return;}
-  // Verifica se é alias direto (ex: "AA", "TAP", "EK")
+  // Verifica se é alias direto (ex: "AA", "TAP", "EK") — resolve e preenche na hora
   const aliasMatch=resolveAlias(q);
   if(aliasMatch){
-    // Mostra só a cia resolvida no topo
-    const others=db.airlines.filter(a=>a.toLowerCase().includes(q)&&a!==aliasMatch);
-    let html=`<div class="ac-item" onclick="pickCia('${aliasMatch}')"><strong>${esc(aliasMatch)}</strong></div>`;
-    html+=others.map(a=>`<div class="ac-item" onclick="pickCia('${a}')">${esc(a)}</div>`).join('');
-    dd.innerHTML=html; dd.classList.add('open'); return;
+    pickCia(aliasMatch);
+    return;
   }
   const matches=db.airlines.filter(a=>a.toLowerCase().includes(q));
   const exact=db.airlines.some(a=>a.toLowerCase()===q);
