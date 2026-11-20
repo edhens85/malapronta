@@ -2341,11 +2341,8 @@ function renderRoutes(){
     (r.e2Text||'').toLowerCase().includes(search)
   );
   // sort
-  // fav primeiro, dentro de cada grupo ordena pela coluna selecionada
-  routes.sort((a,b)=>{
-    const favDiff = (b.fav?1:0)-(a.fav?1:0);
-    if(favDiff!==0) return favDiff;
-    if(!routeSortCol) return 0;
+  // ordena pela coluna selecionada (sem separar favoritos)
+  if(routeSortCol) routes.sort((a,b)=>{
     const va=(a[routeSortCol]||'').toLowerCase(), vb=(b[routeSortCol]||'').toLowerCase();
     return va<vb?-routeSortDir:va>vb?routeSortDir:0;
   });
