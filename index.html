@@ -1104,7 +1104,7 @@ body.layout-vertical .summary-bar{
       <button class="btn btn-danger btn-sm" onclick="deleteRoute()">Excluir rota</button>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal('modalRoute')">Cancelar</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalRoute');renderRoutes()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveRoute()">Salvar</button>
     </div>
   </div>
@@ -2382,7 +2382,7 @@ function renderRoutes(){
         ? `<td rowspan="${count}" style="font-weight:600;white-space:nowrap;vertical-align:middle;border-right:1px solid var(--border2)">${esc(g.destino)}</td>`
         : '';
       const borderTop = i>0 ? 'border-top:1px dashed var(--border2);' : '';
-      return `<tr style="cursor:pointer;${borderTop}" onclick="openEditRoute('${r.id}')">
+      return `<tr style="cursor:pointer;${borderTop}" onclick="event.stopPropagation();openEditRoute('${r.id}')">
         ${favCell}
         ${destCell}
         <td style="vertical-align:middle"><div class="route-trecho">${esc(r.trecho||'—')}</div></td>
@@ -2553,13 +2553,10 @@ function onAliancaChange(){
   if(!db.aliancaMap) db.aliancaMap={};
   if(alianca) db.aliancaMap[cia]=alianca;
   else delete db.aliancaMap[cia];
-  // Aplica retroativamente em todas as rotas com essa cia aérea
-  let updated=false;
-  db.routes.forEach(r=>{
-    if(r.ciaAerea===cia){ r.alianca=alianca; updated=true; }
-  });
-  if(updated){ saveDB(); renderRoutes(); }
-  else saveDB();
+  // Aplica retroativamente nos dados (sem re-renderizar agora — modal está aberto)
+  db.routes.forEach(r=>{ if(r.ciaAerea===cia) r.alianca=alianca; });
+  saveDB();
+  // renderRoutes só depois que o modal fechar
 }
 function addAndPickCia(val){
   const proper=val.trim().replace(/\b\w/g,c=>c.toUpperCase());
