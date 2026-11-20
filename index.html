@@ -569,6 +569,11 @@ body.layout-vertical .page-label{display:none}
         Menu
       </button>
       <div class="menu-dropdown" id="appMenuDropdown">
+        <button class="menu-item" onclick="openCotacaoPopover();closeAppMenu()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Adicionar cotação
+        </button>
+        <div class="menu-sep"></div>
         <button class="menu-item" onclick="openSimulador();closeAppMenu()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           Simulador de transferência
@@ -603,6 +608,35 @@ body.layout-vertical .page-label{display:none}
 
 <!-- TICKER -->
 <div class="ticker" id="ticker"><div class="ticker-inner" id="tickerInner"></div></div>
+
+<!-- POPOVER COTAÇÃO -->
+<div id="cotacaoOverlay" onclick="closeCotacaoPopover()" style="display:none;position:fixed;inset:0;z-index:590;background:rgba(0,0,0,.45);"></div>
+<div id="cotacaoPopover" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:600;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 16px 48px rgba(0,0,0,.55);padding:1.25rem;width:300px;max-width:calc(100vw - 2rem);">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+    <span style="font-size:.8rem;font-weight:700;color:var(--text);">Cotação do milheiro</span>
+    <button onclick="closeCotacaoPopover()" style="background:none;border:none;cursor:pointer;color:var(--text-dim);padding:0;line-height:1;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:.5rem;">
+    <input id="cotacaoNome" placeholder="Programa (ex: AAdvantage)" maxlength="30"
+      style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .6rem;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;outline:none;width:100%;box-sizing:border-box;"
+      oninput="cotacaoNomeInput(this)" onkeydown="if(event.key==='Enter')document.getElementById('cotacaoValor').focus()">
+    <div id="cotacaoSugg" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;max-height:120px;overflow-y:auto;"></div>
+    <div style="position:relative;">
+      <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.78rem;color:var(--text-dim);pointer-events:none;">R$</span>
+      <input id="cotacaoValor" placeholder="0,00" type="text" inputmode="decimal" maxlength="10"
+        style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .6rem .4rem 2rem;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;outline:none;width:100%;box-sizing:border-box;"
+        onkeydown="if(event.key==='Enter')saveCotacao()">
+    </div>
+    <div id="cotacaoErr" style="display:none;font-size:.72rem;color:var(--red);"></div>
+    <div style="display:flex;gap:.5rem;margin-top:.25rem;">
+      <button onclick="saveCotacao()" style="flex:1;padding:.4rem;background:var(--gold);border:none;border-radius:var(--radius-sm);color:#000;font-size:.78rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Salvar</button>
+      <button id="cotacaoDelBtn" onclick="deleteCotacao()" style="display:none;padding:.4rem .7rem;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--red);font-size:.78rem;font-family:'Inter',sans-serif;cursor:pointer;">Remover</button>
+    </div>
+    <div id="cotacaoLastUpdate" style="margin-top:.6rem;font-size:.68rem;color:var(--text-dim);border-top:1px solid var(--border);padding-top:.5rem;"></div>
+  </div>
+</div>
 
 <!-- BARRA DE NAVEGAÇÃO DE PROGRAMAS (visível ao selecionar um programa) -->
 <div class="prog-nav-bar" id="progNavBar">
@@ -2184,16 +2218,118 @@ function renderSummary(){
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
-const MARKET_QUOTES = [
+const MARKET_QUOTES_DEFAULT = [
   {name:'AADVANTAGE',val:90.00},{name:'AZUL',val:14.00},{name:'ESFERA',val:30.50},
   {name:'IBÉRIA',val:50.00},{name:'LATAM',val:26.50},{name:'SMILES',val:16.50},{name:'TAP',val:50.00}
 ];
 
+function loadMarketQuotes(){
+  try{
+    const saved = localStorage.getItem('malapronta_quotes');
+    if(saved){ const p=JSON.parse(saved); if(Array.isArray(p)&&p.length) return p; }
+  }catch(e){}
+  return MARKET_QUOTES_DEFAULT.map(q=>({...q}));
+}
+function saveMarketQuotes(quotes){
+  quotes.sort((a,b)=>a.name.localeCompare(b.name,'pt-BR',{sensitivity:'base'}));
+  localStorage.setItem('malapronta_quotes',JSON.stringify(quotes));
+  localStorage.setItem('malapronta_quotes_ts',Date.now().toString());
+}
+let MARKET_QUOTES = loadMarketQuotes();
+
 function renderTicker(){
   const items = MARKET_QUOTES.map(q=>
-    `<div class="ticker-item"><span class="ticker-name">${q.name}</span><span class="ticker-val">R$ ${fmtBRL(q.val)}</span></div>`
+    `<div class="ticker-item" onclick="openCotacaoEdit('${esc(q.name)}')" style="cursor:pointer;" title="Editar cotação">` +
+    `<span class="ticker-name">${esc(q.name)}</span><span class="ticker-val">R$ ${fmtBRL(q.val)}</span></div>`
   );
   document.getElementById('tickerInner').innerHTML = items.join('');
+}
+
+/* ── POPOVER COTAÇÃO ── */
+let _cotacaoEditName = null;
+
+function _showCotacaoLastUpdate(){
+  const el = document.getElementById('cotacaoLastUpdate');
+  try{
+    const ts = localStorage.getItem('malapronta_quotes_ts');
+    if(ts){ const d=new Date(parseInt(ts)); el.textContent='Atualizado em: '+d.toLocaleString('pt-BR'); }
+    else el.textContent='';
+  }catch(e){ el.textContent=''; }
+}
+function openCotacaoPopover(){
+  _cotacaoEditName = null;
+  document.getElementById('cotacaoNome').value='';
+  document.getElementById('cotacaoValor').value='';
+  document.getElementById('cotacaoErr').style.display='none';
+  document.getElementById('cotacaoDelBtn').style.display='none';
+  document.getElementById('cotacaoSugg').style.display='none';
+  document.getElementById('cotacaoOverlay').style.display='block';
+  document.getElementById('cotacaoPopover').style.display='block';
+  _showCotacaoLastUpdate();
+  setTimeout(()=>document.getElementById('cotacaoNome').focus(),50);
+}
+function openCotacaoEdit(name){
+  const q = MARKET_QUOTES.find(x=>x.name===name);
+  if(!q) return;
+  _cotacaoEditName = name;
+  document.getElementById('cotacaoNome').value = q.name;
+  document.getElementById('cotacaoValor').value = fmtBRL(q.val);
+  document.getElementById('cotacaoErr').style.display='none';
+  document.getElementById('cotacaoDelBtn').style.display='inline-block';
+  document.getElementById('cotacaoSugg').style.display='none';
+  document.getElementById('cotacaoOverlay').style.display='block';
+  document.getElementById('cotacaoPopover').style.display='block';
+  _showCotacaoLastUpdate();
+  setTimeout(()=>document.getElementById('cotacaoValor').focus(),50);
+}
+function closeCotacaoPopover(){
+  document.getElementById('cotacaoPopover').style.display='none';
+  document.getElementById('cotacaoOverlay').style.display='none';
+  document.getElementById('cotacaoSugg').style.display='none';
+}
+function cotacaoNomeInput(inp){
+  const v = inp.value.trim().toUpperCase();
+  const sugg = document.getElementById('cotacaoSugg');
+  if(!v){ sugg.style.display='none'; return; }
+  const matches = MARKET_QUOTES.filter(q=>q.name.toUpperCase().includes(v));
+  if(!matches.length){ sugg.style.display='none'; return; }
+  sugg.innerHTML = matches.map(q=>
+    `<div onclick="selectCotacaoSugg('${esc(q.name)}')" style="padding:.35rem .6rem;font-size:.78rem;cursor:pointer;color:var(--text);transition:background .1s;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background=''">${esc(q.name)} — R$ ${fmtBRL(q.val)}</div>`
+  ).join('');
+  sugg.style.display='block';
+}
+function selectCotacaoSugg(name){
+  const q = MARKET_QUOTES.find(x=>x.name===name);
+  if(!q) return;
+  _cotacaoEditName = name;
+  document.getElementById('cotacaoNome').value = q.name;
+  document.getElementById('cotacaoValor').value = fmtBRL(q.val);
+  document.getElementById('cotacaoDelBtn').style.display='inline-block';
+  document.getElementById('cotacaoSugg').style.display='none';
+}
+function saveCotacao(){
+  const nome = document.getElementById('cotacaoNome').value.trim().toUpperCase();
+  const valRaw = document.getElementById('cotacaoValor').value.replace(',','.');
+  const val = parseFloat(valRaw);
+  const err = document.getElementById('cotacaoErr');
+  if(!nome){ err.textContent='Informe o nome do programa.'; err.style.display='block'; return; }
+  if(isNaN(val)||val<=0){ err.textContent='Informe um valor válido.'; err.style.display='block'; return; }
+  err.style.display='none';
+  const idx = MARKET_QUOTES.findIndex(x=>x.name===(_cotacaoEditName||nome));
+  if(idx>=0){ MARKET_QUOTES[idx].name=nome; MARKET_QUOTES[idx].val=val; }
+  else MARKET_QUOTES.push({name:nome,val});
+  saveMarketQuotes(MARKET_QUOTES);
+  MARKET_QUOTES = loadMarketQuotes();
+  renderTicker();
+  closeCotacaoPopover();
+}
+function deleteCotacao(){
+  if(!_cotacaoEditName) return;
+  MARKET_QUOTES = MARKET_QUOTES.filter(x=>x.name!==_cotacaoEditName);
+  saveMarketQuotes(MARKET_QUOTES);
+  MARKET_QUOTES = loadMarketQuotes();
+  renderTicker();
+  closeCotacaoPopover();
 }
 
 function renderDetail(){
