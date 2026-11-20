@@ -2480,9 +2480,35 @@ function navCia(e){
   else if(e.key==='Escape'){dd.classList.remove('open');return;}
   items.forEach((it,i)=>it.classList.toggle('highlighted',i===acIndex));
 }
+const CIA_ALIANCA = {
+  // Star Alliance
+  'Air Canada':'Star Alliance','Air China':'Star Alliance','Air India':'Star Alliance',
+  'Air New Zealand':'Star Alliance','ANA All Nippon Airways':'Star Alliance',
+  'Asiana Airlines':'Star Alliance','Austrian Airlines':'Star Alliance','Avianca':'Star Alliance',
+  'Brussels Airlines':'Star Alliance','Copa Airlines':'Star Alliance','Croatia Airlines':'Star Alliance',
+  'EgyptAir':'Star Alliance','Ethiopian Airlines':'Star Alliance','EVA Air':'Star Alliance',
+  'LOT Polish Airlines':'Star Alliance','Lufthansa':'Star Alliance','Scandinavian Airlines (SAS)':'Star Alliance',
+  'Singapore Airlines':'Star Alliance','South African Airways':'Star Alliance',
+  'Swiss International Air Lines':'Star Alliance','TAP Air Portugal':'Star Alliance',
+  'Thai Airways':'Star Alliance','Turkish Airlines':'Star Alliance','United Airlines':'Star Alliance',
+  'Shenzhen Airlines':'Star Alliance',
+  // Oneworld
+  'American Airlines (AA)':'Oneworld','British Airways':'Oneworld','Cathay Pacific':'Oneworld',
+  'Finnair':'Oneworld','Iberia':'Oneworld','Japan Airlines (JAL)':'Oneworld',
+  'Malaysia Airlines':'Oneworld','Qantas':'Oneworld','Qatar Airways':'Oneworld',
+  'Royal Jordanian':'Oneworld','S7 Airlines':'Oneworld',
+  // SkyTeam
+  'Aerolíneas Argentinas':'SkyTeam','Air France':'SkyTeam','China Airlines':'SkyTeam',
+  'China Eastern':'SkyTeam','Delta':'SkyTeam','KLM':'SkyTeam',
+  'Korean Air':'SkyTeam','Vietnam Airlines':'SkyTeam','XiamenAir':'SkyTeam',
+  // Parcerias
+  'Emirates':'Parcerias','Etihad Airways':'Parcerias','Air Europa':'Parcerias',
+};
 function pickCia(val){
   document.getElementById('rCia').value=val;
   document.getElementById('acCia').classList.remove('open');
+  const alianca=CIA_ALIANCA[val]||'';
+  if(alianca) document.getElementById('rAlianca').value=alianca;
 }
 function addAndPickCia(val){
   const proper=val.trim().replace(/\b\w/g,c=>c.toUpperCase());
