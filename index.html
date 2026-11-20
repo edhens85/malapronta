@@ -2904,6 +2904,12 @@ function saveRoute(){
   };
   if(editRouteId){
     const r=db.routes.find(x=>x.id===editRouteId);
+    const oldCia = r.ciaAerea||'';
+    const newCia = data.ciaAerea||'';
+    // padronizar: se a cia mudou, atualiza todas as rotas com o nome antigo
+    if(oldCia && newCia && oldCia !== newCia){
+      db.routes.forEach(x=>{ if((x.ciaAerea||'')=== oldCia) x.ciaAerea = newCia; });
+    }
     Object.assign(r,data);
   } else {
     db.routes.push({id:uid(),fav:false,...data});
