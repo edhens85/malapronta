@@ -3012,7 +3012,10 @@ function openEditRoute(id){
   document.getElementById('rDestino').value=r.destino||'';
   document.getElementById('rTrecho').value=r.trecho||'';
   document.getElementById('rCia').value=r.ciaAerea||'';
-  document.getElementById('rAlianca').value=r.alianca||'';
+  // Aliança: usa valor salvo na rota, senão consulta aliancaMap e CIA_ALIANCA
+  const cia=r.ciaAerea||'';
+  const aliancaFill=r.alianca||(db.aliancaMap&&db.aliancaMap[cia])||CIA_ALIANCA[cia]||CIA_ALIANCA[CIA_ALIASES[cia.toLowerCase().trim()]]||'';
+  document.getElementById('rAlianca').value=aliancaFill;
   document.getElementById('rP1Text').value=r.p1Text||'';
   document.getElementById('rP1Url').value=r.p1Url||'';
   document.getElementById('rP2Text').value=r.p2Text||'';
