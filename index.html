@@ -38,6 +38,14 @@
     return firestore.collection('users').doc(uid).set(data);
   };
   window._fbOnAuthStateChanged = (cb) => auth.onAuthStateChanged(cb);
+  // Listener em tempo real: sincroniza dados entre computadores automaticamente
+  window._fbSubscribe = (uid, onData) => {
+    return firestore.collection('users').doc(uid).onSnapshot(snap => {
+      if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites){
+        onData(snap.data().db);
+      }
+    }, err => console.error('onSnapshot error', err));
+  };
 
   window._fbReady = true;
   document.dispatchEvent(new Event('fb-ready'));
@@ -1345,16 +1353,41 @@ async function loadDBFromFirestore(uid){
   }catch(e){ console.error('Firestore load error', e); loadDB(); }
 }
 let _saveTimer = null;
+let _pendingSave = false;
+function _setSyncStatus(s){ // 'ok'|'pending'|'offline'
+  const dot = document.getElementById('syncDot');
+  if(!dot) return;
+  dot.classList.remove('pending','offline');
+  if(s==='pending') dot.classList.add('pending');
+  else if(s==='offline') dot.classList.add('offline');
+}
 function saveDB(){
   try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
   if(window._fbCurrentUid){
+    _pendingSave = true;
+    _setSyncStatus('pending');
     clearTimeout(_saveTimer);
     _saveTimer = setTimeout(async ()=>{
-      try{ await window._fbSetDoc(window._fbCurrentUid, { db }); }
-      catch(e){ console.error('Firestore save error', e); }
-    }, 800);
+      try{
+        await window._fbSetDoc(window._fbCurrentUid, { db });
+        _pendingSave = false;
+        _setSyncStatus('ok');
+      }catch(e){ console.error('Firestore save error', e); _setSyncStatus('offline'); }
+    }, 400);
   }
 }
+// Garante save antes de fechar a aba
+window.addEventListener('beforeunload', ()=>{
+  if(_pendingSave && window._fbCurrentUid){
+    // Usa sendBeacon para garantir envio mesmo ao fechar
+    const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${window._fbCurrentUid}`;
+    navigator.sendBeacon && clearTimeout(_saveTimer);
+    // Fallback: tenta salvar síncrono via XMLHttpRequest
+    try{
+      window._fbSetDoc(window._fbCurrentUid, { db });
+    }catch(e){}
+  }
+});
 
 // ═══════════════════════════════════════════════
 //  COMPUTED (Debit/Credit accounting)
@@ -3507,8 +3540,24 @@ async function signOut(){
         selProg=db.programs[0]?.id||null;
         _showApp(user);
         render();
+        // Listener em tempo real: atualiza automaticamente quando outro computador salva
+        if(window._fbSubscribe){
+          if(window._fbUnsubscribe) window._fbUnsubscribe();
+          window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
+            // Só aplica se não há save pendente local (evita sobrescrever o que o usuário acabou de digitar)
+            if(!_pendingSave){
+              db = remoteDB;
+              ensureDBDefaults();
+              try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+              selProg = selProg || db.programs[0]?.id || null;
+              render();
+              renderRoutes();
+            }
+          });
+        }
       } else {
         window._fbCurrentUid=null;
+        if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
         _hideApp();
       }
     });
