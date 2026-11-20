@@ -195,7 +195,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .gsr-sub{color:var(--text-dim);font-size:.72rem}
 
 /* ── TICKER ── */
-.ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden}
+.ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
 .ticker-inner{display:flex;gap:0;white-space:nowrap}
 .ticker-item{padding:0 1.5rem;font-size:.7rem;display:flex;align-items:center;gap:.5rem;border-right:1px solid var(--border);flex-shrink:0}
 .ticker-item:last-child{border-right:none}
@@ -2240,11 +2240,11 @@ function renderTicker(){
     `<div class="ticker-item" onclick="openCotacaoEdit('${esc(q.name)}')" style="cursor:pointer;" title="Clique para editar">` +
     `<span class="ticker-name">${esc(q.name)}</span><span class="ticker-val">R$ ${fmtBRL(q.val)}</span></div>`
   );
-  // item "+ Adicionar" no final
-  const add = `<div class="ticker-item" onclick="openCotacaoPopover()" style="cursor:pointer;color:var(--gold);font-weight:600;" title="Adicionar cotação">` +
-    `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>` +
-    `<span style="font-size:.7rem;font-weight:700;">Cotação</span></div>`;
-  document.getElementById('tickerInner').innerHTML = items.join('') + add;
+  document.getElementById('tickerInner').innerHTML = items.join('');
+  // clique em qualquer lugar da barra do ticker abre o pop-up
+  document.getElementById('ticker').onclick = function(e){
+    if(!e.target.closest('.ticker-item')) openCotacaoPopover();
+  };
 }
 
 /* ── POPOVER COTAÇÃO ── */
