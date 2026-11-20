@@ -3436,12 +3436,12 @@ function parsePts(el){
 }
 // Aplica máscaras nos campos dos modais ao abrir
 function applyMasks(){
-  document.querySelectorAll('.fi-money').forEach(el=>{
-    el.addEventListener('input',()=>maskMoney(el));
-  });
-  document.querySelectorAll('.fi-pts').forEach(el=>{
-    el.addEventListener('input',()=>maskPts(el));
-  });
+  // Event delegation global — captura qualquer campo fi-pts ou fi-money em qualquer modal
+  document.addEventListener('input', e=>{
+    const el = e.target;
+    if(el.classList.contains('fi-pts')) maskPts(el);
+    else if(el.classList.contains('fi-money')) maskMoney(el);
+  }, true);
 }
 function toggleTheme(){
   const t=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
@@ -3518,6 +3518,8 @@ async function signOut(){
 (function init(){
   const th=localStorage.getItem('milhas_theme');
   if(th) document.documentElement.setAttribute('data-theme',th);
+
+  applyMasks();
 
   // Carrega dados do localStorage como cache enquanto Firebase inicializa
   loadDB();
