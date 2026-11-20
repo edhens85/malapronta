@@ -172,7 +172,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .menu-wrap{position:relative}
 .btn-menu{display:flex;align-items:center;gap:5px;padding:.32rem .7rem;border:1px solid var(--border);background:var(--surface2);border-radius:var(--radius-sm);cursor:pointer;color:var(--text-dim);font-size:.78rem;font-weight:500;font-family:'Inter',sans-serif;transition:color .12s,background .12s;white-space:nowrap}
 .btn-menu:hover{background:var(--surface3);color:var(--text)}
-.menu-dropdown{display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:400;min-width:200px;overflow:hidden}
+.menu-dropdown{display:none;position:absolute;top:100%;right:0;padding-top:4px;background:transparent;z-index:400;min-width:200px}
+.menu-dropdown-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
 .menu-dropdown.open{display:block}
 /* abre no hover também */
 .menu-wrap:hover .menu-dropdown{display:block}
@@ -569,6 +570,7 @@ body.layout-vertical .page-label{display:none}
         Menu
       </button>
       <div class="menu-dropdown" id="appMenuDropdown">
+        <div class="menu-dropdown-inner">
         <button class="menu-item" onclick="openCotacaoPopover();closeAppMenu()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Adicionar cotação
@@ -601,6 +603,7 @@ body.layout-vertical .page-label{display:none}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sair
         </button>
+        </div><!-- /menu-dropdown-inner -->
       </div>
     </div>
   </div>
