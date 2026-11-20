@@ -2907,7 +2907,7 @@ function saveRoute(){
   const destino=document.getElementById('rDestino').value.trim();
   if(!destino){alert('Informe o destino.');return;}
   const data={
-    destino, trecho:document.getElementById('rTrecho').value.trim(),
+    destino, trecho:document.getElementById('rTrecho').value.trim().replace(/\s*->\s*/g,' → '),
     ciaAerea:document.getElementById('rCia').value.trim(),
     p1Text:document.getElementById('rP1Text').value.trim(), p1Url:document.getElementById('rP1Url').value.trim(),
     p2Text:document.getElementById('rP2Text').value.trim(), p2Url:document.getElementById('rP2Url').value.trim(),
