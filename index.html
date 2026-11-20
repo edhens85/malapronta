@@ -2501,8 +2501,8 @@ function renderRoutes(){
   // sort
   // ordena pela coluna selecionada (sem separar favoritos)
   if(routeSortCol) routes.sort((a,b)=>{
-    const va=(a[routeSortCol]||'').toLowerCase(), vb=(b[routeSortCol]||'').toLowerCase();
-    return va<vb?-routeSortDir:va>vb?routeSortDir:0;
+    const va=(a[routeSortCol]||''), vb=(b[routeSortCol]||'');
+    return va.localeCompare(vb,'pt-BR',{sensitivity:'base'})*routeSortDir;
   });
 
   if(!db.routes.length){ empty.classList.remove('hidden'); wrap.style.display='none'; return; }
