@@ -26,10 +26,23 @@
 
   window._fbAuth = auth;
   window._fbFirestore = firestore;
-  window._fbSignInGoogle = () => {
+  window._fbSignInGoogle = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    return auth.signInWithPopup(provider);
+    // Safari bloqueia popups — tenta popup, cai em redirect se falhar
+    try {
+      return await auth.signInWithPopup(provider);
+    } catch(e) {
+      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+        await auth.signInWithRedirect(provider);
+      } else {
+        throw e;
+      }
+    }
   };
+  // Captura resultado do redirect (Safari)
+  auth.getRedirectResult().then(result => {
+    // resultado já tratado pelo onAuthStateChanged
+  }).catch(e => { if(e.code !== 'auth/no-current-user') console.error('redirect result', e); });
   window._fbSignOut = () => auth.signOut();
   window._fbGetDoc = async (uid) => {
     return firestore.collection('users').doc(uid).get();
@@ -40,11 +53,16 @@
   window._fbOnAuthStateChanged = (cb) => auth.onAuthStateChanged(cb);
   // Listener em tempo real: sincroniza dados entre computadores automaticamente
   window._fbSubscribe = (uid, onData) => {
-    return firestore.collection('users').doc(uid).onSnapshot(snap => {
-      if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites){
-        onData(snap.data().db);
-      }
-    }, err => console.error('onSnapshot error', err));
+    return firestore.collection('users').doc(uid).onSnapshot(
+      { includeMetadataChanges: false },
+      snap => {
+        // Só processa snapshots do servidor (não escrita local pendente)
+        if(snap.exists() && snap.data().db && snap.metadata.fromCache === false){
+          onData(snap.data().db);
+        }
+      },
+      err => console.error('onSnapshot error', err)
+    );
   };
 
   window._fbReady = true;
