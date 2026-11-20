@@ -31,6 +31,34 @@
     return auth.signInWithPopup(provider);
   };
   window._fbSignOut = () => auth.signOut();
+  // Busca via REST API — ignora completamente o cache do SDK e restrições do Safari ITP
+  window._fbGetDocREST = async (uid) => {
+    const token = await auth.currentUser.getIdToken(true); // força refresh do token
+    const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?t=${Date.now()}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+    if(!res.ok) throw new Error('REST ' + res.status);
+    const json = await res.json();
+    // Converte formato REST do Firestore para objeto JS
+    const fields = json.fields || {};
+    if(!fields.db) return { exists: ()=>false };
+    // db é um mapValue
+    const parseFirestoreValue = (v) => {
+      if(v.stringValue !== undefined) return v.stringValue;
+      if(v.integerValue !== undefined) return Number(v.integerValue);
+      if(v.doubleValue !== undefined) return v.doubleValue;
+      if(v.booleanValue !== undefined) return v.booleanValue;
+      if(v.nullValue !== undefined) return null;
+      if(v.arrayValue) return (v.arrayValue.values||[]).map(parseFirestoreValue);
+      if(v.mapValue) {
+        const o={};
+        for(const [k2,v2] of Object.entries(v.mapValue.fields||{})) o[k2]=parseFirestoreValue(v2);
+        return o;
+      }
+      return null;
+    };
+    const dbData = parseFirestoreValue(fields.db);
+    return { exists: ()=>true, data: ()=>({ db: dbData }) };
+  };
   window._fbGetDoc = async (uid) => {
     return firestore.collection('users').doc(uid).get({ source: 'server' });
   };
@@ -3550,20 +3578,26 @@ async function signOut(){
         if(btn2){ btn2.disabled=true; btn2.textContent='Carregando dados…'; }
         if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
 
-        // 1) Busca DIRETO DO SERVIDOR (ignora cache local — garante dado fresco em qualquer browser)
+        // 1) Busca via REST API (HTTP puro, sem cache SDK, sem ITP Safari) com fallback SDK
         let _appShown = false;
         const _showFromServer = async () => {
           try {
-            const snap = await window._fbGetDoc(user.uid); // source:'server' forçado
+            const snap = await window._fbGetDocREST(user.uid);
             if(snap.exists() && snap.data().db){
               db = snap.data().db;
             } else {
               db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
             }
           } catch(e) {
-            console.error('server get error', e);
-            // fallback localStorage apenas se servidor inacessível
-            try { const s=localStorage.getItem('milhas_v3'); if(s) db=JSON.parse(s); } catch(_){}
+            console.error('REST get error, tentando SDK', e);
+            try {
+              const snap2 = await window._fbGetDoc(user.uid);
+              if(snap2.exists() && snap2.data().db) db = snap2.data().db;
+              else db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
+            } catch(e2) {
+              console.error('SDK get error', e2);
+              try { const s=localStorage.getItem('milhas_v3'); if(s) db=JSON.parse(s); } catch(_){}
+            }
           }
           ensureDBDefaults();
           try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
