@@ -681,7 +681,7 @@ body.layout-vertical .summary-bar{
         <thead>
           <tr>
             <th style="width:36px"></th>
-            <th onclick="sortRoutes('destino')">Destino <span class="col-filter-icon" id="sf-destino">▾</span></th>
+            <th style="width:1%;white-space:nowrap" onclick="sortRoutes('destino')">Destino <span class="col-filter-icon" id="sf-destino">▾</span></th>
             <th style="width:1%;white-space:nowrap" onclick="sortRoutes('trecho')">Trecho <span class="col-filter-icon" id="sf-trecho">▾</span></th>
             <th>
               <div class="col-filter-wrap">
@@ -2355,7 +2355,7 @@ function renderRoutes(){
   tbody.innerHTML = routes.map(r=>`
     <tr style="cursor:pointer" onclick="openEditRoute('${r.id}')">
       <td onclick="event.stopPropagation()"><button class="fav-btn${r.fav?' on':''}" onclick="toggleFav('${r.id}')" title="Favorita">${r.fav?'⭐':'☆'}</button></td>
-      <td style="font-weight:600">${esc(r.destino||'—')}</td>
+      <td style="font-weight:600;white-space:nowrap">${esc(r.destino||'—')}</td>
       <td>
         <div class="route-trecho">${esc(r.trecho||'—')}</div>
       </td>
