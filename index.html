@@ -2460,16 +2460,10 @@ function lookupIATA(){
 let acIndex=-1;
 function filterCia(){
   const raw=document.getElementById('rCia').value||'';
-  const q=raw.toLowerCase().trim();
+  const q=raw.toLowerCase();
   const dd=document.getElementById('acCia');
   acIndex=-1;
   if(!q){dd.classList.remove('open');return;}
-  // Verifica se é alias direto (ex: "AA", "TAP", "EK") — resolve e preenche na hora
-  const aliasMatch=resolveAlias(q);
-  if(aliasMatch){
-    pickCia(aliasMatch);
-    return;
-  }
   const matches=db.airlines.filter(a=>a.toLowerCase().includes(q));
   const exact=db.airlines.some(a=>a.toLowerCase()===q);
   let html=matches.map(a=>`<div class="ac-item" onclick="pickCia('${a}')">${esc(a)}</div>`).join('');
@@ -2546,12 +2540,9 @@ const CIA_ALIASES = {
 function pickCia(val){
   document.getElementById('rCia').value=val;
   document.getElementById('acCia').classList.remove('open');
-  const alianca=CIA_ALIANCA[val]||'';
+  // Busca aliança pelo nome exato ou pelo alias do valor digitado
+  const alianca=CIA_ALIANCA[val]||CIA_ALIANCA[CIA_ALIASES[val.toLowerCase().trim()]]||'';
   if(alianca) document.getElementById('rAlianca').value=alianca;
-}
-function resolveAlias(q){
-  // Resolve abreviação/alias para nome completo no banco
-  return CIA_ALIASES[q.toLowerCase().trim()]||null;
 }
 function addAndPickCia(val){
   const proper=val.trim().replace(/\b\w/g,c=>c.toUpperCase());
