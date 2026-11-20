@@ -3020,6 +3020,9 @@ function saveRoute(){
   }
   // auto-add cia to airlines
   if(data.ciaAerea&&!db.airlines.includes(data.ciaAerea)) db.airlines.push(data.ciaAerea);
+  // salva aliança como padrão para essa cia
+  if(!db.aliancaMap) db.aliancaMap={};
+  if(data.ciaAerea && data.alianca) db.aliancaMap[data.ciaAerea]=data.alianca;
   saveDB(); closeModal('modalRoute'); renderRoutes();
 }
 function deleteRoute(){
