@@ -758,11 +758,11 @@ body.layout-vertical .summary-bar{
           <option value="outro">Outro</option>
         </select>
       </div>
-      <div class="fg" id="pInitialGroup"><label>Saldo inicial</label><input class="fi" id="pInitBal" type="number" min="0" placeholder="0"></div>
+      <div class="fg" id="pInitialGroup"><label>Saldo inicial</label><input class="fi fi-pts" id="pInitBal" type="text" inputmode="numeric" placeholder="0" oninput="maskPts(this)"></div>
     </div>
     <div class="frow" id="pInitialExtra">
       <div class="fg"><label>Data do saldo</label><input class="fi" id="pInitDate" type="date"></div>
-      <div class="fg"><label>Já investido (R$)</label><input class="fi" id="pInitCost" type="number" min="0" step="0.01" placeholder="0,00"><div class="fhint">Deixe 0 se não souber</div></div>
+      <div class="fg"><label>Já investido (R$)</label><input class="fi fi-money" id="pInitCost" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"><div class="fhint">Deixe 0 se não souber</div></div>
     </div>
     <div class="frow">
       <div class="fg"><label>Vencimento das milhas</label><input class="fi" id="pExpiry" type="date"><div class="fhint">Opcional — para alertas de expiração</div></div>
@@ -2640,8 +2640,8 @@ function saveProgram(){
   } else {
     const id=uid();
     db.programs.push({id,name,type:document.getElementById('pType').value,color:selColor});
-    const bal=parseInt(document.getElementById('pInitBal').value)||0;
-    const cost=parseFloat(document.getElementById('pInitCost').value)||0;
+    const bal=parsePts(document.getElementById('pInitBal'))||0;
+    const cost=parseMoney(document.getElementById('pInitCost'))||0;
     const date=document.getElementById('pInitDate').value||today();
     if(bal>0){
       db.movements.push({id:uid(),programId:id,type:'compra',date,points:bal,value:cost,obs:'Saldo inicial',_ts:Date.now()});
