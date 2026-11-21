@@ -6060,10 +6060,19 @@ function promosLike(id, val, e){
 window.promosToggleTag = function(el){
   const filter = el.dataset.filter;
   const val    = el.dataset.val;
-  // Desativa todos do mesmo grupo
+  const key    = filter==='prog' ? 'prog' : 'tipo';
+  // Se já estava ativo (e não é "Todos"), deseleciona → volta para Todos
+  const isActive = el.classList.contains('active');
+  const isTodos  = val === '';
   document.querySelectorAll(`.promos-tag[data-filter="${filter}"]`).forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  promosFilter[filter==='prog'?'prog':'tipo'] = val;
+  if(isActive && !isTodos){
+    // Volta para "Todos"
+    document.querySelector(`.promos-tag[data-filter="${filter}"][data-val=""]`)?.classList.add('active');
+    promosFilter[key] = '';
+  } else {
+    el.classList.add('active');
+    promosFilter[key] = val;
+  }
   promosRender();
 };
 
