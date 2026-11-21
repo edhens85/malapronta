@@ -1791,8 +1791,9 @@ function ensureDBDefaults(){
   if(!db.routes || !db.routes.length){ db.routes = DEFAULT_ROUTES.map(r=>({...r})); }
   if(!db.aliancaMap) db.aliancaMap={};
 }
-function _migrateDB(){
+function _migrateDB(opts={}){
   // Migração: corrige movimentos de assinatura de clube gravados com type/value errados
+  // opts.noSave=true quando chamado pelo onSnapshot (evita sobrescrever Firebase com versão antiga)
   if(!db||!db.movements) return;
   // Lê clube data do localStorage (independente do escopo das variáveis)
   let _cm=[], _cp=[];
@@ -1822,7 +1823,7 @@ function _migrateDB(){
   });
   if(dirty){
     if(typeof _runningCache!=='undefined') _runningCache.clear();
-    saveDB();
+    if(!opts.noSave) saveDB();
   }
 }
 function loadDB(){
@@ -4313,7 +4314,7 @@ async function signOut(){
             if(!_pendingSave){
               db = remoteDB;
               ensureDBDefaults();
-              _migrateDB();
+              _migrateDB({noSave:true});
               try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
               selProg = selProg || db.programs[0]?.id || null;
               render();
