@@ -3912,7 +3912,7 @@ function renderEmissoes(){
     return `<tr style="cursor:pointer" onclick="selectProg('${m.programId}');showPage('milhas',document.querySelector('.nav-tab[onclick*=milhas]'));setTimeout(()=>openEditMov('${m.id}'),300)">
       <td class="td-date">${fmtDate(m.date)}</td>
       <td><span style="font-weight:600;color:var(--text)">${esc(p.name)}</span></td>
-      <td style="font-weight:600">${esc(m.emTrecho||'—')}</td>
+      <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}</td>
       <td>${esc(m.emCabine||'—')}</td>
       <td class="td-num">${fmt(m.points||0)}</td>
       <td class="td-num">R$ ${fmtBRL(custo)}</td>
