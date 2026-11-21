@@ -1155,7 +1155,7 @@ body.layout-vertical .page-label{display:none}
       <div class="frow">
         <div class="fg"><label>Custo mensal (R$)</label><input class="fi fi-money" id="ceCustoMensal" type="text" placeholder="0,00" oninput="ceCalcCpm()"></div>
         <div class="fg"><label>Milhas por mês</label><input class="fi fi-pts" id="ceMilhasMes" type="text" placeholder="0" oninput="ceCalcCpm()"></div>
-        <div class="fg" id="ceCpmInlineMensalEdit" style="display:none;flex:0 0 auto"><label style="color:var(--gold)">CPM</label><div class="fi" style="background:var(--surface3);border-color:var(--gold);color:var(--gold);font-weight:700;text-align:center;min-width:70px" id="ceCpmValMensalEdit">—</div></div>
+        <div class="fg" id="ceCpmInlineMensalEdit" style="display:none;flex:0 0 auto;min-width:80px"><label style="color:var(--gold)">CPM</label><div class="fi" style="background:var(--surface3);border-color:var(--gold);color:var(--gold);font-weight:700;text-align:center" id="ceCpmValMensalEdit">—</div></div>
       </div>
     </div>
     <div id="ceBoxAnual" style="display:none">
@@ -1163,7 +1163,7 @@ body.layout-vertical .page-label{display:none}
         <div class="fg"><label>Custo total</label><input class="fi fi-money" id="ceCusto" type="text" placeholder="0,00" oninput="ceCalcCpm()"></div>
         <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="ceTotalMilhasAnual" type="text" placeholder="0" onblur="cExpandMilhasTotal(this);ceDistribuirMilhas()"></div>
         <div class="fg"><label>Nº de meses</label><input class="fi" id="ceMeses" type="number" min="1" max="24" placeholder="12" oninput="ceRebuildRows()"></div>
-        <div class="fg" id="ceCpmInlineAnualEdit" style="display:none;flex:0 0 auto"><label style="color:var(--gold)">CPM</label><div class="fi" style="background:var(--surface3);border-color:var(--gold);color:var(--gold);font-weight:700;text-align:center;min-width:70px" id="ceCpmValAnualEdit">—</div></div>
+        <div class="fg" id="ceCpmInlineAnualEdit" style="display:none;flex:0 0 auto;min-width:80px"><label style="color:var(--gold)">CPM</label><div class="fi" style="background:var(--surface3);border-color:var(--gold);color:var(--gold);font-weight:700;text-align:center" id="ceCpmValAnualEdit">—</div></div>
       </div>
       <div id="ceParcelasSection" class="hidden" style="margin-top:8px">
         <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px">Ajuste por mês se necessário</div>
@@ -5151,7 +5151,7 @@ function ceCalcCpm(){
     pts=parsePts(document.getElementById('ceMilhasMes'));
     const inl=document.getElementById('ceCpmInlineMensalEdit');
     const val=document.getElementById('ceCpmValMensalEdit');
-    if(custo>0&&pts>0){ if(val) val.textContent='R$ '+fmtBRL(custo/(pts/1000)); if(inl) inl.style.display='flex'; }
+    if(custo>0&&pts>0){ if(val) val.textContent='R$ '+fmtBRL(custo/(pts/1000)); if(inl) inl.style.display='block'; }
     else { if(inl) inl.style.display='none'; }
   } else {
     custo=parseMoney(document.getElementById('ceCusto'));
@@ -5159,7 +5159,7 @@ function ceCalcCpm(){
     if(!pts){ document.querySelectorAll('.cep-pts').forEach(r=>{ pts+=parsePts(r); }); }
     const inl=document.getElementById('ceCpmInlineAnualEdit');
     const val=document.getElementById('ceCpmValAnualEdit');
-    if(custo>0&&pts>0){ if(val) val.textContent='R$ '+fmtBRL(custo/(pts/1000)); if(inl) inl.style.display='flex'; }
+    if(custo>0&&pts>0){ if(val) val.textContent='R$ '+fmtBRL(custo/(pts/1000)); if(inl) inl.style.display='block'; }
     else { if(inl) inl.style.display='none'; }
   }
 }
