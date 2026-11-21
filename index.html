@@ -13,6 +13,26 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+<style>
+/* flatpickr dark theme override */
+.flatpickr-calendar{background:var(--surface2,#1e2130)!important;border:1px solid var(--border,#2a2f45)!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;color:var(--text,#e2e8f0)!important;}
+.flatpickr-day{color:var(--text,#e2e8f0)!important;border-radius:8px!important;}
+.flatpickr-day:hover,.flatpickr-day.flatpickr-day:hover{background:var(--surface3,#252b40)!important;border-color:transparent!important;}
+.flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--gold,#f5a623)!important;border-color:var(--gold,#f5a623)!important;color:#000!important;}
+.flatpickr-day.today{border-color:var(--gold,#f5a623)!important;}
+.flatpickr-day.flatpickr-disabled,.flatpickr-day.flatpickr-disabled:hover{color:var(--text2,#8892b0)!important;opacity:.4;}
+.flatpickr-months{background:var(--surface2,#1e2130)!important;border-radius:12px 12px 0 0!important;}
+.flatpickr-month{color:var(--text,#e2e8f0)!important;fill:var(--text,#e2e8f0)!important;}
+.flatpickr-current-month,.flatpickr-current-month input.cur-year{color:var(--text,#e2e8f0)!important;font-weight:600;}
+.flatpickr-current-month .numInputWrapper span.arrowUp:after{border-bottom-color:var(--text,#e2e8f0)!important;}
+.flatpickr-current-month .numInputWrapper span.arrowDown:after{border-top-color:var(--text,#e2e8f0)!important;}
+.flatpickr-prev-month,.flatpickr-next-month{fill:var(--text,#e2e8f0)!important;}
+.flatpickr-prev-month:hover svg,.flatpickr-next-month:hover svg{fill:var(--gold,#f5a623)!important;}
+.flatpickr-weekday{color:var(--text2,#8892b0)!important;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
 <!-- Firebase SDKs (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -266,8 +286,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 /* ── BARRA HORIZONTAL DE PROGRAMAS (abaixo do ticker) ── */
 .prog-nav-bar{display:none;align-items:center;gap:4px;padding:.45rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;white-space:nowrap}
 .prog-nav-bar.visible{display:flex}
-.prog-nav-back{width:32px;height:32px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:color .12s,background .12s;flex-shrink:0}
-.prog-nav-back:hover{color:var(--gold);background:var(--surface2)}
+.prog-nav-back{height:32px;border-radius:20px;border:1.5px solid rgba(245,166,35,.45);background:rgba(245,166,35,.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;color:#fff;transition:color .12s,background .12s,border-color .12s;flex-shrink:0;padding:.2rem .6rem;font-size:.7rem;font-weight:700;font-family:'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.prog-nav-back:hover{background:rgba(245,166,35,.18);border-color:var(--gold)}
 .prog-nav-sep{width:1px;height:22px;background:var(--border);margin:0 4px;flex-shrink:0}
 .prog-nav-btn{display:flex;align-items:center;gap:7px;padding:.3rem .75rem .3rem .45rem;border-radius:20px;border:1.5px solid var(--border);background:none;cursor:pointer;font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s;flex-shrink:0;color:var(--text-dim);user-select:none;touch-action:none}
 .prog-nav-btn.dragging{opacity:.35;scale:0.94;cursor:grabbing}
@@ -818,7 +838,7 @@ body.layout-vertical .page-label{display:none}
 <div class="prog-nav-bar" id="progNavBar">
   <button class="prog-nav-back" onclick="backToDash()" title="Voltar ao dashboard" style="display:flex;align-items:center;gap:5px">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-    <span style="font-size:.72rem;font-weight:600;letter-spacing:.01em">Carteira</span>
+    <span>CARTEIRA</span>
   </button>
   <div class="prog-nav-sep"></div>
   <div id="progNavItems" style="display:flex;flex-direction:row;gap:4px;flex-wrap:nowrap"></div>
@@ -4364,7 +4384,29 @@ function fmtBRL(n){ return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:
 function fmtN(n){ return (n||0).toFixed(2).replace('.',','); }
 function fmtDate(s){ if(!s) return '—'; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
+function openModal(id){
+  document.getElementById(id).classList.remove('hidden');
+  // Inicializa flatpickr nos campos de data do voo
+  if(id==='modalMovement'){
+    if(!document.getElementById('mEmDataVoo')._fp){
+      document.getElementById('mEmDataVoo')._fp = flatpickr('#mEmDataVoo',{
+        locale:'pt', dateFormat:'Y-m-d', allowInput:true,
+        disableMobile:true
+      });
+    }
+  }
+  if(id==='modalEditMov'){
+    const emDvEl = document.getElementById('emEmDataVoo');
+    if(!emDvEl._fp){
+      emDvEl._fp = flatpickr('#emEmDataVoo',{
+        locale:'pt', dateFormat:'Y-m-d', allowInput:true,
+        disableMobile:true
+      });
+    }
+    // Sincroniza valor já preenchido
+    if(emDvEl.value) emDvEl._fp.setDate(emDvEl.value, false);
+  }
+}
 function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
 
 // ── MÁSCARAS NUMÉRICAS ──
