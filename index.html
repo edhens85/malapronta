@@ -264,7 +264,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .page.active{display:flex;flex:1;flex-direction:column;min-height:0;overflow-y:auto;overflow-x:hidden}
 
 /* ── DASHBOARD CARDS ── */
-.dash-wrap{flex:1;overflow-y:auto;padding:1.5rem}
+.dash-wrap{flex:1;min-height:0;padding:1.5rem}
 .dash-section{margin-bottom:2rem}
 .dash-section-title{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
 .dash-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
@@ -1150,7 +1150,7 @@ body.layout-vertical .page-label{display:none}
         <thead><tr>
           <th style="white-space:nowrap">Data</th>
           <th style="white-space:nowrap">Programa</th>
-          <th style="white-space:nowrap">CIA</th>
+          <th style="white-space:nowrap">CIA Aérea</th>
           <th style="white-space:nowrap">Data voo</th>
           <th style="white-space:nowrap">Trecho</th>
           <th style="white-space:nowrap">Cabine</th>
@@ -1340,31 +1340,10 @@ body.layout-vertical .page-label{display:none}
       </div>
     </div>
 
-    <!-- Filtros por programa -->
+    <!-- Filtros unificados (gerados dinamicamente após fetch) -->
     <div>
-      <div class="promos-filter-label" style="font-size:.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Programa</div>
-      <div class="promos-filter-row" id="promosTagsPrograma">
-        <span class="promos-tag active" data-filter="prog" data-val="" onclick="promosToggleTag(this)">Todos</span>
-        <span class="promos-tag" data-filter="prog" data-val="Smiles" onclick="promosToggleTag(this)"><span class="ptag-dot"></span>Smiles</span>
-        <span class="promos-tag" data-filter="prog" data-val="Latam Pass" onclick="promosToggleTag(this)"><span class="ptag-dot"></span>Latam Pass</span>
-        <span class="promos-tag" data-filter="prog" data-val="Azul" onclick="promosToggleTag(this)"><span class="ptag-dot"></span>Azul</span>
-        <span class="promos-tag" data-filter="prog" data-val="Livelo" onclick="promosToggleTag(this)"><span class="ptag-dot"></span>Livelo</span>
-        <span class="promos-tag" data-filter="prog" data-val="Esfera" onclick="promosToggleTag(this)"><span class="ptag-dot"></span>Esfera</span>
-        <span class="promos-tag" data-filter="prog" data-val="Multiplus" onclick="promosToggleTag(this)"><span class="ptag-dot"></span>Multiplus</span>
-      </div>
-    </div>
-
-    <!-- Filtros por tipo -->
-    <div>
-      <div class="promos-filter-label" style="font-size:.68rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Tipo</div>
-      <div class="promos-filter-row" id="promosTagsTipo">
-        <span class="promos-tag active" data-filter="tipo" data-val="" onclick="promosToggleTag(this)">Todos</span>
-        <span class="promos-tag" data-filter="tipo" data-val="Bônus de Transferência" onclick="promosToggleTag(this)">Bônus de Transferência</span>
-        <span class="promos-tag" data-filter="tipo" data-val="Promoção de Passagem" onclick="promosToggleTag(this)">Promoção de Passagem</span>
-        <span class="promos-tag" data-filter="tipo" data-val="Cartão de Crédito" onclick="promosToggleTag(this)">Cartão de Crédito</span>
-        <span class="promos-tag" data-filter="tipo" data-val="Compra de Milhas" onclick="promosToggleTag(this)">Compra de Milhas</span>
-        <span class="promos-tag" data-filter="tipo" data-val="Resgate" onclick="promosToggleTag(this)">Resgate</span>
-        <span class="promos-tag" data-filter="tipo" data-val="Clube & Assinatura" onclick="promosToggleTag(this)">Clube & Assinatura</span>
+      <div class="promos-filter-row" id="promosTagsAll">
+        <span class="promos-tag active" data-filter="all" data-val="" onclick="promosToggleTag(this)">Todos</span>
       </div>
     </div>
 
@@ -4350,7 +4329,7 @@ function exportEmissoesPDF(){
   <div class="sub">${progName} · Gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})} · ${movs.length} emissão(ões)</div>
   <table>
     <thead><tr>
-      <th>Data</th><th>Programa</th><th>CIA</th><th>Voo</th><th>Trecho</th><th>Cabine</th>
+      <th>Data</th><th>Programa</th><th>CIA Aérea</th><th>Voo</th><th>Trecho</th><th>Cabine</th>
       <th style="text-align:right">Milhas</th><th style="text-align:right">Custo</th>
       <th style="text-align:right">Taxas</th><th style="text-align:right">Total</th>
       <th style="text-align:right">Mercado</th><th style="text-align:right">Resultado</th>
@@ -6342,7 +6321,7 @@ const PREFS_KEY  = 'promos_prefs_v1';
 
 let promosData   = JSON.parse(localStorage.getItem(PROMOS_KEY) || '[]');
 let promosPrefs  = JSON.parse(localStorage.getItem(PREFS_KEY)  || '{"likes":{},"dislikes":{},"tagScore":{}}');
-let promosFilter = { prog: '', tipo: '', search: '' };
+let promosFilter = { all: '', search: '' };
 let promosFetching = false;
 
 function savePromos(){ localStorage.setItem(PROMOS_KEY, JSON.stringify(promosData)); }
@@ -6360,20 +6339,20 @@ const PROMOS_SOURCES = [
 
 // Tags automáticas baseadas em palavras-chave no título
 const TAG_RULES = [
-  { tag:'Bônus de Transferência', kw:['bônus','bonus','transfer','transferência'] },
-  { tag:'Promoção de Passagem',   kw:['passagem','voo','tarifa','mileage','award','emissão','emitir'] },
-  { tag:'Cartão de Crédito',      kw:['cartão','card','anuidade','cashback','benefício','pontos no cartão'] },
-  { tag:'Compra de Milhas',       kw:['compra de milhas','comprar milhas','venda de milhas'] },
-  { tag:'Resgate',                kw:['resgate','resgatar','resgatar milhas','cashback'] },
-  { tag:'Clube & Assinatura',     kw:['clube','assinatura','plano','subscription'] },
+  { tag:'Bônus',         kw:['bônus','bonus','transfer','transferência'] },
+  { tag:'Passagem',      kw:['passagem','voo','tarifa','mileage','award','emissão','emitir'] },
+  { tag:'Cartão de Crédito', kw:['cartão','card','anuidade','cashback','benefício','pontos no cartão'] },
+  { tag:'Compra de Milhas',  kw:['compra de milhas','comprar milhas','venda de milhas'] },
+  { tag:'Resgate',       kw:['resgate','resgatar','resgatar milhas'] },
+  { tag:'Assinatura',    kw:['assinatura','plano','subscription'] },
+  { tag:'Clube',         kw:['clube'] },
 ];
 const PROG_RULES = [
   { prog:'Smiles',     kw:['smiles','gol'] },
-  { prog:'Latam Pass', kw:['latam','tam','latam pass','multiplus'] },
+  { prog:'Latam',      kw:['latam','tam','latam pass'] },
   { prog:'Azul',       kw:['azul','tudo azul','azul fidelidade'] },
   { prog:'Livelo',     kw:['livelo'] },
   { prog:'Esfera',     kw:['esfera','santander','superdigital'] },
-  { prog:'Multiplus',  kw:['multiplus'] },
 ];
 
 function detectTags(title){
@@ -6505,6 +6484,7 @@ async function promosRefresh(manual=false){
   const hm = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   if(infoEl) infoEl.textContent = `Atualizado às ${hm}`;
 
+  rebuildPromosTags();
   promosRender();
 }
 
@@ -6536,23 +6516,43 @@ function promosLike(id, val, e){
 
 // ── Filtros ───────────────────────────────────────────────
 window.promosToggleTag = function(el){
-  const filter = el.dataset.filter;
-  const val    = el.dataset.val;
-  const key    = filter==='prog' ? 'prog' : 'tipo';
-  // Se já estava ativo (e não é "Todos"), deseleciona → volta para Todos
+  const val     = el.dataset.val;
   const isActive = el.classList.contains('active');
   const isTodos  = val === '';
-  document.querySelectorAll(`.promos-tag[data-filter="${filter}"]`).forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.promos-tag[data-filter="all"]').forEach(t=>t.classList.remove('active'));
   if(isActive && !isTodos){
-    // Volta para "Todos"
-    document.querySelector(`.promos-tag[data-filter="${filter}"][data-val=""]`)?.classList.add('active');
-    promosFilter[key] = '';
+    document.querySelector('.promos-tag[data-filter="all"][data-val=""]')?.classList.add('active');
+    promosFilter.all = '';
   } else {
     el.classList.add('active');
-    promosFilter[key] = val;
+    promosFilter.all = val;
   }
   promosRender();
 };
+
+// ── Rebuild tags dinamicamente após fetch ─────────────────
+function rebuildPromosTags(){
+  const container = document.getElementById('promosTagsAll');
+  if(!container) return;
+  // Coleta todos os progs e tipos presentes nas notícias
+  const progSet  = new Set();
+  const tipoSet  = new Set();
+  promosData.forEach(it=>{
+    it.progs.forEach(p=>progSet.add(p));
+    it.tipos.forEach(t=>tipoSet.add(t));
+  });
+  // Ordem preferida para programas e tipos
+  const progOrder  = ['Smiles','Latam','Azul','Livelo','Esfera'];
+  const tipoOrder  = ['Bônus','Passagem','Cartão de Crédito','Compra de Milhas','Resgate','Assinatura','Clube'];
+  const sortedProgs = progOrder.filter(p=>progSet.has(p));
+  const sortedTipos = tipoOrder.filter(t=>tipoSet.has(t));
+  const activeVal = promosFilter.all;
+  const mk = val=>{
+    const isActive = val===activeVal || (val===''&&activeVal==='');
+    return `<span class="promos-tag${isActive?' active':''}" data-filter="all" data-val="${val}" onclick="promosToggleTag(this)">${val||'Todos'}</span>`;
+  };
+  container.innerHTML = mk('')+sortedProgs.map(mk).join('')+sortedTipos.map(mk).join('');
+}
 
 // ── Render ────────────────────────────────────────────────
 window.promosRender = function(){
@@ -6561,15 +6561,14 @@ window.promosRender = function(){
   if(!list) return;
 
   const search = (document.getElementById('promosSearch')?.value||'').toLowerCase().trim();
-  const { prog, tipo } = promosFilter;
+  const { all } = promosFilter;
 
   // Aplica score
   const scored = promosData.map(it=>({...it, _score: computeScore(it)}));
 
-  // Filtra
+  // Filtra — tag pode ser prog ou tipo
   let filtered = scored.filter(it=>{
-    if(prog  && !it.progs.includes(prog))   return false;
-    if(tipo  && !it.tipos.includes(tipo))    return false;
+    if(all && !it.progs.includes(all) && !it.tipos.includes(all)) return false;
     if(search && !it.title.toLowerCase().includes(search)) return false;
     return true;
   });
@@ -6625,6 +6624,7 @@ const _origSP2 = window.showPage;
 window.showPage = function(page, el){
   _origSP2(page, el);
   if(page==='promos'){
+    rebuildPromosTags();
     promosRender();
     // Busca automática na primeira visita se não tiver dados
     if(!promosData.length) promosRefresh();
