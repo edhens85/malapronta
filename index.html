@@ -3466,9 +3466,15 @@ function deleteMovDirect(id){
 }
 function openEditMov(id){
   const m=db.movements.find(x=>x.id===id); if(!m) return;
-  // Movimentos de clube só podem ser editados pela topbar Clube
+  // Movimentos de clube: redireciona para topbar Clube > editar plano
   if(m._clube){
-    cToast('Edite esta assinatura pela aba Clube ↑',3500);
+    const cMov=(typeof cMovimentos!=='undefined'?cMovimentos:[]).find(c=>c.id===m._clube);
+    const planoId=cMov?.planoId;
+    showPage('clube', document.querySelector('.nav-tab[onclick*="clube"]'));
+    setTimeout(()=>{
+      clubeShowTab('planos');
+      if(planoId) setTimeout(()=>cAbrirEditModal(planoId),150);
+    },200);
     return;
   }
   editMovId=id;
