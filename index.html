@@ -334,10 +334,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .sum-group-pontos{background:#1a3a5c}
 .sum-group-milhas{background:#1a3d2a}
 .sum-divider{width:3px;background:rgba(255,255,255,.25);flex-shrink:0;align-self:stretch;margin:0 6px}
-.sum-item{padding:.85rem 1.4rem;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.sum-item{padding:.85rem 1.4rem;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;text-align:center}
 .sum-item-last{border-right:none}
-.sum-label{font-size:.62rem;color:var(--text-muted);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
-.sum-val{font-size:1rem;font-weight:700}
+.sum-label{font-size:.62rem;color:var(--text-muted);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;text-align:center}
+.sum-val{font-size:1rem;font-weight:700;text-align:center}
 
 /* ── MAIN CONTENT ── */
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
@@ -948,13 +948,13 @@ body.layout-vertical .page-label{display:none}
   <div class="summary-strip" id="globalSummary">
     <div class="sum-group-label sum-group-pontos">Pontos</div>
     <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumPontos">0</div></div>
-    <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" style="color:var(--teal)" id="sumAcumPontos">0</div></div>
+    <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" id="sumAcumPontos">0</div></div>
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvestPontos">R$ 0,00</div></div>
     <div class="sum-item sum-item-last"><div class="sum-label">CPP médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpp">R$ 0,00</div></div>
     <div class="sum-divider"></div>
     <div class="sum-group-label sum-group-milhas">Milhas</div>
     <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumMilhas">0</div></div>
-    <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" style="color:var(--teal)" id="sumAcumMilhas">0</div></div>
+    <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" id="sumAcumMilhas">0</div></div>
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvest">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpm">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
@@ -2889,8 +2889,8 @@ function renderSummary(){
   }
   const elGEco=document.getElementById('sumEconomia');
   const elGRes=document.getElementById('sumResultadoEm');
-  if(elGEco){ elGEco.textContent=gHasEco?'R$ '+fmtBRL(gEco):'—'; elGEco.style.color=gHasEco?(gEco>=0?'var(--teal)':'var(--red)'):''; }
-  if(elGRes){ elGRes.textContent=gHasRes?(gRes>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(gRes)):'—'; elGRes.style.color=gHasRes?(gRes>=0?'#4ade80':'var(--red)'):''; }
+  if(elGEco){ elGEco.textContent=gHasEco?'R$ '+fmtBRL(gEco):'—'; elGEco.style.color=gHasEco?(gEco>=0?'var(--green)':'var(--red)'):''; }
+  if(elGRes){ elGRes.textContent=gHasRes?(gRes>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(gRes)):'—'; elGRes.style.color=gHasRes?(gRes>=0?'var(--green)':'var(--red)'):''; }
   // mostra faixa emissões só se houver emissões
   const hasEmissoes = (db.movements||[]).some(m=>m.type==='emissao_passagem'&&!m.pendente);
   const esEl=document.getElementById('emissoesSummary');
