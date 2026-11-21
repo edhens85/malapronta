@@ -1248,8 +1248,7 @@ body.layout-vertical .page-label{display:none}
         <option value="expiracao">Expiração</option>
         <option value="resgate">Resgate</option>
       </select>
-      <div class="fhint" style="margin-top:.3rem">Para registrar assinatura de clube, use a aba <b>Clube</b> ↑</div>
-      <div id="mBenefToggle" class="hidden" style="display:none;gap:6px;margin-top:.4rem">
+      <div id="mBenefToggle" style="display:none;gap:6px;margin-top:.4rem">
         <button type="button" id="mBenefPropria" onclick="setEmBenef('m','propria')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--gold);color:#000;font-weight:600;cursor:pointer">✈ Própria</button>
         <button type="button" id="mBenefVenda" onclick="setEmBenef('m','terceiro')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda</button>
       </div>
@@ -1266,7 +1265,7 @@ body.layout-vertical .page-label{display:none}
         </div>
       </div>
     </div>
-    <div class="fg hidden" id="mValueGroup"><label id="mValueLabel">Valor (R$)</label><input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
+    <div class="fg hidden" id="mValueGroup"><label id="mValueLabel">Valor</label><input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
     <div id="mResgateBox" class="hidden">
       <div class="cost-info" id="mResgateCost">—</div>
     </div>
@@ -1278,7 +1277,7 @@ body.layout-vertical .page-label{display:none}
           <input class="fi" id="mEmCpm" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
         </div>
         <div class="fg">
-          <label>Milhas usadas *</label>
+          <label>Milhas usadas</label>
           <input class="fi fi-pts" id="mEmMilhas" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcEmissao('m')">
         </div>
       </div>
@@ -1288,13 +1287,13 @@ body.layout-vertical .page-label{display:none}
           <input class="fi" id="mEmCusto" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
         </div>
         <div class="fg">
-          <label>Taxas (R$)</label>
+          <label>Taxas</label>
           <input class="fi fi-money" id="mEmTaxas" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('m')">
         </div>
       </div>
       <div class="frow">
         <div class="fg">
-          <label>Preço de mercado (R$)</label>
+          <label>Preço de mercado</label>
           <input class="fi fi-money" id="mEmMercado" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('m')">
         </div>
         <div class="fg">
@@ -1418,7 +1417,7 @@ body.layout-vertical .page-label{display:none}
         <option value="transferencia_enviada">Transferência enviada</option>
         <option value="transferencia_recebida">Transferência recebida</option>
       </select>
-      <div id="emBenefToggle" class="hidden" style="display:none;gap:6px;margin-top:.4rem">
+      <div id="emBenefToggle" style="display:none;gap:6px;margin-top:.4rem">
         <button type="button" id="emBenefPropria" onclick="setEmBenef('em','propria')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--gold);color:#000;font-weight:600;cursor:pointer">✈ Própria</button>
         <button type="button" id="emBenefVenda" onclick="setEmBenef('em','terceiro')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda</button>
       </div>
@@ -1428,7 +1427,7 @@ body.layout-vertical .page-label{display:none}
       <div class="fg"><label>Data *</label><input class="fi" id="emDate" type="date"></div>
       <div class="fg"><label id="emPointsLabel">Pontos *</label><input class="fi fi-pts" id="emPoints" type="text" inputmode="numeric" oninput="maskPts(this)"></div>
     </div>
-    <div class="fg hidden" id="emValueGroup"><label id="emValueLabel">Valor (R$)</label><input class="fi fi-money" id="emValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
+    <div class="fg hidden" id="emValueGroup"><label id="emValueLabel">Valor</label><input class="fi fi-money" id="emValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
     <!-- Campos exclusivos: Emissão de passagem (edit) -->
     <div id="emEmissaoBox" class="hidden">
       <div class="frow">
@@ -1437,7 +1436,7 @@ body.layout-vertical .page-label{display:none}
           <input class="fi" id="emEmCpm" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
         </div>
         <div class="fg">
-          <label>Milhas usadas *</label>
+          <label>Milhas usadas</label>
           <input class="fi fi-pts" id="emEmMilhas" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcEmissao('em')">
         </div>
       </div>
@@ -1447,13 +1446,13 @@ body.layout-vertical .page-label{display:none}
           <input class="fi" id="emEmCusto" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
         </div>
         <div class="fg">
-          <label>Taxas (R$)</label>
+          <label>Taxas</label>
           <input class="fi fi-money" id="emEmTaxas" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('em')">
         </div>
       </div>
       <div class="frow">
         <div class="fg">
-          <label>Preço de mercado (R$)</label>
+          <label>Preço de mercado</label>
           <input class="fi fi-money" id="emEmMercado" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('em')">
         </div>
         <div class="fg">
@@ -1662,9 +1661,9 @@ const MOV_CREDIT = new Set(['acumulo_simples','compra','compra_bonificada','assi
 const MOV_DEBIT  = new Set(['resgate','expiracao','ajuste_saida','transferencia_enviada','emissao_passagem']);
 const MOV_HAS_VALUE = new Set(['compra','compra_bonificada','assinatura','bonus','cashback','ajuste_entrada','transferencia_recebida']);
 function getValueLabel(t){
-  if(t==='compra'||t==='compra_bonificada') return 'Valor pago (R$)';
-  if(t==='assinatura') return 'Valor da assinatura (R$)';
-  return 'Valor (R$)';
+  if(t==='compra'||t==='compra_bonificada') return 'Valor pago';
+  if(t==='assinatura') return 'Valor da assinatura';
+  return 'Valor';
 }
 // Tipos que podem ser marcados PENDENTE (aguardando confirmação de crédito)
 const MOV_PENDENTE_TYPES = new Set(['bonus_transferencia','transferencia_recebida','bonus']);
