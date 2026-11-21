@@ -3225,19 +3225,25 @@ function renderMovTable(){
       if(nome) relLabel = `<span style="font-size:.72rem;white-space:nowrap;color:#fff">De: ${esc(nome)}</span>`;
     }
     const pendBadge = isPend ? `<span class="badge-pendente">PENDENTE</span>` : '';
+    // Link de anexo (reutilizado)
+    const anexoLink = m.link?(()=>{
+      const isData = m.link.startsWith('data:');
+      const fname = m._linkName || 'anexo';
+      const href = isData ? '#' : m.link;
+      const onclick = isData ? `openAnexo('${m.id}');return false;` : '';
+      return `<a href="${esc(href)}" ${onclick?`onclick="${onclick}"`:'target="_blank" rel="noopener"'} title="${esc(fname)}" style="display:inline-flex;align-items:center;gap:3px;font-size:.67rem;color:var(--blue);text-decoration:none;white-space:nowrap"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>anexo</a>`;
+    })():'';
     const movCell = `<div class="mov-desc">
       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
         <span class="badge b-${m.type}" style="background:${isCredit?'var(--green)':'var(--red)'};color:#fff">${MOV_LABELS[m.type]||m.type}</span>${pendBadge}${relLabel}
       </div>
-      ${m.obs&&!relLabel&&m.type!=='transferencia_enviada'&&m.type!=='transferencia_recebida'&&m.type!=='bonus_transferencia'?`<span class="td-obs" style="max-width:none" title="${esc(m.obs)}">${esc(m.obs)}</span>`:''}
-      ${isEmissaoRow&&(m.emTrecho||m.emCabine)?`<span class="td-obs" style="max-width:none;color:var(--text-dim)">${[m.emTrecho,m.emCabine].filter(Boolean).map(x=>esc(x)).join(' · ')}</span>`:''}
-      ${m.link?(()=>{
-        const isData = m.link.startsWith('data:');
-        const fname = m._linkName || 'anexo';
-        const href = isData ? '#' : m.link;
-        const onclick = isData ? `openAnexo('${m.id}');return false;` : '';
-        return `<a href="${esc(href)}" ${onclick?`onclick="${onclick}"`:'target="_blank" rel="noopener"'} title="${esc(fname)}" style="display:inline-flex;align-items:center;gap:3px;font-size:.67rem;color:var(--blue);text-decoration:none;margin-top:1px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>anexo</a>`;
-      })():''}
+      ${isEmissaoRow?(
+        (m.emCia?`<span class="td-obs" style="max-width:none;font-weight:600;color:var(--text)">${esc(m.emCia)}</span>`:'')
+        +(m.emTrecho||m.emCabine?`<span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="td-obs" style="max-width:none;color:var(--text-dim)">${[m.emTrecho,m.emCabine].filter(Boolean).map(x=>esc(x)).join(' · ')}</span>${anexoLink}</span>`:(anexoLink?`<span>${anexoLink}</span>`:''))
+      ):(
+        (m.obs&&!relLabel&&m.type!=='transferencia_enviada'&&m.type!=='transferencia_recebida'&&m.type!=='bonus_transferencia'?`<span class="td-obs" style="max-width:none" title="${esc(m.obs)}">${esc(m.obs)}</span>`:'')+
+        ((!isEmissaoRow&&m.link)?`<span style="margin-top:1px;display:block">${anexoLink}</span>`:'')
+      )}
     </div>`;
     // Botão confirmar (só para pendentes)
     const confirmBtn = isPend
