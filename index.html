@@ -4774,8 +4774,6 @@ async function approveUser(uid, status){
           const msa=document.getElementById('menuSepAdmin'); if(msa) msa.style.display='block';
           _watchPendingBadge();
         }
-        const btn2 = document.getElementById('btnGoogle');
-        if(btn2){ btn2.disabled=true; btn2.textContent='Carregando dados…'; }
         if(window._fbUnsubscribe){ window._fbUnsubscribe(); window._fbUnsubscribe=null; }
 
         // 1) Busca via REST API (HTTP puro, sem cache SDK, sem ITP Safari) com fallback SDK
