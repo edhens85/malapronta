@@ -773,8 +773,9 @@ body.layout-vertical .page-label{display:none}
 
 <!-- BARRA DE NAVEGAÇÃO DE PROGRAMAS (visível ao selecionar um programa) -->
 <div class="prog-nav-bar" id="progNavBar">
-  <button class="prog-nav-back" onclick="backToDash()" title="Voltar ao dashboard">
+  <button class="prog-nav-back" onclick="backToDash()" title="Voltar ao dashboard" style="display:flex;align-items:center;gap:5px">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span style="font-size:.72rem;font-weight:600;letter-spacing:.01em">Carteira</span>
   </button>
   <div class="prog-nav-sep"></div>
   <div id="progNavItems" style="display:flex;flex-direction:row;gap:4px;flex-wrap:nowrap"></div>
