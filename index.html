@@ -608,6 +608,10 @@ body.layout-vertical .page-label{display:none}
       <span class="tab-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
       Clube
     </button>
+    <button class="nav-tab" id="navTabVenc" onclick="showPage('vencimentos',this)">
+      <span class="tab-icon" id="vencTabIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      Vencimentos
+    </button>
   </div>
   <div class="global-search-wrap" id="globalSearchWrap" style="display:none">
     <input class="global-search-input" id="globalSearchInput" placeholder="Buscar programas e movimentos… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){focusGlobalResult(0);}">
@@ -682,6 +686,10 @@ body.layout-vertical .page-label{display:none}
     <span class="mobile-nav-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
     Clube
   </button>
+  <button class="mobile-nav-tab" id="mnt-vencimentos" onclick="showPage('vencimentos',this);syncMobileNav('vencimentos')">
+    <span class="mobile-nav-icon" id="vencMobileIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+    Venc.
+  </button>
 </div>
 
 <!-- TICKER -->
@@ -743,6 +751,31 @@ body.layout-vertical .page-label{display:none}
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvest">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpm">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
+    <div class="sum-item sum-item-last" style="display:flex;align-items:center;padding:.5rem .9rem">
+      <button onclick="toggleAnalise()" style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .7rem;font-size:.7rem;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;font-family:inherit" title="Análise por programa">📊 Análise</button>
+    </div>
+  </div>
+
+  <!-- ANÁLISE POR PROGRAMA -->
+  <div id="analisePrograma" style="display:none;padding:.75rem 1.2rem;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+      <span style="font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Análise por programa</span>
+      <button onclick="document.getElementById('analisePrograma').style.display='none';saveDB()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.75rem">✕</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.75rem" id="analiseTable">
+        <thead>
+          <tr style="color:var(--text-muted)">
+            <th style="text-align:left;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Programa</th>
+            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Saldo</th>
+            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Investido</th>
+            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">CPM Aq.</th>
+            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Patrimônio</th>
+          </tr>
+        </thead>
+        <tbody id="analiseTableBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- DASHBOARD: cards de todos os programas -->
@@ -1068,6 +1101,24 @@ body.layout-vertical .page-label{display:none}
   </div>
 </div>
 
+<!-- VENCIMENTOS -->
+<div class="page" id="pageVencimentos">
+  <div style="flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:1.5rem">
+    <div style="width:100%;max-width:600px;display:flex;flex-direction:column;gap:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:1rem;font-weight:700;color:var(--text)">Vencimento das Milhas</div>
+          <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px">Configure a data de expiração de cada programa para receber alertas</div>
+        </div>
+      </div>
+      <!-- KPIs de alerta -->
+      <div id="vencKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem"></div>
+      <!-- Lista de programas com vencimento -->
+      <div id="vencList" style="display:flex;flex-direction:column;gap:.6rem"></div>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRMAÇÃO CLUBE -->
 <div id="cConfirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100;align-items:center;justify-content:center;padding:1rem">
   <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem;width:min(95vw,360px);display:flex;flex-direction:column;gap:1rem">
@@ -1200,7 +1251,15 @@ body.layout-vertical .page-label{display:none}
     </div>
     <div class="frow">
       <div class="fg"><label>Data *</label><input class="fi" id="mDate" type="date"></div>
-      <div class="fg"><label id="mPointsLabel">Pontos *</label><input class="fi fi-pts" id="mPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcResgate()"></div>
+      <div class="fg"><label id="mPointsLabel">Pontos *</label>
+        <input class="fi fi-pts" id="mPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcResgate()">
+        <div style="display:flex;gap:4px;margin-top:5px">
+          <button type="button" onclick="addQuickPts(10000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+10k</button>
+          <button type="button" onclick="addQuickPts(25000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+25k</button>
+          <button type="button" onclick="addQuickPts(50000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+50k</button>
+          <button type="button" onclick="addQuickPts(100000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+100k</button>
+        </div>
+      </div>
     </div>
     <div class="fg hidden" id="mValueGroup"><label id="mValueLabel">Valor (R$)</label><input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
     <div id="mResgateBox" class="hidden">
@@ -1898,6 +1957,7 @@ function render(){
   renderDetail();
   renderSummary();
   renderTicker();
+  checkVencimentosBadge();
 }
 
 // ── BRAND LOGOS ──────────────────────────────────────────────────────────
@@ -3171,7 +3231,8 @@ function saveProgram(){
     p.expiry=document.getElementById('pExpiry').value||null;
   } else {
     const id=uid();
-    db.programs.push({id,name,type:document.getElementById('pType').value,color:selColor});
+    const expiry=document.getElementById('pExpiry').value||null;
+    db.programs.push({id,name,type:document.getElementById('pType').value,color:selColor,expiry});
     const bal=parsePts(document.getElementById('pInitBal'))||0;
     const cost=parseMoney(document.getElementById('pInitCost'))||0;
     const date=document.getElementById('pInitDate').value||today();
@@ -3205,6 +3266,50 @@ function deleteProgram(){
 // ═══════════════════════════════════════════════
 //  MOVEMENT CRUD
 // ═══════════════════════════════════════════════
+// ═══ ANÁLISE POR PROGRAMA ═══
+function toggleAnalise(){
+  const el=document.getElementById('analisePrograma');
+  if(!el) return;
+  if(el.style.display==='none'){ renderAnalise(); el.style.display=''; }
+  else el.style.display='none';
+}
+function renderAnalise(){
+  const tbody=document.getElementById('analiseTableBody');
+  if(!tbody) return;
+  const progs=db.programs||[];
+  const movs=db.movements||[];
+  const rows=progs.map(p=>{
+    const pMovs=movs.filter(m=>m.programId===p.id);
+    let saldo=0, investido=0;
+    pMovs.forEach(m=>{
+      if(MOV_CREDIT.has(m.type)){ saldo+=m.points||0; if(MOV_HAS_VALUE.has(m.type)) investido+=m.value||0; }
+      else if(MOV_DEBIT.has(m.type)){ saldo-=m.points||0; }
+    });
+    saldo=Math.max(0,saldo);
+    const cpm=saldo>0&&investido>0?(investido*1000/saldo):0;
+    // Patrimônio: saldo * CPM médio do mercado (usamos CPM do programa se disponível, senão 0.025)
+    const patrimonio=saldo*(cpm/1000||0.025);
+    const dot=`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${p.color||'#7b6fe8'};margin-right:5px"></span>`;
+    return `<tr>
+      <td style="padding:.35rem .5rem">${dot}${p.name}</td>
+      <td style="text-align:right;padding:.35rem .5rem;color:var(--text)">${saldo.toLocaleString('pt-BR')}</td>
+      <td style="text-align:right;padding:.35rem .5rem;color:var(--text-muted)">R$ ${fmtBRL(investido)}</td>
+      <td style="text-align:right;padding:.35rem .5rem;color:var(--gold)">${cpm>0?'R$ '+fmtBRL(cpm):'—'}</td>
+      <td style="text-align:right;padding:.35rem .5rem;color:var(--green)">${patrimonio>0?'R$ '+fmtBRL(patrimonio):'—'}</td>
+    </tr>`;
+  });
+  tbody.innerHTML=rows.join('');
+}
+// ═══ VENCIMENTOS BADGE ═══
+function checkVencimentosBadge(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const critico=(db.programs||[]).some(p=>p.expiry&&Math.round((new Date(p.expiry+'T00:00:00')-today)/(1000*60*60*24))<=30);
+  const icon=document.getElementById('vencTabIcon');
+  if(icon) icon.style.color=critico?'var(--red)':'';
+  const mIcon=document.getElementById('vencMobileIcon');
+  if(mIcon) mIcon.style.color=critico?'var(--red)':'';
+}
+
 function openAddMovement(){
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   // Mostrar/ocultar opção Emissão de passagem (só para aéreas)
@@ -3981,6 +4086,13 @@ function parseMoney(el){
   return parseFloat((el.value||'0').replace(/\./g,'').replace(',','.'))||0;
 }
 // Máscara de pontos inteiros com separador de milhares
+function addQuickPts(n){
+  const el=document.getElementById('mPoints');
+  if(!el) return;
+  const cur=parsePts(el)||0;
+  el.value=(cur+n).toLocaleString('pt-BR');
+  calcResgate();
+}
 function maskPts(el){
   let raw = el.value.replace(/\D/g,'');
   if(!raw){ el.value=''; return; }
@@ -5037,12 +5149,114 @@ function cPopularSelectPrograma(){
 }
 window.cPopularSelectPrograma=cPopularSelectPrograma;
 
-// ——— Init showPage para incluir clube ———
+// ——— Init showPage para incluir clube e vencimentos ———
 const _origShowPage=window.showPage;
 window.showPage=function(page, el){
   _origShowPage(page, el);
   if(page==='clube'){ cPopularSelectPrograma(); cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); }
+  if(page==='vencimentos'){ renderVencimentos(); }
 };
+
+function renderVencimentos(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const progs=db.programs||[];
+
+  // Calcular saldo atual por programa
+  const saldos={};
+  (db.movements||[]).forEach(m=>{
+    if(!saldos[m.programId]) saldos[m.programId]=0;
+    if(typeof MOV_CREDIT!=='undefined'&&MOV_CREDIT.has(m.type)) saldos[m.programId]+=m.points||0;
+    else if(typeof MOV_DEBIT!=='undefined'&&MOV_DEBIT.has(m.type)) saldos[m.programId]-=m.points||0;
+  });
+
+  // KPIs
+  let vencendo30=0, vencendo90=0, semVencimento=0;
+  progs.forEach(p=>{
+    if(!p.expiry){ semVencimento++; return; }
+    const exp=new Date(p.expiry+'T00:00:00');
+    const dias=Math.round((exp-today)/(1000*60*60*24));
+    if(dias<=30) vencendo30++;
+    else if(dias<=90) vencendo90++;
+  });
+  const kpis=document.getElementById('vencKpis');
+  if(kpis) kpis.innerHTML=`
+    <div style="background:var(--surface2);border:1px solid var(--red);border-radius:var(--radius);padding:.9rem">
+      <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.4rem">Vencem em 30 dias</div>
+      <div style="font-size:1.5rem;font-weight:700;color:${vencendo30>0?'var(--red)':'var(--text)'}">${vencendo30}</div>
+      <div style="font-size:.68rem;color:var(--text-muted)">programa(s)</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--gold);border-radius:var(--radius);padding:.9rem">
+      <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.4rem">Vencem em 90 dias</div>
+      <div style="font-size:1.5rem;font-weight:700;color:${vencendo90>0?'var(--gold)':'var(--text)'}">${vencendo90}</div>
+      <div style="font-size:.68rem;color:var(--text-muted)">programa(s)</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem">
+      <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.4rem">Sem vencimento</div>
+      <div style="font-size:1.5rem;font-weight:700;color:var(--text-muted)">${semVencimento}</div>
+      <div style="font-size:.68rem;color:var(--text-muted)">programa(s)</div>
+    </div>`;
+
+  // Lista
+  const list=document.getElementById('vencList');
+  if(!list) return;
+  if(progs.length===0){ list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem">Nenhum programa cadastrado.</div>'; return; }
+
+  const sorted=[...progs].sort((a,b)=>{
+    if(!a.expiry&&!b.expiry) return a.name.localeCompare(b.name);
+    if(!a.expiry) return 1;
+    if(!b.expiry) return -1;
+    return a.expiry.localeCompare(b.expiry);
+  });
+
+  list.innerHTML=sorted.map(p=>{
+    const saldo=(saldos[p.id]||0);
+    const saldoFmt=saldo.toLocaleString('pt-BR');
+    let badge='', diasLabel='', borderColor='var(--border)';
+    if(p.expiry){
+      const exp=new Date(p.expiry+'T00:00:00');
+      const dias=Math.round((exp-today)/(1000*60*60*24));
+      if(dias<0){
+        badge=`<span style="background:var(--surface3);color:var(--text-muted);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">Expirado</span>`;
+        borderColor='var(--border)'; diasLabel='Expirado';
+      } else if(dias<=30){
+        badge=`<span style="background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">⚠ ${dias}d</span>`;
+        borderColor='var(--red)'; diasLabel=`${dias} dias restantes`;
+      } else if(dias<=90){
+        badge=`<span style="background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">${dias}d</span>`;
+        borderColor='var(--gold)'; diasLabel=`${dias} dias restantes`;
+      } else {
+        badge=`<span style="background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">${dias}d</span>`;
+        borderColor='var(--green)'; diasLabel=`${dias} dias restantes`;
+      }
+    }
+    const dot=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${p.color||'#7b6fe8'};margin-right:6px;flex-shrink:0"></span>`;
+    return `<div style="background:var(--surface2);border:1px solid ${borderColor};border-radius:var(--radius);padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem">
+      ${dot}
+      <div style="flex:1">
+        <div style="font-size:.88rem;font-weight:600;color:var(--text)">${p.name}</div>
+        <div style="font-size:.73rem;color:var(--text-muted);margin-top:2px">${saldoFmt} pts${diasLabel?' · '+diasLabel:' · Sem vencimento configurado'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        ${badge}
+        <input type="date" value="${p.expiry||''}"
+          style="border:1px solid var(--border);background:var(--surface3);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit;cursor:pointer"
+          onchange="vencSalvarData('${p.id}',this.value);renderVencimentos()">
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function vencSalvarData(progId, val){
+  const p=db.programs.find(x=>x.id===progId);
+  if(p){ p.expiry=val||null; saveDB(); }
+  // atualiza badge na nav se houver vencimentos críticos
+  const today=new Date(); today.setHours(0,0,0,0);
+  const critico=(db.programs||[]).some(p=>p.expiry&&Math.round((new Date(p.expiry+'T00:00:00')-today)/(1000*60*60*24))<=30);
+  const icon=document.getElementById('vencTabIcon');
+  if(icon) icon.style.color=critico?'var(--red)':'';
+  const mIcon=document.getElementById('vencMobileIcon');
+  if(mIcon) mIcon.style.color=critico?'var(--red)':'';
+}
 
 })();
 </script>
