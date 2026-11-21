@@ -960,7 +960,7 @@ body.layout-vertical .page-label{display:none}
       <table class="routes-tbl">
         <thead><tr>
           <th>Data</th><th>Programa</th><th>Trecho</th><th>Cabine</th>
-          <th>Milhas</th><th>Custo R$</th><th>Taxas R$</th><th>Total R$</th><th>Mercado R$</th><th>Resultado R$</th><th>Obs</th>
+          <th>Milhas</th><th>Custo (R$)</th><th>Taxas (R$)</th><th>Total (R$)</th><th>Mercado (R$)</th><th>Resultado (R$)</th><th>Obs</th>
         </tr></thead>
         <tbody id="emrTbody"></tbody>
       </table>
@@ -3909,8 +3909,8 @@ function renderEmissoes(){
     const res=mkt>0||total>0?mkt-total:null;
     totMilhas+=(m.points||0); totCusto+=custo; totTaxas+=taxas; totTotal+=total; totMkt+=mkt; if(res!=null)totRes+=res;
     const resStyle=res!=null?(res>=0?'color:#4ade80':'color:var(--red)'):'';
-    return `<tr>
-      <td class="td-date">${m.date||'—'}</td>
+    return `<tr style="cursor:pointer" onclick="selectProg('${m.programId}');showPage('milhas',document.querySelector('.nav-tab[onclick*=milhas]'));setTimeout(()=>openEditMov('${m.id}'),300)">
+      <td class="td-date">${fmtDate(m.date)}</td>
       <td><span style="font-weight:600;color:var(--text)">${esc(p.name)}</span></td>
       <td style="font-weight:600">${esc(m.emTrecho||'—')}</td>
       <td>${esc(m.emCabine||'—')}</td>
