@@ -1791,6 +1791,28 @@ function ensureDBDefaults(){
   if(!db.routes || !db.routes.length){ db.routes = DEFAULT_ROUTES.map(r=>({...r})); }
   if(!db.aliancaMap) db.aliancaMap={};
 }
+function _migrateDB(){
+  // Migração: corrige movimentos de assinatura de clube gravados com type/value errados
+  if(!db||!db.movements) return;
+  let dirty=false;
+  db.movements.forEach(mov=>{
+    if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
+    if(mov._clube && mov.type==='assinatura' && !(mov.value>0)){
+      const cMov=cMovimentos.find(c=>c.id===mov._clube);
+      const plano=cMov?cPlanos.find(p=>p.id===cMov.planoId):null;
+      if(plano){
+        if(plano.modalidade==='mensal'&&plano.custoMensal) mov.value=plano.custoMensal;
+        else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) mov.value=plano.custoTotal/plano.totalMeses;
+        else if(plano.cpm&&cMov.pts) mov.value=(cMov.pts/1000)*plano.cpm;
+        if(mov.value>0) dirty=true;
+      }
+    }
+  });
+  if(dirty){
+    if(typeof _runningCache!=='undefined') _runningCache.clear();
+    saveDB();
+  }
+}
 function loadDB(){
   // Carrega do localStorage como fallback offline
   try{ const r=localStorage.getItem('milhas_v3'); if(r) db=JSON.parse(r); }catch(e){}
@@ -4256,6 +4278,7 @@ async function signOut(){
             }
           }
           ensureDBDefaults();
+          _migrateDB();
           try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
           selProg = db.programs[0]?.id || null;
           _appShown = true;
@@ -4267,6 +4290,7 @@ async function signOut(){
             if(!_pendingSave){
               db = remoteDB;
               ensureDBDefaults();
+              _migrateDB();
               try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
               selProg = selProg || db.programs[0]?.id || null;
               render();
@@ -4390,27 +4414,6 @@ function cCarregar(){
     if(m) cMovimentos=JSON.parse(m);
     if(g) _cGid=parseInt(g)||1;
   }catch(e){}
-  // Migração: corrige movimentos de assinatura com value=0 no db.movements
-  setTimeout(()=>{
-    if(!db||!db.movements) return;
-    let dirty=false;
-    db.movements.forEach(mov=>{
-      // corrige type errado: movimentos de clube gravados como acumulo_simples
-      if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
-      if(mov.type==='assinatura'&&!(mov.value>0)&&mov._clube){
-        // tenta encontrar o plano via cMovimentos
-        const cMov=cMovimentos.find(c=>c.id===mov._clube);
-        const plano=cMov?cPlanos.find(p=>p.id===cMov.planoId):null;
-        if(plano){
-          if(plano.modalidade==='mensal'&&plano.custoMensal) mov.value=plano.custoMensal;
-          else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) mov.value=plano.custoTotal/plano.totalMeses;
-          else if(plano.cpm&&cMov.pts) mov.value=(cMov.pts/1000)*plano.cpm;
-          if(mov.value>0) dirty=true;
-        }
-      }
-    });
-    if(dirty){ saveDB(); if(typeof _runningCache!=='undefined') _runningCache.clear(); if(typeof render==='function') render(); }
-  },200);
 }
 
 // ——— Helpers ———
