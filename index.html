@@ -4247,33 +4247,20 @@ function renderEmissoes(){
     </tr>`;
   }).join('');
   const resColor = totRes>=0 ? '#4ade80' : 'var(--red)';
+  const tile=(label,val,color='var(--text)')=>`
+    <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.25rem">
+      <div style="font-size:.62rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;line-height:1.3">${label}</div>
+      <div style="font-size:1rem;font-weight:700;color:${color}">${val}</div>
+    </div>`;
   document.getElementById('emrTotals').innerHTML=`
-    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.6rem">${movs.length} emissão${movs.length!==1?'s':''}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:.75rem">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Milhas usadas</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmt(totMilhas)}</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Custo de resgate (R$)</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totCusto)}</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Taxas (R$)</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totTaxas)}</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.6rem .9rem;min-width:100px;border-color:var(--border)">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Total pago (R$)</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totTotal)}</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Valor de mercado (R$)</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totMkt)}</div>
-      </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:120px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Resultado total (R$)</div>
-        <div style="font-size:.95rem;font-weight:700;color:${resColor}">${totRes>=0?fmtBRL(totRes):'('+fmtBRL(Math.abs(totRes))+')'}</div>
-      </div>
+    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:.75rem;text-align:center">${movs.length} emissão${movs.length!==1?'s':''}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center">
+      ${tile('Milhas usadas', fmt(totMilhas))}
+      ${tile('Custo resgate', 'R$ '+fmtBRL(totCusto))}
+      ${tile('Taxas', 'R$ '+fmtBRL(totTaxas))}
+      ${tile('Total pago', 'R$ '+fmtBRL(totTotal))}
+      ${tile('Valor mercado', 'R$ '+fmtBRL(totMkt))}
+      ${tile('Resultado', (totRes>=0?'R$ ':'-R$ ')+fmtBRL(Math.abs(totRes)), resColor)}
     </div>`;
 }
 function exportEmissoesCSV(){
