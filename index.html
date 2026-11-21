@@ -2879,7 +2879,7 @@ function renderMovTable(){
   });
   if(!rows.length){ tbody.innerHTML=`<tr><td colspan="8" class="em-table">Nenhum movimento encontrado.</td></tr>`; return; }
   // Numeração crescente por ordem cronológica (independente do filtro/ordem de exibição)
-  const allByDate = computeRunning(selProg).slice().sort((a,b)=>a.date.localeCompare(b.date)||(a._ts||0)-(b._ts||0));
+  const _cMesMap={}; (typeof cMovimentos!=='undefined'?cMovimentos:[]).forEach(c=>{_cMesMap[c.id]=c.mes||0;}); const allByDate = computeRunning(selProg).slice().sort((a,b)=>a.date.localeCompare(b.date)||(a._ts||0)-(b._ts||0)||(_cMesMap[a._clube]||0)-(_cMesMap[b._clube]||0));
   const seqMap = {}; allByDate.forEach((m,i)=>seqMap[m.id]=i+1);
   tbody.innerHTML = rows.map(m=>{
     const isCredit = MOV_CREDIT.has(m.type);
@@ -4098,7 +4098,7 @@ function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(
 function today(){ return new Date().toISOString().slice(0,10); }
 function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 function fmt(n){ return Math.round(n||0).toLocaleString('pt-BR'); }
-function fmtBRL(n){ return (n||0).toFixed(2).replace('.',','); }
+function fmtBRL(n){ return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtN(n){ return (n||0).toFixed(2).replace('.',','); }
 function fmtDate(s){ if(!s) return '—'; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -4954,7 +4954,7 @@ function cCriarMovSistema(cMov){
   if(plano.modalidade==='mensal'&&plano.custoMensal) value=plano.custoMensal;
   else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) value=plano.custoTotal/plano.totalMeses;
   else if(plano.cpm&&cMov.pts) value=(cMov.pts/1000)*plano.cpm;
-  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:cMov.date,points:cMov.pts,value,obs,_clube:cMov.id,_ts:Date.now()});
+  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:cMov.date,points:cMov.pts,value,obs,_clube:cMov.id,_ts:Date.now()+(cMov.mes||0)});
   if(typeof saveDB==='function') saveDB();
   if(typeof render==='function') render();
   return movId;
