@@ -511,6 +511,10 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
 .hidden{display:none!important}
 .sep{height:1px;background:var(--border);margin:.25rem 0}
 
+/* ── GRID RESPONSIVO ── */
+/* padrão: até 6 colunas, mas nunca menor que 160px */
+.dash-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important;max-width:100%}
+
 /* ── MOBILE ── */
 @media(max-width:680px){
   .app{flex-direction:column}
@@ -518,8 +522,30 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
   .frow{grid-template-columns:1fr}
 }
 
+/* ── TOPBAR RESPONSIVO (janela estreita desktop) ── */
+@media(max-width:900px) and (min-width:601px){
+  .nav-tabs{gap:2px}
+  .nav-tab{padding:.28rem .5rem;font-size:.62rem;gap:4px}
+  .nav-tab .tab-icon{width:20px;height:20px}
+  .brand{font-size:.8rem}
+  .topbar{padding:0 .75rem}
+}
+@media(max-width:780px) and (min-width:601px){
+  /* esconde texto das nav-tabs, mantém só ícones */
+  .nav-tab .tab-label{display:none}
+  .nav-tab .nav-dropdown-caret{display:none}
+  .nav-tab{padding:.3rem .4rem}
+}
+
+/* ── SUMMARY BAR RESPONSIVO ── */
+@media(max-width:860px) and (min-width:601px){
+  .sum-item{padding:0 .6rem}
+  .sum-val{font-size:.85rem}
+  .sum-label{font-size:.55rem}
+}
+
 /* ── GRID: 6 colunas horizontal, 4 vertical ── */
-body.layout-vertical .dash-grid{grid-template-columns:repeat(4,1fr)}
+body.layout-vertical .dash-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important}
 
 /* ── LAYOUT VERTICAL (portrait / tela estreita) ── */
 body.layout-vertical .topbar{
@@ -738,12 +764,12 @@ body.layout-vertical .page-label{display:none}
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('milhas',this)">
       <span class="tab-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-      Carteira
+      <span class="tab-label">Carteira</span>
     </button>
     <div class="nav-dropdown" id="navDropdownEmissoes">
       <button class="nav-tab" id="navTabEmissoes" onclick="showPage('rotas',null)">
         <span class="tab-icon" id="navTabEmissoesIcon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg></span>
-        Emissões <span class="nav-dropdown-caret">▾</span>
+        <span class="tab-label">Emissões</span> <span class="nav-dropdown-caret">▾</span>
       </button>
       <div class="nav-dropdown-menu">
         <div class="nav-dropdown-menu-inner">
@@ -760,15 +786,15 @@ body.layout-vertical .page-label{display:none}
     </div>
     <button class="nav-tab" onclick="showPage('clube',this)">
       <span class="tab-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
-      Clube
+      <span class="tab-label">Clube</span>
     </button>
     <button class="nav-tab" id="navTabVenc" onclick="showPage('vencimentos',this)">
       <span class="tab-icon" id="vencTabIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-      Vencimentos
+      <span class="tab-label">Vencimentos</span>
     </button>
     <button class="nav-tab" id="navTabPromos" onclick="showPage('promos',this)">
       <span class="tab-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l1.5 4.5H18l-3.75 2.73 1.43 4.4L12 11.25l-3.68 2.38 1.43-4.4L6 6.5h4.5z"/><path d="M5 20h14M12 15v5"/></svg></span>
-      Promos
+      <span class="tab-label">Promos</span>
     </button>
   </div>
   <div class="global-search-wrap" id="globalSearchWrap" style="display:none">
@@ -917,8 +943,8 @@ body.layout-vertical .page-label{display:none}
   <!-- Faixa global de emissões -->
   <div class="summary-strip" id="emissoesSummary" style="display:none">
     <div class="sum-group-label" style="color:var(--gold)">✈ Emissões</div>
-    <div class="sum-item"><div class="sum-label">Economia (uso próprio)</div><div class="sum-val" id="sumEconomia">—</div></div>
-    <div class="sum-item sum-item-last"><div class="sum-label">Resultado (venda)</div><div class="sum-val" id="sumResultadoEm">—</div></div>
+    <div class="sum-item"><div class="sum-label">Economia</div><div class="sum-val" id="sumEconomia">—</div></div>
+    <div class="sum-item sum-item-last"><div class="sum-label">Venda</div><div class="sum-val" id="sumResultadoEm">—</div></div>
   </div>
 
 
