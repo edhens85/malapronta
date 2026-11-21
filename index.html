@@ -1812,6 +1812,9 @@ function _migrateDB(){
         if(newVal>0 && mov.value!==newVal){ mov.value=newVal; dirty=true; }
         // sincroniza pts do mov com os pts do cMov (pode ter mudado)
         if(cMov.pts && mov.points!==cMov.pts){ mov.points=cMov.pts; dirty=true; }
+        // corrige date: mov de clube deve ter data do dia do registro, não do crédito futuro
+        const todayStr=new Date().toISOString().slice(0,10);
+        if(mov.date && mov.date>todayStr){ mov.date=todayStr; dirty=true; }
         // corrige _ts para garantir ordem por mes
         const tsCorrecto=(mov._ts||0)-((mov._ts||0)%1000)+(cMov.mes||0); if(tsCorrecto!==(mov._ts||0)){ mov._ts=tsCorrecto; dirty=true; }
       }
@@ -4963,7 +4966,8 @@ function cCriarMovSistema(cMov){
   if(plano.modalidade==='mensal'&&plano.custoMensal) value=plano.custoMensal;
   else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) value=plano.custoTotal/plano.totalMeses;
   else if(plano.cpm&&cMov.pts) value=(cMov.pts/1000)*plano.cpm;
-  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:cMov.date,points:cMov.pts,value,obs,_clube:cMov.id,_ts:Date.now()+(cMov.mes||0)});
+  const today=new Date().toISOString().slice(0,10);
+  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:today,points:cMov.pts,value,obs,_clube:cMov.id,_ts:Date.now()+(cMov.mes||0)});
   if(typeof saveDB==='function') saveDB();
   if(typeof render==='function') render();
   return movId;
