@@ -410,7 +410,8 @@ tr.row-pendente td{opacity:.85}
 
 .routes-tbl-wrap{flex:1;overflow:auto;padding:0}
 .routes-tbl{width:100%;border-collapse:collapse;font-size:.78rem}
-.routes-tbl thead th{background:var(--surface);padding:.65rem 1rem;text-align:left;font-size:.65rem;font-weight:600;color:var(--text-muted);white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;cursor:pointer;user-select:none}
+.routes-tbl thead th{background:var(--surface);padding:.65rem 1rem;text-align:center;font-size:.65rem;font-weight:600;color:var(--text-muted);white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;cursor:pointer;user-select:none}
+.routes-tbl thead th:last-child,.routes-tbl thead th.th-obs{text-align:left}
 .routes-tbl thead th:hover{color:var(--text)}
 .col-filter-wrap{position:relative;display:inline-block}
 .col-filter-icon{margin-left:4px;opacity:.4;font-size:.6rem;vertical-align:middle}
@@ -424,7 +425,8 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
 .cf-clear:hover{color:var(--text)}
 .routes-tbl tbody tr{border-bottom:1px solid var(--border2);transition:background .08s}
 .routes-tbl tbody tr:hover{background:var(--surface2)}
-.routes-tbl td{padding:.65rem 1rem;vertical-align:middle}
+.routes-tbl td{padding:.65rem 1rem;vertical-align:middle;text-align:center}
+.routes-tbl td.route-obs,.routes-tbl .route-obs{text-align:left}
 .route-trecho{font-weight:600;font-size:.8rem;white-space:nowrap}
 .iata{font-size:.68rem;color:var(--text-dim);margin-top:1px}
 .fav-btn{background:none;border:none;cursor:pointer;font-size:.95rem;line-height:1;color:var(--text-muted);transition:color .12s;padding:0}
@@ -817,7 +819,7 @@ body.layout-vertical .page-label{display:none}
             <th style="width:110px;white-space:nowrap">Aliança</th>
             <th style="white-space:nowrap">Onde Pesquisar</th>
             <th style="white-space:nowrap">Onde Emitir</th>
-            <th style="width:100%" onclick="sortRoutes('obs')">Observação <span class="col-filter-icon" id="sf-obs">▾</span></th>
+            <th class="th-obs" style="width:100%" onclick="sortRoutes('obs')">Observação <span class="col-filter-icon" id="sf-obs">▾</span></th>
             <th style="width:60px"></th>
           </tr>
         </thead>
