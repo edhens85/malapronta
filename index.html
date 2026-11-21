@@ -966,11 +966,14 @@ body.layout-vertical .page-label{display:none}
           <div class="fg"><label>Data início</label><input class="fi" type="date" id="cDate" oninput="cRebuildRows()"></div>
           <div class="fg"><label>Fidelidade (meses)</label><input class="fi" id="cFidelidade" type="number" min="0" max="24" placeholder="ex: 12"></div>
         </div>
-        <div class="fg"><label>Modalidade</label>
-          <div class="radio-group">
-            <label class="radio-label"><input type="radio" name="cModal" value="mensal" checked> Mensal</label>
-            <label class="radio-label"><input type="radio" name="cModal" value="anual"> Anual</label>
+        <div class="fg" style="flex:0 0 auto">
+          <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+            <button id="cBtnMensal" onclick="cSelectModal('mensal')" style="padding:.35rem .75rem;font-size:.78rem;font-weight:600;background:var(--gold);color:#000;border:none;cursor:pointer;font-family:inherit;white-space:nowrap" title="Mensal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mensal</button>
+            <button id="cBtnAnual" onclick="cSelectModal('anual')" style="padding:.35rem .75rem;font-size:.78rem;font-weight:600;background:none;color:var(--text-muted);border:none;cursor:pointer;font-family:inherit;white-space:nowrap" title="Anual">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Anual</button>
           </div>
+          <input type="hidden" name="cModal" id="cModalHidden" value="mensal">
         </div>
         <div id="cBoxMensal">
           <div class="frow">
@@ -4255,24 +4258,26 @@ document.addEventListener('DOMContentLoaded', function(){
   cCarregar();
   cRenderPlanos(); cRenderExtrato(); cUpdateBadges();
   document.getElementById('cDate').value=cHoje();
-  document.querySelectorAll('input[name=cModal]').forEach(r=>{ r.onchange=cOnModal; });
-  cOnModal();
+  cSelectModal('mensal');
   document.getElementById('cConfirmOverlay').addEventListener('click',function(e){ if(e.target===this) cFecharConfirm(); });
   document.getElementById('cEditOverlay').addEventListener('click',function(e){ if(e.target===this) cFecharEditModal(); });
 });
 
 // ——— Modal ———
-function cOnModal(){
-  const v=document.querySelector('input[name=cModal]:checked').value;
+function cSelectModal(v){
+  document.getElementById('cModalHidden').value=v;
   const isAnual=v==='anual';
   document.getElementById('cBoxMensal').classList.toggle('hidden',isAnual);
   document.getElementById('cBoxAnual').classList.toggle('hidden',!isAnual);
+  const btnM=document.getElementById('cBtnMensal'),btnA=document.getElementById('cBtnAnual');
+  if(btnM){ btnM.style.background=isAnual?'none':'var(--gold)'; btnM.style.color=isAnual?'var(--text-muted)':'#000'; }
+  if(btnA){ btnA.style.background=isAnual?'var(--gold)':'none'; btnA.style.color=isAnual?'#000':'var(--text-muted)'; }
   cCalcCpm();
 }
-window.cOnModal=cOnModal;
+window.cSelectModal=cSelectModal;
 
 function cCalcCpm(){
-  const v=document.querySelector('input[name=cModal]:checked')?.value||'mensal';
+  const v=document.getElementById('cModalHidden')?.value||'mensal';
   let custo=0,pts=0;
   if(v==='mensal'){
     custo=parseMoney(document.getElementById('cCustoMensal'));
@@ -4301,8 +4306,7 @@ window.cDistribuirMilhas=cDistribuirMilhas;
 let _cPresetCredits={};
 function cCarregarExemplo(){
   document.getElementById('cNome').value='Plano 2.000 Anual';
-  document.querySelector('input[name=cModal][value=anual]').checked=true;
-  cOnModal();
+  cSelectModal('anual');
   cPreencherDoComunicado([{mes:1,pts:5000},{mes:3,pts:7000},{mes:6,pts:8000},{mes:9,pts:10000},{mes:12,pts:11000}],2000);
 }
 window.cCarregarExemplo=cCarregarExemplo;
@@ -4424,7 +4428,7 @@ window.cCancelarUpgrade=cCancelarUpgrade;
 
 // ——— Registro ———
 function cSimularRegistro(){
-  const modal=document.querySelector('input[name=cModal]:checked').value;
+  const modal=document.getElementById('cModalHidden')?.value||'mensal';
   const nome=document.getElementById('cNome').value.trim();
   if(!nome){ alert('Informe o nome do plano.'); return; }
   const grupoId=cUid(), planoId=cUid();
@@ -4481,8 +4485,8 @@ function cSimularRegistro(){
   document.getElementById('cPdf').value=''; document.getElementById('cDate').value=cHoje();
   const selProg=document.getElementById('cPrograma'); selProg.value=''; selProg.readOnly=false; selProg.style.opacity=''; selProg.style.cursor='';
   document.getElementById('cParcelasWrap').innerHTML=''; document.getElementById('cParcelasSoma').style.display='none';
-  document.getElementById('cParcelasSection').classList.add('hidden'); document.getElementById('cBoxAnual').classList.add('hidden'); document.getElementById('cBoxMensal').classList.remove('hidden');
-  document.querySelector('input[name=cModal][value=mensal]').checked=true;
+  document.getElementById('cParcelasSection').classList.add('hidden');
+  cSelectModal('mensal');
   document.getElementById('cCpmDisplay').classList.add('hidden');
   cSalvar();
   cToast(planoData.upgradeDe?'Upgrade registrado!':'Plano registrado! '+novosMovs.length+' movimento(s) criado(s).');
