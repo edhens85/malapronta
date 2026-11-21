@@ -3922,11 +3922,11 @@ function renderEmissoes(){
       <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}</td>
       <td>${esc(m.emCabine||'—')}</td>
       <td class="td-num">${fmt(m.points||0)}</td>
-      <td class="td-num">R$ ${fmtBRL(custo)}</td>
-      <td class="td-num">R$ ${fmtBRL(taxas)}</td>
-      <td class="td-num" style="font-weight:700">R$ ${fmtBRL(total)}</td>
-      <td class="td-num">${mkt>0?'R$ '+fmtBRL(mkt):'—'}</td>
-      <td class="td-num" style="${resStyle};font-weight:700">${res!=null?(res>=0?'+':'')+' R$ '+fmtBRL(Math.abs(res)):'—'}</td>
+      <td class="td-num">${fmtBRL(custo)}</td>
+      <td class="td-num">${fmtBRL(taxas)}</td>
+      <td class="td-num" style="font-weight:700">${fmtBRL(total)}</td>
+      <td class="td-num">${mkt>0?fmtBRL(mkt):'—'}</td>
+      <td class="td-num" style="${resStyle};font-weight:700">${res!=null?(res>=0?'+ ':'- ')+fmtBRL(Math.abs(res)):'—'}</td>
       <td class="route-obs" title="${esc(m.obs||'')}">${esc(m.obs||'—')}</td>
     </tr>`;
   }).join('');
