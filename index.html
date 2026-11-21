@@ -4917,7 +4917,12 @@ function cCriarMovSistema(cMov){
   if(!prog) return null;
   const movId=uid();
   const obs='Clube: '+plano.nome+(cMov.total?' ('+cMov.mes+'/'+cMov.total+')':cMov.mes?' (mês '+cMov.mes+')':'');
-  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:cMov.date,points:cMov.pts,value:0,obs,_clube:cMov.id,_ts:Date.now()});
+  // custo proporcional: mensal usa custoMensal; anual divide custoTotal pelo nº de parcelas
+  let value=0;
+  if(plano.modalidade==='mensal'&&plano.custoMensal) value=plano.custoMensal;
+  else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) value=plano.custoTotal/plano.totalMeses;
+  else if(plano.cpm&&cMov.pts) value=(cMov.pts/1000)*plano.cpm;
+  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:cMov.date,points:cMov.pts,value,obs,_clube:cMov.id,_ts:Date.now()});
   if(typeof saveDB==='function') saveDB();
   if(typeof render==='function') render();
   return movId;
