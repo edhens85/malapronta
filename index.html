@@ -4390,6 +4390,25 @@ function cCarregar(){
     if(m) cMovimentos=JSON.parse(m);
     if(g) _cGid=parseInt(g)||1;
   }catch(e){}
+  // Migração: corrige movimentos de assinatura com value=0 no db.movements
+  setTimeout(()=>{
+    if(!db||!db.movements) return;
+    let dirty=false;
+    db.movements.forEach(mov=>{
+      if(mov.type==='assinatura'&&!(mov.value>0)&&mov._clube){
+        // tenta encontrar o plano via cMovimentos
+        const cMov=cMovimentos.find(c=>c.id===mov._clube);
+        const plano=cMov?cPlanos.find(p=>p.id===cMov.planoId):null;
+        if(plano){
+          if(plano.modalidade==='mensal'&&plano.custoMensal) mov.value=plano.custoMensal;
+          else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) mov.value=plano.custoTotal/plano.totalMeses;
+          else if(plano.cpm&&cMov.pts) mov.value=(cMov.pts/1000)*plano.cpm;
+          if(mov.value>0) dirty=true;
+        }
+      }
+    });
+    if(dirty){ saveDB(); if(typeof render==='function') render(); }
+  },200);
 }
 
 // ——— Helpers ———
