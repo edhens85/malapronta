@@ -3183,10 +3183,22 @@ function saveProgram(){
   saveDB(); closeModal('modalProgram'); render();
 }
 function deleteProgram(){
-  if(!confirm('Excluir programa e todos os movimentos?')) return;
+  // verifica clubes vinculados
+  const clubesVinculados=(typeof cPlanos!=='undefined'?cPlanos:[]).filter(p=>p.programaId===editProgId);
+  let aviso='Excluir programa e todos os movimentos?';
+  if(clubesVinculados.length){
+    const nomes=clubesVinculados.map(p=>'"'+p.nome+'"').join(', ');
+    aviso='Excluir programa e todos os movimentos?\n\n⚠ '+clubesVinculados.length+' plano(s) de clube vinculado(s) a este programa perderão o vínculo: '+nomes+'.';
+  }
+  if(!confirm(aviso)) return;
   db.programs=db.programs.filter(p=>p.id!==editProgId);
   db.movements=db.movements.filter(m=>m.programId!==editProgId);
   if(selProg===editProgId) selProg=db.programs[0]?.id||null;
+  // limpa programaId órfão nos planos de clube
+  if(typeof cPlanos!=='undefined'){
+    cPlanos.forEach(p=>{ if(p.programaId===editProgId){ p.programaId=null; p.programa=''; } });
+    if(typeof cSalvar==='function') cSalvar();
+  }
   saveDB(); closeModal('modalProgram'); render();
 }
 
