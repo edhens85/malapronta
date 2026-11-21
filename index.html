@@ -815,9 +815,9 @@ body.layout-vertical .page-label{display:none}
               </div>
             </th>
             <th style="width:110px;white-space:nowrap">Aliança</th>
-            <th style="width:160px">Onde Pesquisar</th>
-            <th style="width:160px">Onde Emitir</th>
-            <th onclick="sortRoutes('obs')">Observação <span class="col-filter-icon" id="sf-obs">▾</span></th>
+            <th style="white-space:nowrap">Onde Pesquisar</th>
+            <th style="white-space:nowrap">Onde Emitir</th>
+            <th style="width:100%" onclick="sortRoutes('obs')">Observação <span class="col-filter-icon" id="sf-obs">▾</span></th>
             <th style="width:60px"></th>
           </tr>
         </thead>
@@ -2671,8 +2671,8 @@ function renderRoutes(){
         <td style="vertical-align:middle;font-size:.85rem"><div class="route-trecho">${esc(r.trecho||'—')}</div></td>
         <td style="vertical-align:middle">${r.ciaAerea?`<span class="badge b-compra" style="background:var(--surface3);color:var(--text);font-size:.82rem">${esc(r.ciaAerea)}</span>`:'—'}</td>
         <td style="vertical-align:middle;white-space:nowrap">${r.alianca?`<span class="badge" style="background:var(--surface3);color:var(--text-dim);font-size:.82rem">${esc(r.alianca)}</span>`:'—'}</td>
-        <td style="vertical-align:middle"><div class="links-cell" style="font-size:.82rem">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
-        <td style="vertical-align:middle"><div class="links-cell" style="font-size:.82rem">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
+        <td style="vertical-align:middle;white-space:nowrap"><div class="links-cell" style="font-size:.82rem">${linkCell(r,'p1',r.id)}${linkCell(r,'p2',r.id)}</div></td>
+        <td style="vertical-align:middle;white-space:nowrap"><div class="links-cell" style="font-size:.82rem">${linkCell(r,'e1',r.id)}${linkCell(r,'e2',r.id)}</div></td>
         <td class="route-obs" title="${esc(r.obs||'')}" style="vertical-align:middle;font-size:.85rem;color:var(--text)">${esc(r.obs||'—')}</td>
         <td></td>
       </tr>`;
