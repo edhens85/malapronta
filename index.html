@@ -4917,7 +4917,7 @@ function cCriarMovSistema(cMov){
   if(!prog) return null;
   const movId=uid();
   const obs='Clube: '+plano.nome+(cMov.total?' ('+cMov.mes+'/'+cMov.total+')':cMov.mes?' (mês '+cMov.mes+')':'');
-  db.movements.push({id:movId,programId:prog.id,type:'acumulo_simples',date:cMov.date,points:cMov.pts,value:0,obs,_clube:cMov.id,_ts:Date.now()});
+  db.movements.push({id:movId,programId:prog.id,type:'assinatura',date:cMov.date,points:cMov.pts,value:0,obs,_clube:cMov.id,_ts:Date.now()});
   if(typeof saveDB==='function') saveDB();
   if(typeof render==='function') render();
   return movId;
