@@ -211,8 +211,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .gsr-sub{color:var(--text-dim);font-size:.72rem}
 
 /* ── TICKER ── */
-.ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;justify-content:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
-.ticker-inner{display:flex;gap:0;white-space:nowrap;justify-content:center}
+.ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;margin:0 auto}
 .ticker-item{padding:0 1.5rem;font-size:.7rem;display:flex;align-items:center;gap:.5rem;border-right:1px solid var(--border);flex-shrink:0}
 .ticker-item:last-child{border-right:none}
 .ticker-name{color:var(--text-dim);font-weight:500}
@@ -2621,6 +2621,10 @@ function renderSummary(){
   const elGRes=document.getElementById('sumResultadoEm');
   if(elGEco){ elGEco.textContent=gHasEco?'R$ '+fmtBRL(gEco):'—'; elGEco.style.color=gHasEco?(gEco>=0?'var(--teal)':'var(--red)'):''; }
   if(elGRes){ elGRes.textContent=gHasRes?(gRes>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(gRes)):'—'; elGRes.style.color=gHasRes?(gRes>=0?'#4ade80':'var(--red)'):''; }
+  // mostra faixa emissões só se houver emissões
+  const hasEmissoes = (db.movements||[]).some(m=>m.type==='emissao_passagem'&&!m.pendente);
+  const esEl=document.getElementById('emissoesSummary');
+  if(esEl) esEl.style.display=(hasEmissoes&&(gHasEco||gHasRes))?'':'none';
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
@@ -2870,10 +2874,6 @@ function backToDash(){
   const gs = document.getElementById('globalSummary');
   if(gs) gs.style.display='';
   renderDashboard();
-  // mostra faixa emissões só se houver emissões registradas
-  const hasEmissoes = (db.movements||[]).some(m=>m.type==='emissao_passagem'&&!m.pendente);
-  const es = document.getElementById('emissoesSummary');
-  if(es) es.style.display = hasEmissoes ? '' : 'none';
 }
 
 function renderMovTable(){
