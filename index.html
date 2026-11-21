@@ -5179,6 +5179,21 @@ function cSalvarEdicao(){
   const pdfFile=document.getElementById('cePdf').files[0]||null; const pdfNomeCustom=document.getElementById('cePdfNome').value.trim()||null;
   if(pdfFile){ const pdfNomeFinal=pdfNomeCustom||pdfFile.name; p.pdfNome=pdfNomeFinal; const r=new FileReader(); r.onload=e=>cSalvarPdf(p.id,e.target.result,pdfNomeFinal); r.readAsDataURL(pdfFile); }
   else if(_ceRemoveAnexo){ p.pdfNome=null; } else if(pdfNomeCustom&&p.pdfNome){ p.pdfNome=pdfNomeCustom; }
+  // Sincroniza db.movements dos confirmados com os novos dados do plano
+  let dbDirty=false;
+  db.movements.forEach(mov=>{
+    if(!mov._clube||mov.type!=='assinatura') return;
+    const cMov=cMovimentos.find(c=>c.id===mov._clube);
+    if(!cMov||cMov.planoId!==p.id) return;
+    // recalcula value
+    let newVal=0;
+    if(p.modalidade==='mensal'&&p.custoMensal) newVal=p.custoMensal;
+    else if(p.modalidade==='anual'&&p.custoTotal&&p.totalMeses) newVal=p.custoTotal/p.totalMeses;
+    else if(p.cpm&&cMov.pts) newVal=(cMov.pts/1000)*p.cpm;
+    if(newVal>0&&mov.value!==newVal){ mov.value=newVal; dbDirty=true; }
+    if(cMov.pts&&mov.points!==cMov.pts){ mov.points=cMov.pts; dbDirty=true; }
+  });
+  if(dbDirty){ if(typeof _runningCache!=='undefined') _runningCache.clear(); saveDB(); render(); }
   cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); cSalvar(); cFecharEditModal(); cToast('Assinatura atualizada!');
 }
 window.cSalvarEdicao=cSalvarEdicao;
