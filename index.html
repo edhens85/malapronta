@@ -986,7 +986,17 @@ body.layout-vertical .page-label{display:none}
 
       <!-- CADASTRO -->
       <div class="clube-panel" id="cTabCadastro" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;gap:14px">
-        <div class="modal-title">Assinatura de Clube</div>
+        <!-- cabeçalho: título + toggle período -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div class="modal-title" style="margin:0">Assinatura de Clube</div>
+          <div style="display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:20px;overflow:hidden;flex-shrink:0">
+            <button id="cBtnMensal" onclick="cSelectModal('mensal')" style="display:flex;align-items:center;gap:5px;padding:.28rem .65rem;font-size:.72rem;font-weight:600;background:var(--gold);color:#000;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s,color .15s" title="Mensal">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mensal</button>
+            <button id="cBtnAnual" onclick="cSelectModal('anual')" style="display:flex;align-items:center;gap:5px;padding:.28rem .65rem;font-size:.72rem;font-weight:600;background:none;color:var(--text-muted);border:none;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .15s,color .15s" title="Anual">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Anual</button>
+          </div>
+          <input type="hidden" name="cModal" id="cModalHidden" value="mensal">
+        </div>
         <div class="upgrade-banner hidden" id="cUpgradeBanner">
           <span id="cUpgradeBannerText">↑ Upgrade</span>
           <button onclick="cCancelarUpgrade()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:.75rem;font-weight:600">✕ cancelar</button>
@@ -1003,27 +1013,20 @@ body.layout-vertical .page-label{display:none}
           <div class="fg"><label>Data início</label><input class="fi" type="date" id="cDate" oninput="cRebuildRows()"></div>
           <div class="fg"><label>Fidelidade (meses)</label><input class="fi" id="cFidelidade" type="number" min="0" max="24" placeholder="ex: 12"></div>
         </div>
-        <div class="fg" style="flex:0 0 auto">
-          <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
-            <button id="cBtnMensal" onclick="cSelectModal('mensal')" style="padding:.35rem .75rem;font-size:.78rem;font-weight:600;background:var(--gold);color:#000;border:none;cursor:pointer;font-family:inherit;white-space:nowrap" title="Mensal">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mensal</button>
-            <button id="cBtnAnual" onclick="cSelectModal('anual')" style="padding:.35rem .75rem;font-size:.78rem;font-weight:600;background:none;color:var(--text-muted);border:none;cursor:pointer;font-family:inherit;white-space:nowrap" title="Anual">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Anual</button>
-          </div>
-          <input type="hidden" name="cModal" id="cModalHidden" value="mensal">
-        </div>
         <div id="cBoxMensal">
-          <div class="frow">
+          <div class="frow" style="align-items:flex-end">
             <div class="fg"><label>Custo mensal (R$)</label><input class="fi fi-money" id="cCustoMensal" type="text" placeholder="0,00" oninput="cCalcCpm()"></div>
             <div class="fg"><label>Milhas por mês</label><input class="fi fi-pts" id="cTotalPts" type="text" placeholder="0" oninput="cCalcCpm()"></div>
+            <div class="fg" id="cCpmInlineMensal" style="display:none;flex:0 0 auto"><label style="color:var(--gold)">CPM</label><div class="fi" style="background:var(--surface3);border-color:var(--gold);color:var(--gold);font-weight:700;text-align:center;min-width:70px" id="cCpmValMensal">—</div></div>
           </div>
           <div class="fhint" style="margin-top:4px">Crédito recorrente mensal até cancelar.</div>
         </div>
         <div id="cBoxAnual" class="hidden">
-          <div class="frow">
+          <div class="frow" style="align-items:flex-end">
             <div class="fg"><label>Custo total</label><input class="fi fi-money" id="cCusto" type="text" placeholder="0,00" oninput="cCalcCpm()"></div>
             <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="cTotalMilhasAnual" type="text" placeholder="0" onblur="cExpandMilhasTotal(this);cDistribuirMilhas()"></div>
-            <div class="fg"><label>Nº de meses</label><input class="fi" id="cMeses" type="number" min="1" max="24" placeholder="12" oninput="cRebuildRows()"></div>
+            <div class="fg"><label>Nº de meses</label><input class="fi" id="cMeses" type="number" min="1" max="24" placeholder="12" oninput="cRebuildRows();cCalcCpm()"></div>
+            <div class="fg" id="cCpmInlineAnual" style="display:none;flex:0 0 auto"><label style="color:var(--gold)">CPM</label><div class="fi" style="background:var(--surface3);border-color:var(--gold);color:var(--gold);font-weight:700;text-align:center;min-width:70px" id="cCpmValAnual">—</div></div>
           </div>
           <div id="cParcelasSection" class="hidden" style="margin-top:8px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -1042,7 +1045,6 @@ body.layout-vertical .page-label{display:none}
           <input class="fi" id="cPdfNome" type="text" placeholder="Nome do anexo" style="flex:1">
         </div>
         <div id="cPdfInfo" style="display:none;font-size:.72rem;color:var(--text-muted)"></div>
-        <div id="cCpmDisplay" class="hidden cpm-display">CPM: —</div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="cCancelarUpgrade()">Cancelar</button>
           <button class="btn btn-primary" id="cBtnRegistrar" onclick="cSimularRegistro()">Registrar plano</button>
@@ -4456,14 +4458,23 @@ function cCalcCpm(){
   if(v==='mensal'){
     custo=parseMoney(document.getElementById('cCustoMensal'));
     pts=parsePts(document.getElementById('cTotalPts'));
+    const inl=document.getElementById('cCpmInlineMensal');
+    const val=document.getElementById('cCpmValMensal');
+    if(custo>0&&pts>0){ if(val) val.textContent='R$ '+fmtBRL(custo/(pts/1000)); if(inl) inl.style.display=''; }
+    else { if(inl) inl.style.display='none'; }
   } else {
     custo=parseMoney(document.getElementById('cCusto'));
-    document.querySelectorAll('.cp-pts').forEach(el=>{ pts+=parsePts(el); });
-    cUpdateSoma();
+    if(document.querySelectorAll('.cp-pts').length>0){
+      document.querySelectorAll('.cp-pts').forEach(el=>{ pts+=parsePts(el); });
+      cUpdateSoma();
+    } else {
+      pts=parsePts(document.getElementById('cTotalMilhasAnual'));
+    }
+    const inl=document.getElementById('cCpmInlineAnual');
+    const val=document.getElementById('cCpmValAnual');
+    if(custo>0&&pts>0){ if(val) val.textContent='R$ '+fmtBRL(custo/(pts/1000)); if(inl) inl.style.display=''; }
+    else { if(inl) inl.style.display='none'; }
   }
-  const disp=document.getElementById('cCpmDisplay');
-  if(custo>0&&pts>0){ disp.textContent='CPM: R$ '+fmtBRL(custo/(pts/1000)); disp.classList.remove('hidden'); }
-  else disp.classList.add('hidden');
 }
 window.cCalcCpm=cCalcCpm;
 
@@ -4690,7 +4701,7 @@ function cSimularRegistro(){
   document.getElementById('cParcelasWrap').innerHTML=''; document.getElementById('cParcelasSoma').style.display='none';
   document.getElementById('cParcelasSection').classList.add('hidden');
   cSelectModal('mensal');
-  document.getElementById('cCpmDisplay').classList.add('hidden');
+  ['cCpmInlineMensal','cCpmInlineAnual'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
   cSalvar();
   cToast(planoData.upgradeDe?'Upgrade registrado!':'Plano registrado! '+novosMovs.length+' movimento(s) criado(s).');
   setTimeout(()=>clubeShowTab('planos'),400);
