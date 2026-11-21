@@ -4395,6 +4395,8 @@ function cCarregar(){
     if(!db||!db.movements) return;
     let dirty=false;
     db.movements.forEach(mov=>{
+      // corrige type errado: movimentos de clube gravados como acumulo_simples
+      if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
       if(mov.type==='assinatura'&&!(mov.value>0)&&mov._clube){
         // tenta encontrar o plano via cMovimentos
         const cMov=cMovimentos.find(c=>c.id===mov._clube);
