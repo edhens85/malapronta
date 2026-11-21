@@ -1794,12 +1794,14 @@ function ensureDBDefaults(){
 function _migrateDB(){
   // Migração: corrige movimentos de assinatura de clube gravados com type/value errados
   if(!db||!db.movements) return;
+  const _cm = (typeof cMovimentos!=='undefined'?cMovimentos:[]);
+  const _cp = (typeof cPlanos!=='undefined'?cPlanos:[]);
   let dirty=false;
   db.movements.forEach(mov=>{
     if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
     if(mov._clube && mov.type==='assinatura' && !(mov.value>0)){
-      const cMov=cMovimentos.find(c=>c.id===mov._clube);
-      const plano=cMov?cPlanos.find(p=>p.id===cMov.planoId):null;
+      const cMov=_cm.find(c=>c.id===mov._clube);
+      const plano=cMov?_cp.find(p=>p.id===cMov.planoId):null;
       if(plano){
         if(plano.modalidade==='mensal'&&plano.custoMensal) mov.value=plano.custoMensal;
         else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) mov.value=plano.custoTotal/plano.totalMeses;
