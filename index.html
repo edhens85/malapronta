@@ -2880,7 +2880,7 @@ function renderMovTable(){
   });
   if(!rows.length){ tbody.innerHTML=`<tr><td colspan="8" class="em-table">Nenhum movimento encontrado.</td></tr>`; return; }
   // Numeração crescente por ordem cronológica (independente do filtro/ordem de exibição)
-  const _cMesMap={}; (typeof cMovimentos!=='undefined'?cMovimentos:[]).forEach(c=>{_cMesMap[c.id]=c.mes||0;}); const allByDate = computeRunning(selProg).slice().sort((a,b)=>a.date.localeCompare(b.date)||(a._ts||0)-(b._ts||0)||(_cMesMap[a._clube]||0)-(_cMesMap[b._clube]||0));
+  const _cIdxMap={}; (typeof cMovimentos!=='undefined'?cMovimentos:[]).forEach((c,i)=>{_cIdxMap[c.id]=i;}); const allByDate = computeRunning(selProg).slice().sort((a,b)=>a.date.localeCompare(b.date)||(_cIdxMap[a._clube]!=null&&_cIdxMap[b._clube]!=null?_cIdxMap[a._clube]-_cIdxMap[b._clube]:(a._ts||0)-(b._ts||0)));
   const seqMap = {}; allByDate.forEach((m,i)=>seqMap[m.id]=i+1);
   tbody.innerHTML = rows.map(m=>{
     const isCredit = MOV_CREDIT.has(m.type);
