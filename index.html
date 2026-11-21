@@ -272,8 +272,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .dash-section-title{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
 .dash-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;width:100%;box-sizing:border-box}
-.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1rem 1.1rem;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18);min-width:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;text-align:center}
-.prog-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;z-index:1}
+.prog-card{background:var(--surface);border-style:solid;border-width:3px 1.5px 1.5px;border-color:var(--border);border-radius:var(--radius);padding:1rem 1rem 1.1rem;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18);min-width:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;text-align:center}
+.prog-card::before{display:none}
 .prog-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
 /* topo: ícone + nome + saldo na mesma linha */
 .pc-top{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:.9rem}
@@ -2794,8 +2794,7 @@ function renderDashboard(){
         expiryBadge = `<div style="font-size:.65rem;color:${diff<=30?'var(--red)':'var(--yellow,#e0b03a)'};margin-top:3px;font-weight:600">⏱ Vence em ${diff===0?'hoje':diff===1?'1 dia':diff+' dias'}</div>`;
       }
     }
-    html += `<div class="prog-card" onclick="selectProg('${p.id}')">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${p.color};border-radius:var(--radius) var(--radius) 0 0"></div>
+    html += `<div class="prog-card" onclick="selectProg('${p.id}')" style="border-color:${p.color}">
       <div class="pc-top">
         ${getProgLogo(p,40,9)}
         <div class="pc-top-info">
