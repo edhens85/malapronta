@@ -3296,9 +3296,14 @@ function saveRoute(){
     const r=db.routes.find(x=>x.id===editRouteId);
     const oldCia = r.ciaAerea||'';
     const newCia = data.ciaAerea||'';
-    // padronizar: se a cia mudou, atualiza todas as rotas com o nome antigo
+    // padronizar: se a cia mudou, propaga o novo nome em todas as rotas
     if(oldCia && newCia && oldCia !== newCia){
-      db.routes.forEach(x=>{ if((x.ciaAerea||'')=== oldCia) x.ciaAerea = newCia; });
+      db.routes.forEach(x=>{
+        if((x.ciaAerea||'')===oldCia) x.ciaAerea=newCia;
+        ['p1Text','p2Text','e1Text','e2Text'].forEach(f=>{
+          if((x[f]||'')===oldCia) x[f]=newCia;
+        });
+      });
     }
     Object.assign(r,data);
   } else {
