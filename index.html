@@ -1801,14 +1801,17 @@ function _migrateDB(){
   let dirty=false;
   db.movements.forEach(mov=>{
     if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
-    if(mov._clube && mov.type==='assinatura' && !(mov.value>0)){
+    if(mov._clube && mov.type==='assinatura'){
       const cMov=_cm.find(c=>c.id===mov._clube);
       const plano=cMov?_cp.find(p=>p.id===cMov.planoId):null;
       if(plano){
-        if(plano.modalidade==='mensal'&&plano.custoMensal) mov.value=plano.custoMensal;
-        else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) mov.value=plano.custoTotal/plano.totalMeses;
-        else if(plano.cpm&&cMov.pts) mov.value=(cMov.pts/1000)*plano.cpm;
-        if(mov.value>0) dirty=true;
+        let newVal=0;
+        if(plano.modalidade==='mensal'&&plano.custoMensal) newVal=plano.custoMensal;
+        else if(plano.modalidade==='anual'&&plano.custoTotal&&plano.totalMeses) newVal=plano.custoTotal/plano.totalMeses;
+        else if(plano.cpm&&cMov.pts) newVal=(cMov.pts/1000)*plano.cpm;
+        if(newVal>0 && mov.value!==newVal){ mov.value=newVal; dirty=true; }
+        // sincroniza pts do mov com os pts do cMov (pode ter mudado)
+        if(cMov.pts && mov.points!==cMov.pts){ mov.points=cMov.pts; dirty=true; }
       }
     }
   });
