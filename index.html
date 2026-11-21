@@ -600,6 +600,9 @@ body.layout-vertical .page-label{display:none}
 .dp-yr-nav button:hover{background:var(--surface3);color:var(--text)}
 .dp-yr-nav span{font-size:.78rem;font-weight:600;color:var(--text)}
 .dp-input:empty::before{content:attr(data-placeholder);color:var(--text-muted);opacity:.5}
+/* Extrato clube — grupos colapsáveis */
+.cg-header:hover td{background:var(--surface3)!important}
+.cg-row td{border-left:2px solid var(--border)}
 </style>
 </head>
 <body>
@@ -5102,30 +5105,67 @@ function cRenderExtrato(){
   document.getElementById('cExtratoResumo').textContent=pCount?pCount+' pendente'+(pCount!==1?'s':''):'';
   const btnTodos=document.getElementById('cBtnConfirmarTodos');
   if(pCount>1) btnTodos.classList.remove('hidden'); else btnTodos.classList.add('hidden');
-  tbody.innerHTML=[...list].sort((a,b)=>a.date.localeCompare(b.date)).map(m=>{
+  // Agrupar por programa + ano, ordenado do mais recente para o mais antigo
+  const grupos = {};
+  [...list].sort((a,b)=>b.date.localeCompare(a.date)).forEach(m=>{
     const plano=cPlanos.find(p=>p.id===m.planoId)||{nome:'?'};
-    const isOk=m.status==='confirmado',isCan=m.status==='cancelado',isPend=m.status==='pendente',isRev=m.status==='em_revisao';
-    const badge=isOk?`<span class="badge" style="background:rgba(46,168,130,.15);color:var(--green);border:1px solid rgba(46,168,130,.35)">Recebido</span>`
-      :isCan?`<span class="badge badge-cancelado">Cancelado</span>`
-      :isRev?`<span class="badge" style="background:rgba(160,124,236,.18);color:var(--purple);border:1px solid rgba(160,124,236,.4)">⚠ Revisão</span>`
-      :`<span class="badge badge-pendente">Pendente</span>`;
-    const sub=m.total?`${m.mes}/${m.total}`:m.mes?`${m.mes}`:`—`;
-    const acaoConfirm=`<button class="btn-icon" style="border-color:var(--green);color:var(--green)" onclick="cConfirmar('${m.id}')" title="Confirmar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg></button>`;
-    const acaoCancelar=`<button class="btn-icon" style="border-color:var(--red);color:var(--red)" onclick="cCancelarMov('${m.id}')" title="Cancelar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
-    const acao=(isPend||isRev)?`<div style="display:flex;gap:3px;justify-content:flex-end">${acaoConfirm}${acaoCancelar}</div>`:'';
-    const rowColor=isRev?'background:rgba(160,124,236,.05)':'';
-    const rowClick=(isOk||isCan)?`onclick="cReverterMov('${m.id}')" style="cursor:pointer;${rowColor}" title="Clique para reverter para pendente"`:`style="${rowColor}"`;
-    return `<tr class="${isPend?'pending':''} ${isCan?'canceled':''}" ${rowClick}>
-      <td style="font-size:.75rem;font-weight:700;color:var(--text-dim);white-space:nowrap;text-align:center">${sub}</td>
-      <td style="font-size:.75rem;white-space:nowrap">${m.date.split('-').reverse().join('/')}</td>
-      <td><div style="font-weight:700;font-size:.78rem">${plano.programaId?(db.programs.find(x=>x.id===plano.programaId)?.name||plano.programa||plano.nome):plano.programa||plano.nome}</div><div style="font-size:.72rem;color:var(--text-dim)">${(plano.programaId||plano.programa)?plano.nome:''}</div></td>
-      <td style="color:${isOk?'var(--green)':isCan?'var(--text-muted)':isRev?'var(--purple)':'rgba(224,176,58,.8)'};font-weight:700;font-size:.85rem">${isCan?'—':'+'+fmtNum(m.pts)}</td>
-      <td>${badge}</td>
-      <td style="text-align:right;white-space:nowrap;width:56px;padding:0.5rem 2px 0.5rem 0">${acao}</td>
-    </tr>`;
+    const progName=plano.programaId?(db.programs.find(x=>x.id===plano.programaId)?.name||plano.programa||plano.nome):plano.programa||plano.nome;
+    const ano=m.date.slice(0,4);
+    const key=`${progName}__${ano}`;
+    if(!grupos[key]) grupos[key]={progName,ano,movs:[]};
+    grupos[key].movs.push({m,plano});
+  });
+
+  tbody.innerHTML=Object.entries(grupos).map(([key,g])=>{
+    const gId='cg_'+key.replace(/[^a-z0-9]/gi,'_');
+    const totConf=g.movs.filter(({m})=>m.status==='confirmado').reduce((s,{m})=>s+m.pts,0);
+    const totPend=g.movs.filter(({m})=>m.status==='pendente'||m.status==='em_revisao').reduce((s,{m})=>s+m.pts,0);
+    const nPend=g.movs.filter(({m})=>m.status==='pendente'||m.status==='em_revisao').length;
+    const pendTag=nPend?`<span style="font-size:.65rem;background:rgba(212,170,78,.15);color:var(--gold);border:1px solid rgba(212,170,78,.3);border-radius:4px;padding:1px 5px;margin-left:4px">${nPend} pend.</span>`:'';
+    const rows=g.movs.map(({m,plano})=>{
+      const isOk=m.status==='confirmado',isCan=m.status==='cancelado',isPend=m.status==='pendente',isRev=m.status==='em_revisao';
+      const badge=isOk?`<span class="badge" style="background:rgba(46,168,130,.15);color:var(--green);border:1px solid rgba(46,168,130,.35)">Recebido</span>`
+        :isCan?`<span class="badge badge-cancelado">Cancelado</span>`
+        :isRev?`<span class="badge" style="background:rgba(160,124,236,.18);color:var(--purple);border:1px solid rgba(160,124,236,.4)">⚠ Revisão</span>`
+        :`<span class="badge badge-pendente">Pendente</span>`;
+      const sub=m.total?`${m.mes}/${m.total}`:m.mes?`${m.mes}`:`—`;
+      const acaoConfirm=`<button class="btn-icon" style="border-color:var(--green);color:var(--green)" onclick="cConfirmar('${m.id}')" title="Confirmar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg></button>`;
+      const acaoCancelar=`<button class="btn-icon" style="border-color:var(--red);color:var(--red)" onclick="cCancelarMov('${m.id}')" title="Cancelar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+      const acao=(isPend||isRev)?`<div style="display:flex;gap:3px;justify-content:flex-end">${acaoConfirm}${acaoCancelar}</div>`:'';
+      const rowBg=isRev?'background:rgba(160,124,236,.05)':'';
+      const rowClick=(isOk||isCan)?`onclick="cReverterMov('${m.id}')" style="cursor:pointer;${rowBg}" title="Clique para reverter para pendente"`:`style="${rowBg}"`;
+      return `<tr class="cg-row ${gId}-row ${isPend?'pending':''} ${isCan?'canceled':''}" ${rowClick}>
+        <td style="font-size:.75rem;font-weight:700;color:var(--text-dim);white-space:nowrap;text-align:center">${sub}</td>
+        <td style="font-size:.75rem;white-space:nowrap">${m.date.split('-').reverse().join('/')}</td>
+        <td><div style="font-size:.72rem;color:var(--text-dim)">${(plano.programaId||plano.programa)?plano.nome:''}</div></td>
+        <td style="color:${isOk?'var(--green)':isCan?'var(--text-muted)':isRev?'var(--purple)':'rgba(224,176,58,.8)'};font-weight:700;font-size:.85rem">${isCan?'—':'+'+fmtNum(m.pts)}</td>
+        <td>${badge}</td>
+        <td style="text-align:right;white-space:nowrap;width:56px;padding:0.5rem 2px 0.5rem 0">${acao}</td>
+      </tr>`;
+    }).join('');
+    return `<tr class="cg-header" onclick="cToggleGrupo('${gId}')" style="cursor:pointer;background:var(--surface2);user-select:none">
+      <td colspan="3" style="padding:.5rem .6rem;font-size:.78rem;font-weight:700;color:var(--text)">
+        <span id="${gId}-arrow" style="display:inline-block;margin-right:5px;transition:transform .2s;transform:rotate(0deg)">▸</span>
+        ${g.progName} <span style="color:var(--text-muted);font-weight:400">${g.ano}</span>${pendTag}
+      </td>
+      <td style="padding:.5rem .4rem;font-size:.78rem;font-weight:700;text-align:left">
+        ${totConf?`<span style="color:var(--green)">+${fmtNum(totConf)}</span>`:''}
+        ${totPend?`<span style="color:rgba(212,170,78,.7);font-size:.7rem;margin-left:4px">(+${fmtNum(totPend)} pend.)</span>`:''}
+      </td>
+      <td colspan="2" style="padding:.5rem .4rem;font-size:.7rem;color:var(--text-muted)">${g.movs.length} mov.</td>
+    </tr>${rows}`;
   }).join('');
 }
 window.cRenderExtrato=cRenderExtrato;
+
+function cToggleGrupo(gId){
+  const rows=document.querySelectorAll('.'+gId+'-row');
+  const arrow=document.getElementById(gId+'-arrow');
+  const isOpen=rows.length&&rows[0].style.display!=='none';
+  rows.forEach(r=>r.style.display=isOpen?'none':'');
+  if(arrow) arrow.style.transform=isOpen?'rotate(0deg)':'rotate(90deg)';
+}
+window.cToggleGrupo=cToggleGrupo;
 
 // Cria movimento no sistema principal (db.movements) para um crédito confirmado do clube
 function cCriarMovSistema(cMov){
