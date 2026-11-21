@@ -957,16 +957,27 @@ body.layout-vertical .page-label{display:none}
       <svg style="color:var(--gold);opacity:.35" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <div style="font-size:.85rem;color:var(--text-muted)">Nenhuma emissão encontrada</div>
     </div>
-    <div class="routes-tbl-wrap" id="emrWrap">
-      <table class="routes-tbl">
+    <div class="routes-tbl-wrap" id="emrWrap" style="overflow-x:auto">
+      <table class="routes-tbl" style="table-layout:auto;width:100%">
         <thead><tr>
-          <th>Data</th><th>Programa</th><th>Trecho</th><th>Cabine</th>
-          <th>Milhas</th><th>Custo (R$)</th><th>Taxas (R$)</th><th>Total (R$)</th><th>Mercado (R$)</th><th>Resultado (R$)</th><th>Obs</th>
+          <th style="white-space:nowrap">Data</th>
+          <th style="white-space:nowrap">Programa</th>
+          <th style="white-space:nowrap">CIA</th>
+          <th style="white-space:nowrap">Data voo</th>
+          <th style="white-space:nowrap">Trecho</th>
+          <th style="white-space:nowrap">Cabine</th>
+          <th style="white-space:nowrap;text-align:right">Milhas</th>
+          <th style="white-space:nowrap;text-align:right">Custo</th>
+          <th style="white-space:nowrap;text-align:right">Taxas</th>
+          <th style="white-space:nowrap;text-align:right">Total pago</th>
+          <th style="white-space:nowrap;text-align:right">Mercado</th>
+          <th style="white-space:nowrap;text-align:right">Resultado</th>
+          <th style="white-space:nowrap">Obs</th>
         </tr></thead>
         <tbody id="emrTbody"></tbody>
       </table>
     </div>
-    <div id="emrTotals" style="padding:.75rem 1.5rem;font-size:.78rem;color:var(--text-dim);border-top:1px solid var(--border)"></div>
+    <div id="emrTotals" style="padding:1rem 1.5rem 1.25rem;border-top:1px solid var(--border)"></div>
   </div>
 </div>
 
@@ -1319,6 +1330,16 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
+      <div class="frow">
+        <div class="fg">
+          <label>CIA aérea</label>
+          <input class="fi" id="mEmCia" type="text" placeholder="LATAM, Gol, Azul…">
+        </div>
+        <div class="fg">
+          <label>Data do voo</label>
+          <input class="fi" id="mEmDataVoo" type="date">
+        </div>
+      </div>
       <input type="hidden" id="mEmBenef" value="propria">
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
@@ -1478,6 +1499,16 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
+      <div class="frow">
+        <div class="fg">
+          <label>CIA aérea</label>
+          <input class="fi" id="emEmCia" type="text" placeholder="LATAM, Gol, Azul…">
+        </div>
+        <div class="fg">
+          <label>Data do voo</label>
+          <input class="fi" id="emEmDataVoo" type="date">
+        </div>
+      </div>
       <input type="hidden" id="emEmBenef" value="propria">
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="emObs"></textarea></div>
@@ -1493,9 +1524,6 @@ body.layout-vertical .page-label{display:none}
       </div>
       <input type="file" id="emFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleAnexoFile(this,'em')">
       <input type="hidden" id="emLink">
-    </div>
-    <div class="danger-zone">
-      <button class="btn btn-danger btn-sm" onclick="deleteMovement()">Excluir movimento</button>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('modalEditMov')">Cancelar</button>
@@ -1873,11 +1901,12 @@ function _setSyncStatus(s){ // 'ok'|'pending'|'offline'
   else if(s==='offline') dot.classList.add('offline');
 }
 let _lastSaveTs = 0; // timestamp do último save local
+let _initialLoadDone = false; // bloqueia onSnapshot antes do carregamento inicial
 function saveDB(){
   try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
   if(window._fbCurrentUid){
     _pendingSave = true; window._pendingSave = true;
-    _lastSaveTs = Date.now();
+    _lastSaveTs = Date.now(); // protege imediatamente contra race com onSnapshot
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
     // Salva imediatamente sem delay — garante sync antes de fechar
@@ -3367,6 +3396,8 @@ function openAddMovement(){
   document.getElementById('mEmMercado').value='';
   document.getElementById('mEmTrecho').value='';
   document.getElementById('mEmCabine').value='';
+  document.getElementById('mEmCia').value='';
+  document.getElementById('mEmDataVoo').value='';
   setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
   setAnexoUI('m','','');
@@ -3476,6 +3507,8 @@ function saveMovement(){
     mov.emMercado=parseMoney(document.getElementById('mEmMercado'));
     mov.emTrecho=document.getElementById('mEmTrecho').value.trim()||undefined;
     mov.emCabine=document.getElementById('mEmCabine').value||undefined;
+    mov.emCia=document.getElementById('mEmCia').value.trim()||undefined;
+    mov.emDataVoo=document.getElementById('mEmDataVoo').value||undefined;
     mov.emBenef=document.getElementById('mEmBenef').value||'propria';
   }
   db.movements.push(mov);
@@ -3523,6 +3556,8 @@ function openEditMov(id){
     document.getElementById('emEmMercado').value=m.emMercado!=null?fmtBRL(m.emMercado):'';
     document.getElementById('emEmTrecho').value=m.emTrecho||'';
     document.getElementById('emEmCabine').value=m.emCabine||'';
+    document.getElementById('emEmCia').value=m.emCia||'';
+    document.getElementById('emEmDataVoo').value=m.emDataVoo||'';
     setEmBenef('em', m.emBenef||'propria');
     calcEmissao('em');
   }
@@ -3580,6 +3615,8 @@ function updateMovement(){
     m.emMercado=parseMoney(document.getElementById('emEmMercado'));
     m.emTrecho=document.getElementById('emEmTrecho').value.trim()||undefined;
     m.emCabine=document.getElementById('emEmCabine').value||undefined;
+    m.emCia=document.getElementById('emEmCia').value.trim()||undefined;
+    m.emDataVoo=document.getElementById('emEmDataVoo').value||undefined;
     m.emBenef=document.getElementById('emEmBenef').value||'propria';
   } else { m.emCpm=undefined; m.emTaxas=undefined; m.emMercado=undefined; m.emTrecho=undefined; m.emCabine=undefined; }
   saveDB(); closeModal('modalEditMov'); render();
@@ -3958,21 +3995,52 @@ function renderEmissoes(){
     const res=mkt>0||total>0?mkt-total:null;
     totMilhas+=(m.points||0); totCusto+=custo; totTaxas+=taxas; totTotal+=total; totMkt+=mkt; if(res!=null)totRes+=res;
     const resStyle=res!=null?(res>=0?'color:#4ade80':'color:var(--red)'):'';
+    const benef = (m.emBenef||'propria')==='terceiro' ? '<span style="font-size:.68rem;background:var(--gold-bg);color:var(--gold-text);border-radius:4px;padding:1px 5px;margin-left:4px">venda</span>' : '';
     return `<tr style="cursor:pointer" onclick="selectProg('${m.programId}');showPage('milhas',document.querySelector('.nav-tab[onclick*=milhas]'));setTimeout(()=>openEditMov('${m.id}'),300)">
-      <td class="td-date">${fmtDate(m.date)}</td>
-      <td><span style="font-weight:600;color:var(--text)">${esc(p.name)}</span></td>
-      <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}</td>
-      <td>${esc(m.emCabine||'—')}</td>
-      <td class="td-num">${fmt(m.points||0)}</td>
-      <td class="td-num">${fmtBRL(custo)}</td>
-      <td class="td-num">${fmtBRL(taxas)}</td>
-      <td class="td-num" style="font-weight:700">${fmtBRL(total)}</td>
-      <td class="td-num">${mkt>0?fmtBRL(mkt):'—'}</td>
-      <td class="td-num" style="${resStyle};font-weight:700">${res!=null?(res>=0?'+ ':'- ')+fmtBRL(Math.abs(res)):'—'}</td>
+      <td class="td-date" style="white-space:nowrap">${fmtDate(m.date)}</td>
+      <td style="white-space:nowrap"><span style="font-weight:600;color:var(--text)">${esc(p.name)}</span></td>
+      <td style="white-space:nowrap">${esc(m.emCia||'—')}</td>
+      <td style="white-space:nowrap">${m.emDataVoo?fmtDate(m.emDataVoo):'—'}</td>
+      <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}${benef}</td>
+      <td style="white-space:nowrap">${esc(m.emCabine||'—')}</td>
+      <td class="td-num" style="white-space:nowrap">${fmt(m.points||0)}</td>
+      <td class="td-num" style="white-space:nowrap">R$ ${fmtBRL(custo)}</td>
+      <td class="td-num" style="white-space:nowrap">R$ ${fmtBRL(taxas)}</td>
+      <td class="td-num" style="font-weight:700;white-space:nowrap">R$ ${fmtBRL(total)}</td>
+      <td class="td-num" style="white-space:nowrap">${mkt>0?'R$ '+fmtBRL(mkt):'—'}</td>
+      <td class="td-num" style="${resStyle};font-weight:700;white-space:nowrap">${res!=null?(res>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(res)):'—'}</td>
       <td class="route-obs" title="${esc(m.obs||'')}">${esc(m.obs||'—')}</td>
     </tr>`;
   }).join('');
-  document.getElementById('emrTotals').innerHTML=`<strong>Total: ${movs.length} emissões</strong> · Milhas: ${fmt(totMilhas)} · Custo: R$ ${fmtBRL(totCusto)} · Taxas: R$ ${fmtBRL(totTaxas)} · Total pago: R$ ${fmtBRL(totTotal)} · Mercado: R$ ${fmtBRL(totMkt)} · Resultado: <span style="${totRes>=0?'color:#4ade80':'color:var(--red)'}">R$ ${fmtBRL(totRes)}</span>`;
+  const resColor = totRes>=0 ? '#4ade80' : 'var(--red)';
+  document.getElementById('emrTotals').innerHTML=`
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.6rem">${movs.length} emissão${movs.length!==1?'s':''}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.75rem">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Milhas usadas</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmt(totMilhas)}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Custo de resgate</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totCusto)}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Taxas</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totTaxas)}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.6rem .9rem;min-width:100px;border-color:var(--border)">
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Total pago</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totTotal)}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Valor de mercado</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totMkt)}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:120px">
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Resultado total</div>
+        <div style="font-size:.95rem;font-weight:700;color:${resColor}">${totRes>=0?'+ ':'- '}R$ ${fmtBRL(Math.abs(totRes))}</div>
+      </div>
+    </div>`;
 }
 function exportEmissoesCSV(){
   const aereas=db.programs.filter(p=>p.type==='aerea');
@@ -3980,11 +4048,11 @@ function exportEmissoesCSV(){
   let movs=db.movements.filter(m=>m.type==='emissao_passagem');
   if(progFilter) movs=movs.filter(m=>m.programId===progFilter);
   movs.sort((a,b)=>a.date<b.date?1:-1);
-  const header=['Data','Programa','Trecho','Cabine','Milhas','Custo R$','Taxas R$','Total R$','Mercado R$','Resultado R$','Observação'];
+  const header=['Data','Programa','CIA','Data voo','Trecho','Cabine','Milhas','Custo R$','Taxas R$','Total R$','Mercado R$','Resultado R$','Observação'];
   const rows=movs.map(m=>{
     const p=db.programs.find(x=>x.id===m.programId)||{name:'?'};
     const custo=m.resgateCost||0, taxas=m.emTaxas||0, total=custo+taxas, mkt=m.emMercado||0, res=mkt-total;
-    return [m.date||'',p.name,m.emTrecho||'',m.emCabine||'',m.points||0,custo,taxas,total,mkt,res,(m.obs||'').replace(/"/g,'""')];
+    return [m.date||'',p.name,m.emCia||'',m.emDataVoo||'',m.emTrecho||'',m.emCabine||'',m.points||0,custo,taxas,total,mkt,res,(m.obs||'').replace(/"/g,'""')];
   });
   const csv=[header,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
@@ -4365,13 +4433,15 @@ async function signOut(){
           try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
           selProg = db.programs[0]?.id || null;
           _appShown = true;
+          _initialLoadDone = true; // libera onSnapshot após carregamento inicial
+          _lastSaveTs = Date.now(); // protege por mais 5s após load para evitar race
           _showApp(user);
           render();
 
           // 2) Após carregar, ativa onSnapshot para atualizações em tempo real de outros devices
           window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
-            // Ignora snapshot por 5s após save local para evitar sobrescrever dado recém-salvo
-            if(_pendingSave || (Date.now()-_lastSaveTs)<5000) return;
+            // Ignora snapshot até carregamento inicial estar completo E por 5s após save local
+            if(!_initialLoadDone || _pendingSave || (Date.now()-_lastSaveTs)<5000) return;
             if(true){
               db = remoteDB;
               ensureDBDefaults();
