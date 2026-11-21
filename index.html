@@ -4638,11 +4638,11 @@ function cRenderPlanos(){
     const badgeClass=isAtivo?(isUpgrade?'badge-upgrade':'badge-ativo'):'badge-encerrado';
     const badgeText=isAtivo?(isUpgrade?'Ativo (upgrade)':'Ativo'):(p.upgradeParaId?'Substituído':'Encerrado');
     const cardClass=isAtivo?(isUpgrade?'upgrade-ativo':'ativo'):'encerrado';
-    const upgradeBtn=isAtivo?`<button class="btn btn-sm btn-secondary" onclick="cIniciarUpgrade('${p.id}')" style="border-color:var(--blue);color:var(--blue);font-size:.72rem;padding:.25rem .6rem">Upgrade</button>`:'';
+    const upgradeBtn=isAtivo?`<button class="btn btn-sm btn-secondary" onclick="cIniciarUpgrade('${p.id}')" style="border-color:var(--green);color:var(--green);font-size:.72rem;padding:.25rem .6rem">Upgrade</button>`:'';
     const encerrarBtn=isAtivo
-      ?`<button class="btn btn-sm btn-secondary" onclick="cEncerrarPlano('${p.id}')" style="border-color:var(--red);color:var(--red);font-size:.72rem;padding:.25rem .6rem">Encerrar</button>`
+      ?`<button class="btn btn-sm btn-secondary" onclick="cEncerrarPlano('${p.id}')" style="border-color:var(--gold);color:var(--gold);font-size:.72rem;padding:.25rem .6rem">Encerrar</button>`
       :`<button class="btn btn-sm btn-secondary" onclick="cReativarPlano('${p.id}')" style="border-color:var(--green);color:var(--green);font-size:.72rem;padding:.25rem .6rem">Reativar</button>`;
-    const excluirBtn=`<button class="btn btn-sm btn-secondary" onclick="cExcluirPlano('${p.id}')" style="border-color:var(--red);color:var(--red);font-size:.72rem;padding:.25rem .6rem;opacity:.6" title="Excluir permanentemente">🗑</button>`;
+    const excluirBtn=`<button class="btn btn-sm btn-secondary" onclick="cExcluirPlano('${p.id}')" style="border-color:var(--red);color:var(--red);font-size:.72rem;padding:.25rem .6rem" title="Excluir permanentemente">🗑</button>`;
     const pdfBtn=p.pdfNome?`<button class="btn btn-sm btn-secondary" onclick="cAbrirPdf('${p.id}')" style="font-size:.72rem;padding:.25rem .6rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.pdfNome}">📄 ${p.pdfNome}</button>`:'';
     const verBtn=`<button class="btn btn-sm btn-secondary" onclick="clubeShowTab('extrato');cFilterPlano='${p.id}';cRenderExtrato()" style="font-size:.72rem;padding:.25rem .6rem">Extrato</button>`;
     const addMesBtn=(isAtivo&&p.modalidade==='mensal')?`<button class="btn btn-sm btn-secondary" onclick="cAdicionarMesMensal('${p.id}')" style="border-color:var(--gold);color:var(--gold);font-size:.72rem;padding:.25rem .6rem">+ Mês</button>`:'';
