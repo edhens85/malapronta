@@ -1327,7 +1327,7 @@ body.layout-vertical .page-label{display:none}
       <div class="frow">
         <div class="fg">
           <label>Trecho</label>
-          <input class="fi" id="mEmTrecho" type="text" placeholder="GRU → JFK" style="text-transform:uppercase" oninput="iataAutoArrow(this)" onkeydown="iataKeydown(this,event)">
+          <input class="fi" id="mEmTrecho" type="text" placeholder="GRU→JFK" style="text-transform:uppercase" oninput="iataAutoArrow(this)" onkeydown="iataKeydown(this,event)">
         </div>
         <div class="fg">
           <label>Cabine</label>
@@ -1496,7 +1496,7 @@ body.layout-vertical .page-label{display:none}
       <div class="frow">
         <div class="fg">
           <label>Trecho</label>
-          <input class="fi" id="emEmTrecho" type="text" placeholder="GRU → JFK" style="text-transform:uppercase" oninput="iataAutoArrow(this)" onkeydown="iataKeydown(this,event)">
+          <input class="fi" id="emEmTrecho" type="text" placeholder="GRU→JFK" style="text-transform:uppercase" oninput="iataAutoArrow(this)" onkeydown="iataKeydown(this,event)">
         </div>
         <div class="fg">
           <label>Cabine</label>
@@ -4256,7 +4256,7 @@ function iataKeydown(el, e){
   const last3 = v.slice(-3);
   if(!/^[A-Z]{3}$/.test(last3)) return;
   e.preventDefault();
-  el.value = v + ' → ';
+  el.value = v + '→';
   el.setSelectionRange(el.value.length, el.value.length);
 }
 
