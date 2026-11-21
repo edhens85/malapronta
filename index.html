@@ -1812,6 +1812,8 @@ function _migrateDB(){
         if(newVal>0 && mov.value!==newVal){ mov.value=newVal; dirty=true; }
         // sincroniza pts do mov com os pts do cMov (pode ter mudado)
         if(cMov.pts && mov.points!==cMov.pts){ mov.points=cMov.pts; dirty=true; }
+        // corrige _ts para garantir ordem por mes
+        const tsCorrecto=(mov._ts||0)-((mov._ts||0)%1000)+(cMov.mes||0); if(tsCorrecto!==(mov._ts||0)){ mov._ts=tsCorrecto; dirty=true; }
       }
     }
   });
