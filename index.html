@@ -212,8 +212,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 
 /* ── TICKER ── */
 .ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
-.ticker-inner{display:flex;gap:0;white-space:nowrap;margin:0 auto}
-.ticker-item{padding:0 1.5rem;font-size:.7rem;display:flex;align-items:center;gap:.5rem;border-right:1px solid var(--border);flex-shrink:0}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;margin:0 auto;align-items:stretch}
+.ticker-item{padding:0 1.5rem;font-size:.7rem;display:flex;align-items:center;gap:.5rem;border-right:1px solid var(--border);flex-shrink:0;align-self:stretch}
 .ticker-item:last-child{border-right:none}
 .ticker-name{color:var(--text-dim);font-weight:500}
 .ticker-val{color:var(--gold);font-weight:600}
