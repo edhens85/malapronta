@@ -977,15 +977,15 @@ body.layout-vertical .page-label{display:none}
         </div>
         <div id="cBoxMensal">
           <div class="frow">
-            <div class="fg"><label>Custo mensal (R$)</label><input class="fi" id="cCustoMensal" type="text" placeholder="0,00" oninput="fmtMoney(this);cCalcCpm()"></div>
-            <div class="fg"><label>Milhas por mês</label><input class="fi" id="cTotalPts" type="text" placeholder="0" oninput="fmtPts(this);cCalcCpm()" onblur="fmtPtsBlur(this)"></div>
+            <div class="fg"><label>Custo mensal (R$)</label><input class="fi fi-money" id="cCustoMensal" type="text" placeholder="0,00" oninput="cCalcCpm()"></div>
+            <div class="fg"><label>Milhas por mês</label><input class="fi fi-pts" id="cTotalPts" type="text" placeholder="0" oninput="cCalcCpm()"></div>
           </div>
           <div class="fhint" style="margin-top:4px">Crédito recorrente mensal até cancelar.</div>
         </div>
         <div id="cBoxAnual" class="hidden">
           <div class="frow">
-            <div class="fg"><label>Custo total</label><input class="fi" id="cCusto" type="text" placeholder="0,00" oninput="fmtMoney(this);cCalcCpm()"></div>
-            <div class="fg"><label>Total de milhas</label><input class="fi" id="cTotalMilhasAnual" type="text" placeholder="0" oninput="fmtPts(this)" onblur="fmtPtsBlur(this);cDistribuirMilhas()"></div>
+            <div class="fg"><label>Custo total</label><input class="fi fi-money" id="cCusto" type="text" placeholder="0,00" oninput="cCalcCpm()"></div>
+            <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="cTotalMilhasAnual" type="text" placeholder="0" oninput="" onblur="cDistribuirMilhas()"></div>
             <div class="fg"><label>Nº de meses</label><input class="fi" id="cMeses" type="number" min="1" max="24" placeholder="12" oninput="cRebuildRows()"></div>
           </div>
           <div id="cParcelasSection" class="hidden" style="margin-top:8px">
@@ -1092,14 +1092,14 @@ body.layout-vertical .page-label{display:none}
     </div>
     <div id="ceBoxMensal">
       <div class="frow">
-        <div class="fg"><label>Custo mensal (R$)</label><input class="fi" id="ceCustoMensal" type="text" placeholder="0,00" oninput="fmtMoney(this);ceCalcCpm()"></div>
-        <div class="fg"><label>Milhas por mês</label><input class="fi" id="ceMilhasMes" type="text" placeholder="0" oninput="fmtPts(this);ceCalcCpm()" onblur="fmtPtsBlur(this)"></div>
+        <div class="fg"><label>Custo mensal (R$)</label><input class="fi fi-money" id="ceCustoMensal" type="text" placeholder="0,00" oninput="ceCalcCpm()"></div>
+        <div class="fg"><label>Milhas por mês</label><input class="fi fi-pts" id="ceMilhasMes" type="text" placeholder="0" oninput="ceCalcCpm()"></div>
       </div>
     </div>
     <div id="ceBoxAnual" style="display:none">
       <div class="frow">
-        <div class="fg"><label>Custo total</label><input class="fi" id="ceCusto" type="text" placeholder="0,00" oninput="fmtMoney(this);ceCalcCpm()"></div>
-        <div class="fg"><label>Total de milhas</label><input class="fi" id="ceTotalMilhasAnual" type="text" placeholder="0" oninput="fmtPts(this)" onblur="fmtPtsBlur(this);ceDistribuirMilhas()"></div>
+        <div class="fg"><label>Custo total</label><input class="fi fi-money" id="ceCusto" type="text" placeholder="0,00" oninput="ceCalcCpm()"></div>
+        <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="ceTotalMilhasAnual" type="text" placeholder="0" oninput="" onblur="ceDistribuirMilhas()"></div>
         <div class="fg"><label>Nº de meses</label><input class="fi" id="ceMeses" type="number" min="1" max="24" placeholder="12" oninput="ceRebuildRows()"></div>
       </div>
       <div id="ceParcelasSection" class="hidden" style="margin-top:8px">
@@ -4190,6 +4190,43 @@ async function signOut(){
 </script>
 
 <!-- ═══════════════════════════════════════════════ -->
+<!--  FORMATAÇÃO AUTOMÁTICA GLOBAL                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+(function(){
+  // Detecta tipo pelo class: fi-money → moeda BRL; fi-pts / cp-pts / cep-pts → inteiro com milhar
+  function isMoney(el){ return el.classList.contains('fi-money'); }
+  function isPts(el){ return el.classList.contains('fi-pts')||el.classList.contains('cp-pts')||el.classList.contains('cep-pts'); }
+
+  function applyMoney(el){
+    const raw=el.value.replace(/\D/g,'');
+    if(!raw){el.value='';return;}
+    el.value=(parseInt(raw,10)/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function applyPts(el){
+    const raw=el.value.replace(/\D/g,'');
+    if(!raw){el.value='';return;}
+    el.value=parseInt(raw,10).toLocaleString('pt-BR');
+  }
+
+  document.addEventListener('input', function(e){
+    const el=e.target;
+    if(el.tagName!=='INPUT') return;
+    if(isMoney(el)) applyMoney(el);
+    else if(isPts(el)) applyPts(el);
+  }, true);
+
+  // Garante que ao colar (paste) também aplica
+  document.addEventListener('paste', function(e){
+    const el=e.target;
+    if(el.tagName!=='INPUT') return;
+    if(!isMoney(el)&&!isPts(el)) return;
+    setTimeout(()=>{ if(isMoney(el)) applyMoney(el); else applyPts(el); }, 0);
+  }, true);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════ -->
 <!--  CLUBE DE ASSINATURAS — JS                      -->
 <!-- ═══════════════════════════════════════════════ -->
 <script>
@@ -4220,7 +4257,7 @@ function cCarregar(){
 function cHoje(){ const d=new Date(); return d.toISOString().slice(0,10); }
 function fmtMoney(el){ let v=el.value.replace(/\D/g,''); if(!v){el.value='';return;} const n=parseInt(v)/100; el.value=n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtPts(el){ let v=el.value.replace(/\D/g,''); if(!v){el.value='';return;} el.value=parseInt(v).toLocaleString('pt-BR'); }
-function fmtPtsBlur(el){ let v=el.value.replace(/\D/g,''); if(!v){el.value='';return;} let n=parseInt(v); if(v.length<=3) n=n*1000; el.value=n.toLocaleString('pt-BR'); cCalcCpm(); }
+function fmtPtsBlur(el){ /* obsoleto — listener global trata */ cCalcCpm(); }
 function parsePts(el){ return parseInt((el?.value||'').replace(/\D/g,''))||0; }
 function parseMoney(el){ return parseFloat((el?.value||'').replace(/\./g,'').replace(',','.'))||0; }
 function fmtBRL(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -4340,7 +4377,7 @@ function cRebuildRows(redistribuir=true){
     const row=document.createElement('div');
     row.className='mes-row'; row.dataset.i=i;
     row.innerHTML=`<span class="mes-label" style="min-width:32px;font-size:.7rem">M${i+1}</span>`+
-      `<input class="fi cp-pts" type="text" placeholder="—" value="${val}" oninput="fmtPts(this)" onblur="fmtPtsBlur(this)" style="flex:1;min-width:0;padding:.3rem .5rem;font-size:.8rem">`;
+      `<input class="fi fi-pts cp-pts" type="text" placeholder="—" value="${val}" style="flex:1;min-width:0;padding:.3rem .5rem;font-size:.8rem">`;
     wrap.appendChild(row);
   }
   wrap.style.display='grid'; wrap.style.gridTemplateColumns='1fr 1fr';
@@ -4775,7 +4812,7 @@ function ceRebuildRows(redistribuir=true){
     if(_cePresetCredits[i]!==undefined) val=fmtNum(_cePresetCredits[i]);
     else if(existing[i]?.p) val=existing[i].p;
     const row=document.createElement('div'); row.className='mes-row ce-mes-row'; row.dataset.i=i;
-    row.innerHTML=`<span class="mes-label" style="min-width:32px;font-size:.7rem">M${i+1}</span><input class="fi cep-pts" type="text" placeholder="—" value="${val}" oninput="fmtPts(this);ceCalcCpm()" onblur="fmtPtsBlur(this)" style="flex:1;min-width:0;padding:.3rem .5rem;font-size:.8rem">`;
+    row.innerHTML=`<span class="mes-label" style="min-width:32px;font-size:.7rem">M${i+1}</span><input class="fi fi-pts cep-pts" type="text" placeholder="—" value="${val}" oninput="ceCalcCpm()" style="flex:1;min-width:0;padding:.3rem .5rem;font-size:.8rem">`;
     wrap.appendChild(row);
   }
   wrap.style.display='grid'; wrap.style.gridTemplateColumns='1fr 1fr';
