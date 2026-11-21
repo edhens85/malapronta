@@ -572,6 +572,34 @@ body.layout-vertical .page-label{display:none}
 .mes-row .fi{flex:1;min-width:0;padding:.35rem .6rem;font-size:.8rem}
 #cToast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.5rem 1.1rem;font-size:.82rem;color:var(--text);transition:transform .25s;z-index:999}
 #cToast.show{transform:translateX(-50%) translateY(0)}
+/* ── Datepicker customizado ── */
+.dp-wrap{position:relative;display:block}
+.dp-input{width:100%;box-sizing:border-box;cursor:pointer;user-select:none}
+.dp-cal{position:absolute;top:calc(100% + 4px);left:0;z-index:3000;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.6rem;width:220px;box-shadow:0 8px 24px rgba(0,0,0,.45);display:none}
+.dp-cal.dp-open{display:block}
+.dp-cal.dp-up{top:auto;bottom:calc(100% + 4px)}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem}
+.dp-head button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px 7px;border-radius:5px;font-size:.8rem;line-height:1}
+.dp-head button:hover{background:var(--surface3);color:var(--text)}
+.dp-title{font-size:.8rem;font-weight:600;color:var(--text);cursor:pointer;padding:3px 6px;border-radius:5px}
+.dp-title:hover{background:var(--surface3)}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.dp-dow{font-size:.62rem;text-align:center;color:var(--text-muted);padding:2px 0;font-weight:500}
+.dp-day{font-size:.73rem;text-align:center;padding:4px 2px;border-radius:5px;cursor:pointer;color:var(--text);line-height:1.2}
+.dp-day:hover{background:var(--surface3)}
+.dp-day.dp-today{color:var(--gold);font-weight:700}
+.dp-day.dp-sel{background:var(--gold);color:#000;font-weight:700}
+.dp-day.dp-other{color:var(--text-muted);opacity:.45}
+.dp-day.dp-disabled{opacity:.2;pointer-events:none}
+.dp-months,.dp-years{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.dp-mon,.dp-yr{font-size:.72rem;text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;color:var(--text)}
+.dp-mon:hover,.dp-yr:hover{background:var(--surface3)}
+.dp-mon.dp-sel,.dp-yr.dp-sel{background:var(--gold);color:#000;font-weight:700}
+.dp-yr-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+.dp-yr-nav button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px 8px;border-radius:5px;font-size:.8rem}
+.dp-yr-nav button:hover{background:var(--surface3);color:var(--text)}
+.dp-yr-nav span{font-size:.78rem;font-weight:600;color:var(--text)}
+.dp-input:empty::before{content:attr(data-placeholder);color:var(--text-muted);opacity:.5}
 </style>
 </head>
 <body>
@@ -5491,6 +5519,256 @@ function vencSalvarData(progId, val){
   if(mIcon) mIcon.style.color=critico?'var(--red)':'';
 }
 
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════════
+   Datepicker customizado – MalaPronta
+   Substitui todos os input[type=date] por um
+   picker compacto e estilizado.
+   ═══════════════════════════════════════════ */
+(function(){
+  const DAYS = ['D','S','T','Q','Q','S','S'];
+  const MONTHS_SHORT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const MONTHS_FULL  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  let activePicker = null;
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function parseVal(v){ // "YYYY-MM-DD" → {y,m,d} or null
+    if(!v||!/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
+    const [y,m,d]=v.split('-').map(Number);
+    return {y,m,d};
+  }
+
+  function toISO(y,m,d){ return `${y}-${pad(m)}-${pad(d)}`; }
+
+  // ── Render ──────────────────────────────────
+  function renderDays(picker){
+    const {cal,state,input} = picker;
+    const sel = parseVal(input.value);
+    const today = new Date();
+    const tY=today.getFullYear(), tM=today.getMonth()+1, tD=today.getDate();
+    const {viewY, viewM} = state;
+    const first = new Date(viewY, viewM-1, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(viewY, viewM, 0).getDate();
+    const daysInPrev  = new Date(viewY, viewM-1, 0).getDate();
+
+    cal.innerHTML = '';
+
+    // header
+    const head = document.createElement('div');
+    head.className = 'dp-head';
+    head.innerHTML = `
+      <button type="button" data-dp="prev">‹</button>
+      <span class="dp-title" data-dp="months">${MONTHS_SHORT[viewM-1]} ${viewY}</span>
+      <button type="button" data-dp="next">›</button>`;
+    cal.appendChild(head);
+
+    // dow row
+    const grid = document.createElement('div');
+    grid.className = 'dp-grid';
+    DAYS.forEach(d=>{ const el=document.createElement('div'); el.className='dp-dow'; el.textContent=d; grid.appendChild(el); });
+
+    // prev month tail
+    for(let i=0;i<first;i++){
+      const el=document.createElement('div'); el.className='dp-day dp-other';
+      el.textContent=daysInPrev-first+1+i; grid.appendChild(el);
+    }
+    // current month
+    for(let d=1;d<=daysInMonth;d++){
+      const el=document.createElement('div'); el.className='dp-day';
+      el.textContent=d;
+      if(sel && sel.y===viewY && sel.m===viewM && sel.d===d) el.classList.add('dp-sel');
+      if(tY===viewY && tM===viewM && tD===d) el.classList.add('dp-today');
+      el.dataset.date = toISO(viewY,viewM,d);
+      grid.appendChild(el);
+    }
+    // next month fill
+    const total = first+daysInMonth;
+    const remaining = total%7===0?0:7-(total%7);
+    for(let i=1;i<=remaining;i++){
+      const el=document.createElement('div'); el.className='dp-day dp-other';
+      el.textContent=i; grid.appendChild(el);
+    }
+    cal.appendChild(grid);
+  }
+
+  function renderMonths(picker){
+    const {cal,state,input} = picker;
+    const sel = parseVal(input.value);
+    cal.innerHTML = '';
+    const head = document.createElement('div');
+    head.className = 'dp-head';
+    head.innerHTML = `<button type="button" data-dp="yr-prev">‹</button>
+      <span class="dp-title" data-dp="years">${state.viewY}</span>
+      <button type="button" data-dp="yr-next">›</button>`;
+    cal.appendChild(head);
+    const grid = document.createElement('div'); grid.className='dp-months';
+    MONTHS_SHORT.forEach((m,i)=>{
+      const el=document.createElement('div'); el.className='dp-mon';
+      el.textContent=m;
+      if(sel && sel.y===state.viewY && sel.m===i+1) el.classList.add('dp-sel');
+      el.dataset.month=i+1;
+      grid.appendChild(el);
+    });
+    cal.appendChild(grid);
+  }
+
+  function renderYears(picker){
+    const {cal,state} = picker;
+    const base = Math.floor(state.viewY/12)*12;
+    cal.innerHTML='';
+    const nav=document.createElement('div'); nav.className='dp-yr-nav';
+    nav.innerHTML=`<button type="button" data-dp="dec-yr">‹</button><span>${base}–${base+11}</span><button type="button" data-dp="inc-yr">›</button>`;
+    cal.appendChild(nav);
+    const grid=document.createElement('div'); grid.className='dp-years';
+    for(let y=base;y<base+12;y++){
+      const el=document.createElement('div'); el.className='dp-yr';
+      el.textContent=y; el.dataset.year=y;
+      if(y===state.viewY) el.classList.add('dp-sel');
+      grid.appendChild(el);
+    }
+    cal.appendChild(grid);
+  }
+
+  function render(picker){
+    if(picker.state.view==='days') renderDays(picker);
+    else if(picker.state.view==='months') renderMonths(picker);
+    else renderYears(picker);
+    // position
+    const rect = picker.wrap.getBoundingClientRect();
+    if(rect.bottom+240>window.innerHeight) picker.cal.classList.add('dp-up');
+    else picker.cal.classList.remove('dp-up');
+  }
+
+  // ── Open / Close ────────────────────────────
+  function openPicker(picker){
+    if(activePicker && activePicker!==picker) closePicker(activePicker);
+    activePicker=picker;
+    const sel=parseVal(picker.input.value);
+    const now=new Date();
+    picker.state.viewY = sel?sel.y:now.getFullYear();
+    picker.state.viewM = sel?sel.m:now.getMonth()+1;
+    picker.state.view  = 'days';
+    render(picker);
+    picker.cal.classList.add('dp-open');
+  }
+
+  function closePicker(picker){
+    picker.cal.classList.remove('dp-open');
+    if(activePicker===picker) activePicker=null;
+  }
+
+  function selectDate(picker,iso){
+    picker.input.value=iso;
+    // dispara oninput/onchange do input original oculto
+    picker.input.dispatchEvent(new Event('input',{bubbles:true}));
+    picker.input.dispatchEvent(new Event('change',{bubbles:true}));
+    // atualiza display
+    updateDisplay(picker);
+    closePicker(picker);
+  }
+
+  function updateDisplay(picker){
+    const v=parseVal(picker.input.value);
+    if(v) picker.display.textContent=`${pad(v.d)}/${pad(v.m)}/${v.y}`;
+    else picker.display.textContent='';
+  }
+
+  // ── Handle clicks inside cal ────────────────
+  function handleCal(picker,e){
+    const t=e.target.closest('[data-dp],[data-date],[data-month],[data-year]');
+    if(!t) return;
+    const dp=t.dataset.dp, {state}=picker;
+    if(dp==='prev'){ if(state.viewM===1){state.viewM=12;state.viewY--;}else state.viewM--; render(picker); }
+    else if(dp==='next'){ if(state.viewM===12){state.viewM=1;state.viewY++;}else state.viewM++; render(picker); }
+    else if(dp==='months'){ state.view='months'; render(picker); }
+    else if(dp==='years')  { state.view='years';  render(picker); }
+    else if(dp==='yr-prev'){ state.viewY--; render(picker); }
+    else if(dp==='yr-next'){ state.viewY++; render(picker); }
+    else if(dp==='dec-yr') { state.viewY-=12; render(picker); }
+    else if(dp==='inc-yr') { state.viewY+=12; render(picker); }
+    else if(t.dataset.date){ selectDate(picker,t.dataset.date); }
+    else if(t.dataset.month){ state.viewM=Number(t.dataset.month); state.view='days'; render(picker); }
+    else if(t.dataset.year) { state.viewY=Number(t.dataset.year);  state.view='months'; render(picker); }
+  }
+
+  // ── Init one input ───────────────────────────
+  function initDatePicker(input){
+    if(input.dataset.dpInit) return;
+    input.dataset.dpInit='1';
+
+    // wrap
+    const wrap=document.createElement('div');
+    wrap.className='dp-wrap';
+    input.parentNode.insertBefore(wrap,input);
+    wrap.appendChild(input);
+    input.style.display='none'; // oculta o input nativo
+
+    // display button
+    const display=document.createElement('div');
+    display.className='fi dp-input';
+    display.tabIndex=0;
+    display.setAttribute('role','button');
+    display.setAttribute('aria-label','Selecionar data');
+    updateDisplay({input,display});
+    if(!display.textContent) display.textContent='';
+    display.style.color = display.textContent ? 'var(--text)' : 'var(--text-muted)';
+    display.dataset.placeholder='DD/MM/AAAA';
+    wrap.insertBefore(display,input);
+
+    // placeholder via CSS pseudo — usamos span
+    const cal=document.createElement('div');
+    cal.className='dp-cal';
+    wrap.appendChild(cal);
+
+    const picker={wrap,input,display,cal,state:{viewY:2024,viewM:1,view:'days'}};
+    updateDisplay(picker);
+
+    display.addEventListener('click',()=>openPicker(picker));
+    display.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPicker(picker); }});
+    cal.addEventListener('mousedown',e=>{ e.preventDefault(); handleCal(picker,e); });
+
+    // observer: se o valor mudar por JS (ex: openEditMov seta .value)
+    const obs=new MutationObserver(()=>updateDisplay(picker));
+    // também verificar por setter override
+    const orig=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+    // monitorar via polling leve (só quando cal aberto) + setter patch
+    const proto=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+    if(proto){
+      let _val=input.value;
+      Object.defineProperty(input,'value',{
+        get(){ return _val; },
+        set(v){ _val=v; updateDisplay(picker); if(proto.set) proto.set.call(this,v); },
+        configurable:true
+      });
+    }
+    return picker;
+  }
+
+  // ── Inicializa todos + observer para novos ───
+  function initAll(){
+    document.querySelectorAll('input[type="date"]:not([data-dp-init])').forEach(initDatePicker);
+  }
+
+  // Fecha ao clicar fora
+  document.addEventListener('mousedown',e=>{
+    if(activePicker && !activePicker.wrap.contains(e.target)) closePicker(activePicker);
+  });
+
+  // Init inicial + observer DOM
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAll);
+  else initAll();
+  const mo=new MutationObserver(()=>initAll());
+  mo.observe(document.body,{childList:true,subtree:true});
+
+  // Expor para chamadas externas (openEditMov etc que fazem getElementById().value=...)
+  window._dpRefresh=function(inputId){
+    const inp=document.getElementById(inputId);
+    if(inp) inp.value=inp.value; // dispara o setter patcheado
+  };
 })();
 </script>
 </body>
