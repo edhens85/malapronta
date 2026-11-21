@@ -2801,7 +2801,7 @@ function renderDashboard(){
           ${expiryBadge}
         </div>
         <div class="pc-saldo-inline">
-          <div class="pc-saldo-label">${(p.type==='aerea'||p.type==='hotel')?'CPM':'CPP'}</div>
+          <div class="pc-saldo-label">${p.type==='aerea'?'CPM':'CPP'}</div>
           <div class="pc-saldo-val">R$ ${fmtBRL(s.cpm)}</div>
         </div>
       </div>
