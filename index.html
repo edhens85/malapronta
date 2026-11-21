@@ -830,6 +830,16 @@ body.layout-vertical .page-label{display:none}
           <div class="stat-label">CPM</div>
           <div class="stat-val gold" id="detCpm">R$ 0,00</div>
         </div>
+        <div class="stat">
+          <div class="stat-label">Economia de Emissão</div>
+          <div class="stat-val teal" id="detEconomia">—</div>
+          <div class="stat-sub">uso próprio vs mercado</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Resultado de Emissão</div>
+          <div class="stat-val" id="detResultadoEm" style="color:#4ade80">—</div>
+          <div class="stat-sub">lucro em venda/terceiro</div>
+        </div>
       </div>
       <div class="mov-section">
         <div class="sec-header">
@@ -1315,6 +1325,16 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
+      <div class="frow">
+        <div class="fg">
+          <label>Beneficiário</label>
+          <select class="fs" id="mEmBenef">
+            <option value="propria">Própria (economia)</option>
+            <option value="terceiro">Terceiro (resultado)</option>
+          </select>
+        </div>
+        <div class="fg"></div>
+      </div>
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
     <div class="fg">
@@ -1468,6 +1488,7 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
+      <div class="frow"><div class="fg"><label>Beneficiário</label><select class="fs" id="emEmBenef"><option value="propria">Própria (economia)</option><option value="terceiro">Terceiro (resultado)</option></select></div><div class="fg"></div></div>
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="emObs"></textarea></div>
     <div class="fg">
@@ -2726,6 +2747,20 @@ function renderDetail(){
   document.getElementById('detBalance').textContent = fmt(s.balance);
   document.getElementById('detInvest').textContent = 'R$ '+fmtBRL(s.invest);
   document.getElementById('detCpm').textContent = 'R$ '+fmtBRL(s.cpm);
+  // Economia de Emissão (própria) e Resultado de Emissão (terceiro)
+  const emissoes = computeRunning(p.id).filter(m=>m.type==='emissao_passagem');
+  let economia=0, resultado=0, hasEco=false, hasRes=false;
+  emissoes.forEach(m=>{
+    const custo=(m.resgateCost!=null?m.resgateCost:(m._resgateCost||0))+(m.emTaxas||0);
+    const mkt=m.emMercado||0;
+    const res=mkt-custo;
+    if((m.emBenef||'propria')==='propria'){ economia+=res; hasEco=true; }
+    else { resultado+=res; hasRes=true; }
+  });
+  const elEco=document.getElementById('detEconomia');
+  const elRes=document.getElementById('detResultadoEm');
+  if(elEco){ elEco.textContent=hasEco?'R$ '+fmtBRL(economia):'—'; elEco.style.color=hasEco?(economia>=0?'var(--teal)':'var(--red)'):''; }
+  if(elRes){ elRes.textContent=hasRes?(resultado>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(resultado)):'—'; elRes.style.color=hasRes?(resultado>=0?'#4ade80':'var(--red)'):''; }
   // Ajustar label do botão de transferência
   const tBtn = document.querySelector('button[onclick="openTransfer()"]');
   if(tBtn){
@@ -3365,6 +3400,7 @@ function openAddMovement(){
   document.getElementById('mEmMercado').value='';
   document.getElementById('mEmTrecho').value='';
   document.getElementById('mEmCabine').value='';
+  document.getElementById('mEmBenef').value='propria';
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
   setAnexoUI('m','','');
   onMovTypeChange();
@@ -3458,6 +3494,7 @@ function saveMovement(){
     mov.emMercado=parseMoney(document.getElementById('mEmMercado'));
     mov.emTrecho=document.getElementById('mEmTrecho').value.trim()||undefined;
     mov.emCabine=document.getElementById('mEmCabine').value||undefined;
+    mov.emBenef=document.getElementById('mEmBenef').value||'propria';
   }
   db.movements.push(mov);
   saveDB(); closeModal('modalMovement'); render();
@@ -3504,6 +3541,7 @@ function openEditMov(id){
     document.getElementById('emEmMercado').value=m.emMercado!=null?fmtBRL(m.emMercado):'';
     document.getElementById('emEmTrecho').value=m.emTrecho||'';
     document.getElementById('emEmCabine').value=m.emCabine||'';
+    document.getElementById('emEmBenef').value=m.emBenef||'propria';
     calcEmissao('em');
   }
   onEditMovTypeChange();
@@ -3557,6 +3595,7 @@ function updateMovement(){
     m.emMercado=parseMoney(document.getElementById('emEmMercado'));
     m.emTrecho=document.getElementById('emEmTrecho').value.trim()||undefined;
     m.emCabine=document.getElementById('emEmCabine').value||undefined;
+    m.emBenef=document.getElementById('emEmBenef').value||'propria';
   } else { m.emCpm=undefined; m.emTaxas=undefined; m.emMercado=undefined; m.emTrecho=undefined; m.emCabine=undefined; }
   saveDB(); closeModal('modalEditMov'); render();
 }
