@@ -1149,6 +1149,7 @@ body.layout-vertical .page-label{display:none}
       <table class="routes-tbl" style="table-layout:auto;width:100%">
         <thead><tr>
           <th style="white-space:nowrap">Data</th>
+          <th style="white-space:nowrap">Tipo</th>
           <th style="white-space:nowrap">Programa</th>
           <th style="white-space:nowrap">CIA Aérea</th>
           <th style="white-space:nowrap">Data voo</th>
@@ -1493,6 +1494,17 @@ body.layout-vertical .page-label{display:none}
         <button type="button" id="mBenefPropria" onclick="setEmBenef('m','propria')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--gold);color:#000;font-weight:600;cursor:pointer">✈ Própria</button>
         <button type="button" id="mBenefVenda" onclick="setEmBenef('m','terceiro')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda</button>
       </div>
+      <!-- CIA aérea + Data do voo: logo abaixo de Própria/Venda -->
+      <div id="mCiaDataRowInline" class="frow hidden" style="margin-top:.5rem">
+        <div class="fg">
+          <label style="font-variant:normal;text-transform:none">Cia aérea</label>
+          <input class="fi" id="mEmCiaTop" type="text" placeholder="LATAM, Gol, Azul…">
+        </div>
+        <div class="fg">
+          <label style="font-variant:normal;text-transform:none">Data do voo</label>
+          <input class="fi" id="mEmDataVooTop" type="text" placeholder="dd/mm/aaaa" autocomplete="off">
+        </div>
+      </div>
     </div>
     <div class="frow">
       <div class="fg"><label>Data *</label><input class="fi" id="mDate" type="date"></div>
@@ -1558,17 +1570,9 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
-      <div id="mCiaDataRow" class="frow">
-        <div class="fg">
-          <label style="font-variant:normal;text-transform:none">Cia aérea</label>
-          <input class="fi" id="mEmCia" type="text" placeholder="LATAM, Gol, Azul…">
-        </div>
-        <div class="fg">
-          <label style="font-variant:normal;text-transform:none">Data do voo</label>
-          <input class="fi" id="mEmDataVoo" type="date">
-        </div>
-      </div>
       <input type="hidden" id="mEmBenef" value="propria">
+      <input type="hidden" id="mEmCia" value="">
+      <input type="hidden" id="mEmDataVoo" value="">
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
     <div class="fg">
@@ -3627,6 +3631,8 @@ function openAddMovement(){
   document.getElementById('mEmCabine').value='';
   document.getElementById('mEmCia').value='';
   document.getElementById('mEmDataVoo').value='';
+  const cTop=document.getElementById('mEmCiaTop'); if(cTop) cTop.value='';
+  const dvTop=document.getElementById('mEmDataVooTop'); if(dvTop){ dvTop.value=''; if(dvTop._fp) dvTop._fp.clear(); }
   setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
   setAnexoUI('m','','');
@@ -3651,6 +3657,8 @@ function onMovTypeChange(){
   const isEmissao = t==='emissao_passagem';
   const benefToggle = document.getElementById('mBenefToggle');
   if(benefToggle){ benefToggle.style.display = isEmissao ? 'flex' : 'none'; }
+  const ciaInline = document.getElementById('mCiaDataRowInline');
+  if(ciaInline){ ciaInline.classList.toggle('hidden', !isEmissao); }
   if(!isEmissao){ document.getElementById('mEmBenef').value='propria'; setEmBenef('m','propria'); }
   const hasVal = MOV_HAS_VALUE.has(t);
   document.getElementById('mValueGroup').classList.toggle('hidden',!hasVal);
@@ -3736,6 +3744,9 @@ function saveMovement(){
     mov.emMercado=parseMoney(document.getElementById('mEmMercado'));
     mov.emTrecho=document.getElementById('mEmTrecho').value.trim()||undefined;
     mov.emCabine=document.getElementById('mEmCabine').value||undefined;
+    // Sincroniza campos inline → hidden antes de ler
+    const _cTop=document.getElementById('mEmCiaTop'); if(_cTop) document.getElementById('mEmCia').value=_cTop.value;
+    const _dvTop=document.getElementById('mEmDataVooTop'); if(_dvTop) document.getElementById('mEmDataVoo').value=_dvTop._fp?(_dvTop._fp.selectedDates[0]?flatpickr.formatDate(_dvTop._fp.selectedDates[0],'Y-m-d'):''):_dvTop.value;
     mov.emCia=document.getElementById('mEmCia').value.trim()||undefined;
     mov.emDataVoo=document.getElementById('mEmDataVoo').value||undefined;
     mov.emBenef=document.getElementById('mEmBenef').value||'propria';
@@ -4224,13 +4235,15 @@ function renderEmissoes(){
     const res=mkt>0||total>0?mkt-total:null;
     totMilhas+=(m.points||0); totCusto+=custo; totTaxas+=taxas; totTotal+=total; totMkt+=mkt; if(res!=null)totRes+=res;
     const resStyle=res!=null?(res>=0?'color:#4ade80':'color:var(--red)'):'';
-    const benef = (m.emBenef||'propria')==='terceiro' ? '<span style="font-size:.68rem;background:var(--gold-bg);color:var(--gold-text);border-radius:4px;padding:1px 5px;margin-left:4px">venda</span>' : '';
+    const isVenda=(m.emBenef||'propria')==='terceiro';
+    const tipoCell=isVenda?'<span style="font-size:.7rem;background:var(--gold-bg);color:var(--gold-text);border-radius:4px;padding:2px 7px;font-weight:600">Venda</span>':'<span style="font-size:.7rem;color:var(--text-muted)">Própria</span>';
     return `<tr style="cursor:pointer" onclick="selectProg('${m.programId}');showPage('milhas',document.querySelector('.nav-tab[onclick*=milhas]'));setTimeout(()=>openEditMov('${m.id}'),300)">
       <td class="td-date" style="white-space:nowrap">${fmtDate(m.date)}</td>
+      <td style="white-space:nowrap">${tipoCell}</td>
       <td style="white-space:nowrap"><span style="font-weight:600;color:var(--text)">${esc(p.name)}</span></td>
       <td style="white-space:nowrap">${esc(m.emCia||'—')}</td>
       <td style="white-space:nowrap">${m.emDataVoo?fmtDate(m.emDataVoo):'—'}</td>
-      <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}${benef}</td>
+      <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}</td>
       <td style="white-space:nowrap">${esc(m.emCabine||'—')}</td>
       <td class="td-num" style="white-space:nowrap">${fmt(m.points||0)}</td>
       <td class="td-num" style="white-space:nowrap">${fmtBRL(custo)}</td>
@@ -4528,10 +4541,11 @@ function openModal(id){
   document.getElementById(id).classList.remove('hidden');
   // Inicializa flatpickr nos campos de data do voo
   if(id==='modalMovement'){
-    if(!document.getElementById('mEmDataVoo')._fp){
-      document.getElementById('mEmDataVoo')._fp = flatpickr('#mEmDataVoo',{
-        locale:'pt', dateFormat:'Y-m-d', allowInput:true,
-        disableMobile:true
+    const dvEl = document.getElementById('mEmDataVooTop');
+    if(dvEl && !dvEl._fp){
+      dvEl._fp = flatpickr(dvEl,{
+        locale:'pt', dateFormat:'Y-m-d', altInput:true, altFormat:'d/m/Y',
+        allowInput:true, disableMobile:true, minDate:null
       });
     }
   }
