@@ -1260,6 +1260,10 @@ body.layout-vertical .page-label{display:none}
         <option value="resgate">Resgate</option>
       </select>
       <div class="fhint" style="margin-top:.3rem">Para registrar assinatura de clube, use a aba <b>Clube</b> ↑</div>
+      <div id="mBenefToggle" class="hidden" style="display:none;gap:6px;margin-top:.4rem">
+        <button type="button" id="mBenefPropria" onclick="setEmBenef('m','propria')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--gold);color:#000;font-weight:600;cursor:pointer">✈ Própria</button>
+        <button type="button" id="mBenefVenda" onclick="setEmBenef('m','terceiro')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda</button>
+      </div>
     </div>
     <div class="frow">
       <div class="fg"><label>Data *</label><input class="fi" id="mDate" type="date"></div>
@@ -1325,16 +1329,7 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
-      <div class="frow">
-        <div class="fg">
-          <label>Beneficiário</label>
-          <select class="fs" id="mEmBenef">
-            <option value="propria">Própria (economia)</option>
-            <option value="terceiro">Terceiro (resultado)</option>
-          </select>
-        </div>
-        <div class="fg"></div>
-      </div>
+      <input type="hidden" id="mEmBenef" value="propria">
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
     <div class="fg">
@@ -1434,6 +1429,11 @@ body.layout-vertical .page-label{display:none}
         <option value="transferencia_enviada">Transferência enviada</option>
         <option value="transferencia_recebida">Transferência recebida</option>
       </select>
+      <div id="emBenefToggle" class="hidden" style="display:none;gap:6px;margin-top:.4rem">
+        <button type="button" id="emBenefPropria" onclick="setEmBenef('em','propria')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--gold);color:#000;font-weight:600;cursor:pointer">✈ Própria</button>
+        <button type="button" id="emBenefVenda" onclick="setEmBenef('em','terceiro')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda</button>
+      </div>
+      <input type="hidden" id="emEmBenef" value="propria">
     </div>
     <div class="frow">
       <div class="fg"><label>Data *</label><input class="fi" id="emDate" type="date"></div>
@@ -1488,7 +1488,7 @@ body.layout-vertical .page-label{display:none}
           </select>
         </div>
       </div>
-      <div class="frow"><div class="fg"><label>Beneficiário</label><select class="fs" id="emEmBenef"><option value="propria">Própria (economia)</option><option value="terceiro">Terceiro (resultado)</option></select></div><div class="fg"></div></div>
+      <input type="hidden" id="emEmBenef" value="propria">
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="emObs"></textarea></div>
     <div class="fg">
@@ -3403,16 +3403,27 @@ function openAddMovement(){
   document.getElementById('mEmMercado').value='';
   document.getElementById('mEmTrecho').value='';
   document.getElementById('mEmCabine').value='';
-  document.getElementById('mEmBenef').value='propria';
+  setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
   setAnexoUI('m','','');
   onMovTypeChange();
   openModal('modalMovement');
 }
+function setEmBenef(prefix, val){
+  const hiddenEl = document.getElementById((prefix==='m'?'mEmBenef':'emEmBenef'));
+  if(hiddenEl) hiddenEl.value = val;
+  const propBtn = document.getElementById((prefix==='m'?'mBenefPropria':'emBenefPropria'));
+  const vendBtn = document.getElementById((prefix==='m'?'mBenefVenda':'emBenefVenda'));
+  if(propBtn){ propBtn.style.background = val==='propria'?'var(--gold)':'var(--surface3)'; propBtn.style.color = val==='propria'?'#000':'var(--text-muted)'; }
+  if(vendBtn){ vendBtn.style.background = val==='terceiro'?'var(--gold)':'var(--surface3)'; vendBtn.style.color = val==='terceiro'?'#000':'var(--text-muted)'; }
+}
 function onMovTypeChange(){
   const t=document.getElementById('mType').value;
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   const isEmissao = t==='emissao_passagem';
+  const benefToggle = document.getElementById('mBenefToggle');
+  if(benefToggle){ benefToggle.style.display = isEmissao ? 'flex' : 'none'; }
+  if(!isEmissao){ document.getElementById('mEmBenef').value='propria'; setEmBenef('m','propria'); }
   const hasVal = MOV_HAS_VALUE.has(t);
   document.getElementById('mValueGroup').classList.toggle('hidden',!hasVal);
   if(hasVal) document.getElementById('mValueLabel').textContent = getValueLabel(t);
@@ -3544,7 +3555,7 @@ function openEditMov(id){
     document.getElementById('emEmMercado').value=m.emMercado!=null?fmtBRL(m.emMercado):'';
     document.getElementById('emEmTrecho').value=m.emTrecho||'';
     document.getElementById('emEmCabine').value=m.emCabine||'';
-    document.getElementById('emEmBenef').value=m.emBenef||'propria';
+    setEmBenef('em', m.emBenef||'propria');
     calcEmissao('em');
   }
   onEditMovTypeChange();
@@ -3554,6 +3565,9 @@ function onEditMovTypeChange(){
   const t=document.getElementById('emType').value;
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   const isEmissao = t==='emissao_passagem';
+  const emBenefToggle = document.getElementById('emBenefToggle');
+  if(emBenefToggle){ emBenefToggle.style.display = isEmissao ? 'flex' : 'none'; }
+  if(!isEmissao){ document.getElementById('emEmBenef').value='propria'; setEmBenef('em','propria'); }
   const hasVal = MOV_HAS_VALUE.has(t);
   document.getElementById('emValueGroup').classList.toggle('hidden',!hasVal);
   if(hasVal) document.getElementById('emValueLabel').textContent = getValueLabel(t);
