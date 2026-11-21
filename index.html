@@ -3466,6 +3466,11 @@ function deleteMovDirect(id){
 }
 function openEditMov(id){
   const m=db.movements.find(x=>x.id===id); if(!m) return;
+  // Movimentos de clube só podem ser editados pela topbar Clube
+  if(m._clube){
+    cToast('Edite esta assinatura pela aba Clube ↑',3500);
+    return;
+  }
   editMovId=id;
   document.getElementById('emId').value=id;
   document.getElementById('emType').value=m.type;
