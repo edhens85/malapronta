@@ -2874,7 +2874,10 @@ function renderMovTable(){
     else if(sc==='custo'){ ka=a._custoVal!=null?a._custoVal:-1; kb=b._custoVal!=null?b._custoVal:-1; return sd?kb-ka:ka-kb; }
     else if(sc==='cpm'){ ka=a._cpmVal!=null?a._cpmVal:-1; kb=b._cpmVal!=null?b._cpmVal:-1; return sd?kb-ka:ka-kb; }
     else { ka=a.date||''; kb=b.date||''; }
-    return sd?kb.localeCompare(ka):ka.localeCompare(kb);
+    const dateCmp = sd?kb.localeCompare(ka):ka.localeCompare(kb);
+    if(dateCmp!==0) return dateCmp;
+    // desempate por _ts: mesmo dia, mais recente no topo (desc)
+    return sd?((b._ts||0)-(a._ts||0)):((a._ts||0)-(b._ts||0));
   });
   // Atualiza ícones
   ['date','pts','custo','cpm'].forEach(c=>{
