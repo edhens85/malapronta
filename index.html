@@ -1096,6 +1096,10 @@ body.layout-vertical .page-label{display:none}
         <select class="fs" id="emrProgFilter" onchange="renderEmissoes()" style="font-size:.78rem;padding:.35rem .7rem;min-width:140px"><option value="">Todos os programas</option></select>
         <input class="search-routes" id="emrSearch" placeholder="Buscar trecho, cabine, obs…" oninput="renderEmissoes()">
         <button class="btn btn-secondary btn-sm" onclick="exportEmissoesCSV()">Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportEmissoesPDF()" style="display:flex;align-items:center;gap:5px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="9" y1="9" x2="8" y2="9"/></svg>
+          PDF
+        </button>
       </div>
     </div>
     <div id="emrEmpty" class="empty-routes hidden">
@@ -4265,6 +4269,86 @@ function exportEmissoesCSV(){
   a.download='emissoes_'+today()+'.csv'; a.click();
 }
 
+function exportEmissoesPDF(){
+  const progFilter=document.getElementById('emrProgFilter').value;
+  let movs=db.movements.filter(m=>m.type==='emissao_passagem');
+  if(progFilter) movs=movs.filter(m=>m.programId===progFilter);
+  movs.sort((a,b)=>a.date<b.date?1:-1);
+  const rows=movs.map(m=>{
+    const p=db.programs.find(x=>x.id===m.programId)||{name:'?'};
+    const custo=m.resgateCost||0, taxas=m.emTaxas||0, total=custo+taxas, mkt=m.emMercado||0, res=mkt-total;
+    const resColor=res>=0?'#22c55e':'#ef4444';
+    return `<tr>
+      <td>${m.date||''}</td>
+      <td>${esc(p.name)}</td>
+      <td>${esc(m.emCia||'')}</td>
+      <td>${m.emDataVoo||''}</td>
+      <td>${esc(m.emTrecho||'')}</td>
+      <td>${esc(m.emCabine||'')}</td>
+      <td style="text-align:right">${fmt(Math.abs(m.points||0))}</td>
+      <td style="text-align:right">R$ ${fmtBRL(custo)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(taxas)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(total)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(mkt)}</td>
+      <td style="text-align:right;color:${resColor};font-weight:600">R$ ${fmtBRL(res)}</td>
+      <td>${esc(m.obs||'')}</td>
+    </tr>`;
+  }).join('');
+  // totais
+  let totMilhas=0,totCusto=0,totTaxas=0,totMkt=0;
+  movs.forEach(m=>{
+    totMilhas+=Math.abs(m.points||0);
+    totCusto+=(m.resgateCost||0);
+    totTaxas+=(m.emTaxas||0);
+    totMkt+=(m.emMercado||0);
+  });
+  const totTotal=totCusto+totTaxas, totRes=totMkt-totTotal;
+  const progName=progFilter?(db.programs.find(p=>p.id===progFilter)||{name:''}).name:'Todos os programas';
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>Relatório de Emissões — ${progName}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;font-size:11px;color:#1a1a2e;padding:20px}
+    h1{font-size:16px;margin-bottom:4px;color:#1a1a2e}
+    .sub{color:#666;font-size:10px;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:10px}
+    th{background:#1a1a2e;color:#fff;padding:5px 4px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+    td{padding:4px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
+    tr:nth-child(even) td{background:#f9fafb}
+    .totals td{font-weight:700;border-top:2px solid #1a1a2e;background:#f1f5f9!important;font-size:10px}
+    @media print{body{padding:10px}button{display:none}}
+  </style>
+  </head><body>
+  <h1>📋 Relatório de Emissões de Passagens</h1>
+  <div class="sub">${progName} · Gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})} · ${movs.length} emissão(ões)</div>
+  <table>
+    <thead><tr>
+      <th>Data</th><th>Programa</th><th>CIA</th><th>Voo</th><th>Trecho</th><th>Cabine</th>
+      <th style="text-align:right">Milhas</th><th style="text-align:right">Custo</th>
+      <th style="text-align:right">Taxas</th><th style="text-align:right">Total</th>
+      <th style="text-align:right">Mercado</th><th style="text-align:right">Resultado</th>
+      <th>Obs</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr class="totals">
+      <td colspan="6">TOTAIS (${movs.length})</td>
+      <td style="text-align:right">${fmt(totMilhas)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(totCusto)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(totTaxas)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(totTotal)}</td>
+      <td style="text-align:right">R$ ${fmtBRL(totMkt)}</td>
+      <td style="text-align:right;color:${totRes>=0?'#16a34a':'#dc2626'}">R$ ${fmtBRL(totRes)}</td>
+      <td></td>
+    </tr></tfoot>
+  </table>
+  </body></html>`;
+  const win=window.open('','_blank','width=1100,height=750');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),400);
+}
+
 // ═══════════════════════════════════════════════
 //  SIMULADOR DE TRANSFERÊNCIA
 // ═══════════════════════════════════════════════
@@ -6163,6 +6247,8 @@ const PROMOS_SOURCES = [
   { id:'ptv',  name:'Pontos pra Voar',        url:'https://pontospravoar.com/',        rss:'https://pontospravoar.com/feed/' },
   { id:'cmp',  name:'Comparemania',           url:'https://www.comparemania.com.br/',  rss:'https://www.comparemania.com.br/feed/' },
   { id:'mc',   name:'Melhores Cartões',       url:'https://www.melhorescartoes.com.br/', rss:'https://www.melhorescartoes.com.br/feed/' },
+  { id:'mm',   name:'Milhas &amp; Mais',       url:'https://www.milhasemais.com.br/',  rss:'https://www.milhasemais.com.br/feed/' },
+  { id:'gm',   name:'Guia do Milhas',         url:'https://guiadomilhas.com.br/',      rss:'https://guiadomilhas.com.br/feed/' },
 ];
 
 // Tags automáticas baseadas em palavras-chave no título
@@ -6202,13 +6288,19 @@ async function fetchSourceRSS(source){
     if(!r.ok) throw new Error('rss2json falhou');
     const json = await r.json();
     if(!json.items?.length) throw new Error('sem itens');
-    return json.items.map(item=>({
-      title:   item.title||'',
-      link:    item.link||source.url,
-      pubDate: item.pubDate||'',
-      desc:    stripHtml(item.description||item.content||''),
-      thumb:   item.thumbnail||item.enclosure?.link||'',
-    }));
+    return json.items.map(item=>{
+      // extrai thumb: thumbnail rss2json → enclosure → primeira img no content
+      const contentHtml = item.content || item.description || '';
+      const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif))[^>]*>/i);
+      const thumb = item.thumbnail || item.enclosure?.link || (imgMatch ? imgMatch[1] : '');
+      return {
+        title:   item.title||'',
+        link:    item.link||source.url,
+        pubDate: item.pubDate||'',
+        desc:    stripHtml(item.description||item.content||''),
+        thumb,
+      };
+    });
   }
 
   async function tryAllOrigins(){
@@ -6219,14 +6311,21 @@ async function fetchSourceRSS(source){
     const doc = parser.parseFromString(json.contents||'', 'text/xml');
     const items = [...doc.querySelectorAll('item')];
     if(!items.length) throw new Error('sem itens xml');
-    return items.map(item=>({
-      title:   item.querySelector('title')?.textContent||'',
-      link:    item.querySelector('link')?.textContent||source.url,
-      pubDate: item.querySelector('pubDate')?.textContent||'',
-      desc:    stripHtml(item.querySelector('description')?.textContent||''),
-      thumb:   item.querySelector('enclosure')?.getAttribute('url')||
-               item.querySelector('content\\:encoded,encoded')?.textContent?.match(/src="([^"]+\.(jpg|jpeg|png|webp))"/i)?.[1]||'',
-    }));
+    return items.map(item=>{
+      // extrai thumb: enclosure → media:content → og meta → content:encoded primeiro <img>
+      const encUrl = item.querySelector('enclosure')?.getAttribute('url')||'';
+      const mediaUrl = item.querySelector('content')?.getAttribute('url')||'';
+      const contentHtml = item.querySelector('encoded')?.textContent || item.querySelector('description')?.textContent || '';
+      const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+\.(jpg|jpeg|png|webp|gif))[^>]*>/i);
+      const thumb = encUrl || mediaUrl || (imgMatch ? imgMatch[1] : '');
+      return {
+        title:   item.querySelector('title')?.textContent||'',
+        link:    item.querySelector('link')?.textContent||source.url,
+        pubDate: item.querySelector('pubDate')?.textContent||'',
+        desc:    stripHtml(contentHtml||item.querySelector('description')?.textContent||''),
+        thumb,
+      };
+    });
   }
 
   function stripHtml(h){ return h.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,200); }
