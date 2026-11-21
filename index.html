@@ -4407,7 +4407,7 @@ function cCarregar(){
         }
       }
     });
-    if(dirty){ saveDB(); if(typeof render==='function') render(); }
+    if(dirty){ saveDB(); if(typeof _runningCache!=='undefined') _runningCache.clear(); if(typeof render==='function') render(); }
   },200);
 }
 
