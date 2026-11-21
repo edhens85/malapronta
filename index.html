@@ -767,32 +767,15 @@ body.layout-vertical .page-label{display:none}
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvest">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpm">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
-    <div class="sum-item sum-item-last" style="display:flex;align-items:center;padding:.5rem .9rem">
-      <button onclick="toggleAnalise()" style="background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.3rem .7rem;font-size:.7rem;font-weight:600;color:var(--text-muted);cursor:pointer;white-space:nowrap;font-family:inherit" title="Análise por programa">📊 Análise</button>
-    </div>
   </div>
 
-  <!-- ANÁLISE POR PROGRAMA -->
-  <div id="analisePrograma" style="display:none;padding:.75rem 1.2rem;border-bottom:1px solid var(--border)">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-      <span style="font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Análise por programa</span>
-      <button onclick="document.getElementById('analisePrograma').style.display='none';saveDB()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.75rem">✕</button>
-    </div>
-    <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:.75rem" id="analiseTable">
-        <thead>
-          <tr style="color:var(--text-muted)">
-            <th style="text-align:left;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Programa</th>
-            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Saldo</th>
-            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Investido</th>
-            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">CPM Aq.</th>
-            <th style="text-align:right;padding:.35rem .5rem;border-bottom:1px solid var(--border)">Patrimônio</th>
-          </tr>
-        </thead>
-        <tbody id="analiseTableBody"></tbody>
-      </table>
-    </div>
+  <!-- Faixa global de emissões -->
+  <div class="summary-strip" id="emissoesSummary" style="display:none">
+    <div class="sum-group-label" style="color:var(--gold)">✈ Emissões</div>
+    <div class="sum-item"><div class="sum-label">Economia (uso próprio)</div><div class="sum-val" id="sumEconomia">—</div></div>
+    <div class="sum-item sum-item-last"><div class="sum-label">Resultado (venda)</div><div class="sum-val" id="sumResultadoEm">—</div></div>
   </div>
+
 
   <!-- DASHBOARD: cards de todos os programas -->
   <div id="dashView" class="dash-wrap">
@@ -845,16 +828,6 @@ body.layout-vertical .page-label{display:none}
         <div class="stat">
           <div class="stat-label">CPM</div>
           <div class="stat-val gold" id="detCpm">R$ 0,00</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Economia de Emissão</div>
-          <div class="stat-val teal" id="detEconomia">—</div>
-          <div class="stat-sub">uso próprio vs mercado</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Resultado de Emissão</div>
-          <div class="stat-val" id="detResultadoEm" style="color:#4ade80">—</div>
-          <div class="stat-sub">lucro em venda/terceiro</div>
         </div>
       </div>
       <div class="mov-section">
@@ -2632,6 +2605,22 @@ function renderSummary(){
   const totCarteira = totInvestMilhas + totInvestPontos;
   document.getElementById('sumCarteira').textContent = 'R$ '+fmtBRL(totCarteira);
   if(document.getElementById('sumProgs')) document.getElementById('sumProgs').textContent = db.programs.length;
+  // Economia e Resultado global de emissão (todos os programas aéreos)
+  let gEco=0, gRes=0, gHasEco=false, gHasRes=false;
+  for(const prog of db.programs){
+    if(prog.type!=='aerea') continue;
+    computeRunning(prog.id).filter(m=>m.type==='emissao_passagem').forEach(m=>{
+      const custo=(m.resgateCost!=null?m.resgateCost:(m._resgateCost||0))+(m.emTaxas||0);
+      const mkt=m.emMercado||0;
+      const res=mkt-custo;
+      if((m.emBenef||'propria')==='propria'){ gEco+=res; gHasEco=true; }
+      else { gRes+=res; gHasRes=true; }
+    });
+  }
+  const elGEco=document.getElementById('sumEconomia');
+  const elGRes=document.getElementById('sumResultadoEm');
+  if(elGEco){ elGEco.textContent=gHasEco?'R$ '+fmtBRL(gEco):'—'; elGEco.style.color=gHasEco?(gEco>=0?'var(--teal)':'var(--red)'):''; }
+  if(elGRes){ elGRes.textContent=gHasRes?(gRes>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(gRes)):'—'; elGRes.style.color=gHasRes?(gRes>=0?'#4ade80':'var(--red)'):''; }
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
@@ -2766,20 +2755,6 @@ function renderDetail(){
   document.getElementById('detBalance').textContent = fmt(s.balance);
   document.getElementById('detInvest').textContent = 'R$ '+fmtBRL(s.invest);
   document.getElementById('detCpm').textContent = 'R$ '+fmtBRL(s.cpm);
-  // Economia de Emissão (própria) e Resultado de Emissão (terceiro)
-  const emissoes = computeRunning(p.id).filter(m=>m.type==='emissao_passagem');
-  let economia=0, resultado=0, hasEco=false, hasRes=false;
-  emissoes.forEach(m=>{
-    const custo=(m.resgateCost!=null?m.resgateCost:(m._resgateCost||0))+(m.emTaxas||0);
-    const mkt=m.emMercado||0;
-    const res=mkt-custo;
-    if((m.emBenef||'propria')==='propria'){ economia+=res; hasEco=true; }
-    else { resultado+=res; hasRes=true; }
-  });
-  const elEco=document.getElementById('detEconomia');
-  const elRes=document.getElementById('detResultadoEm');
-  if(elEco){ elEco.textContent=hasEco?'R$ '+fmtBRL(economia):'—'; elEco.style.color=hasEco?(economia>=0?'var(--teal)':'var(--red)'):''; }
-  if(elRes){ elRes.textContent=hasRes?(resultado>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(resultado)):'—'; elRes.style.color=hasRes?(resultado>=0?'#4ade80':'var(--red)'):''; }
   // Ajustar label do botão de transferência
   const tBtn = document.querySelector('button[onclick="openTransfer()"]');
   if(tBtn){
@@ -2873,6 +2848,8 @@ function selectProg(id){
   if(tk) tk.style.display='none';
   const gs = document.getElementById('globalSummary');
   if(gs) gs.style.display='none';
+  const es = document.getElementById('emissoesSummary');
+  if(es) es.style.display='none';
   const nb = document.getElementById('progNavBar');
   if(nb) nb.classList.add('visible');
   renderProgNavBar();
@@ -2893,6 +2870,10 @@ function backToDash(){
   const gs = document.getElementById('globalSummary');
   if(gs) gs.style.display='';
   renderDashboard();
+  // mostra faixa emissões só se houver emissões registradas
+  const hasEmissoes = (db.movements||[]).some(m=>m.type==='emissao_passagem'&&!m.pendente);
+  const es = document.getElementById('emissoesSummary');
+  if(es) es.style.display = hasEmissoes ? '' : 'none';
 }
 
 function renderMovTable(){
@@ -3357,40 +3338,6 @@ function deleteProgram(){
 // ═══════════════════════════════════════════════
 //  MOVEMENT CRUD
 // ═══════════════════════════════════════════════
-// ═══ ANÁLISE POR PROGRAMA ═══
-function toggleAnalise(){
-  const el=document.getElementById('analisePrograma');
-  if(!el) return;
-  if(el.style.display==='none'){ renderAnalise(); el.style.display=''; }
-  else el.style.display='none';
-}
-function renderAnalise(){
-  const tbody=document.getElementById('analiseTableBody');
-  if(!tbody) return;
-  const progs=db.programs||[];
-  const movs=db.movements||[];
-  const rows=progs.map(p=>{
-    const pMovs=movs.filter(m=>m.programId===p.id);
-    let saldo=0, investido=0;
-    pMovs.forEach(m=>{
-      if(MOV_CREDIT.has(m.type)){ saldo+=m.points||0; if(MOV_HAS_VALUE.has(m.type)) investido+=m.value||0; }
-      else if(MOV_DEBIT.has(m.type)){ saldo-=m.points||0; }
-    });
-    saldo=Math.max(0,saldo);
-    const cpm=saldo>0&&investido>0?(investido*1000/saldo):0;
-    // Patrimônio: saldo * CPM médio do mercado (usamos CPM do programa se disponível, senão 0.025)
-    const patrimonio=saldo*(cpm/1000||0.025);
-    const dot=`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${p.color||'#7b6fe8'};margin-right:5px"></span>`;
-    return `<tr>
-      <td style="padding:.35rem .5rem">${dot}${p.name}</td>
-      <td style="text-align:right;padding:.35rem .5rem;color:var(--text)">${saldo.toLocaleString('pt-BR')}</td>
-      <td style="text-align:right;padding:.35rem .5rem;color:var(--text-muted)">R$ ${fmtBRL(investido)}</td>
-      <td style="text-align:right;padding:.35rem .5rem;color:var(--gold)">${cpm>0?'R$ '+fmtBRL(cpm):'—'}</td>
-      <td style="text-align:right;padding:.35rem .5rem;color:var(--green)">${patrimonio>0?'R$ '+fmtBRL(patrimonio):'—'}</td>
-    </tr>`;
-  });
-  tbody.innerHTML=rows.join('');
-}
 // ═══ VENCIMENTOS BADGE ═══
 function checkVencimentosBadge(){
   const today=new Date(); today.setHours(0,0,0,0);
