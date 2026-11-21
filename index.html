@@ -995,11 +995,11 @@ body.layout-vertical .page-label{display:none}
           <th style="white-space:nowrap">Trecho</th>
           <th style="white-space:nowrap">Cabine</th>
           <th style="white-space:nowrap;text-align:right">Milhas</th>
-          <th style="white-space:nowrap;text-align:right">Custo</th>
-          <th style="white-space:nowrap;text-align:right">Taxas</th>
-          <th style="white-space:nowrap;text-align:right">Total pago</th>
-          <th style="white-space:nowrap;text-align:right">Mercado</th>
-          <th style="white-space:nowrap;text-align:right">Resultado</th>
+          <th style="white-space:nowrap;text-align:right">Custo (R$)</th>
+          <th style="white-space:nowrap;text-align:right">Taxas (R$)</th>
+          <th style="white-space:nowrap;text-align:right">Total pago (R$)</th>
+          <th style="white-space:nowrap;text-align:right">Mercado (R$)</th>
+          <th style="white-space:nowrap;text-align:right">Resultado (R$)</th>
           <th style="white-space:nowrap">Obs</th>
         </tr></thead>
         <tbody id="emrTbody"></tbody>
@@ -4036,11 +4036,11 @@ function renderEmissoes(){
       <td style="font-weight:600;white-space:nowrap">${esc(m.emTrecho||'—')}${benef}</td>
       <td style="white-space:nowrap">${esc(m.emCabine||'—')}</td>
       <td class="td-num" style="white-space:nowrap">${fmt(m.points||0)}</td>
-      <td class="td-num" style="white-space:nowrap">R$ ${fmtBRL(custo)}</td>
-      <td class="td-num" style="white-space:nowrap">R$ ${fmtBRL(taxas)}</td>
-      <td class="td-num" style="font-weight:700;white-space:nowrap">R$ ${fmtBRL(total)}</td>
-      <td class="td-num" style="white-space:nowrap">${mkt>0?'R$ '+fmtBRL(mkt):'—'}</td>
-      <td class="td-num" style="${resStyle};font-weight:700;white-space:nowrap">${res!=null?(res>=0?'R$ '+fmtBRL(res):'(R$ '+fmtBRL(Math.abs(res))+')'):'—'}</td>
+      <td class="td-num" style="white-space:nowrap">${fmtBRL(custo)}</td>
+      <td class="td-num" style="white-space:nowrap">${fmtBRL(taxas)}</td>
+      <td class="td-num" style="font-weight:700;white-space:nowrap">${fmtBRL(total)}</td>
+      <td class="td-num" style="white-space:nowrap">${mkt>0?fmtBRL(mkt):'—'}</td>
+      <td class="td-num" style="${resStyle};font-weight:700;white-space:nowrap">${res!=null?(res>=0?fmtBRL(res):'('+fmtBRL(Math.abs(res))+')'):'—'}</td>
       <td class="route-obs" title="${esc(m.obs||'')}">${esc(m.obs||'—')}</td>
     </tr>`;
   }).join('');
@@ -4053,24 +4053,24 @@ function renderEmissoes(){
         <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmt(totMilhas)}</div>
       </div>
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Custo de resgate</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totCusto)}</div>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Custo de resgate (R$)</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totCusto)}</div>
       </div>
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Taxas</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totTaxas)}</div>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Taxas (R$)</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totTaxas)}</div>
       </div>
       <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.6rem .9rem;min-width:100px;border-color:var(--border)">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Total pago</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totTotal)}</div>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Total pago (R$)</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totTotal)}</div>
       </div>
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:100px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Valor de mercado</div>
-        <div style="font-size:.95rem;font-weight:700;color:var(--text)">R$ ${fmtBRL(totMkt)}</div>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Valor de mercado (R$)</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--text)">${fmtBRL(totMkt)}</div>
       </div>
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;min-width:120px">
-        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Resultado total</div>
-        <div style="font-size:.95rem;font-weight:700;color:${resColor}">${totRes>=0?'R$ '+fmtBRL(totRes):'(R$ '+fmtBRL(Math.abs(totRes))+')'}</div>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-bottom:.2rem">Resultado total (R$)</div>
+        <div style="font-size:.95rem;font-weight:700;color:${resColor}">${totRes>=0?fmtBRL(totRes):'('+fmtBRL(Math.abs(totRes))+')'}</div>
       </div>
     </div>`;
 }
