@@ -1794,8 +1794,10 @@ function ensureDBDefaults(){
 function _migrateDB(){
   // Migração: corrige movimentos de assinatura de clube gravados com type/value errados
   if(!db||!db.movements) return;
-  const _cm = (typeof cMovimentos!=='undefined'?cMovimentos:[]);
-  const _cp = (typeof cPlanos!=='undefined'?cPlanos:[]);
+  // Lê clube data do localStorage (independente do escopo das variáveis)
+  let _cm=[], _cp=[];
+  try{ _cp=JSON.parse(localStorage.getItem('clube_planos')||'[]'); }catch(e){}
+  try{ _cm=JSON.parse(localStorage.getItem('clube_movimentos')||'[]'); }catch(e){}
   let dirty=false;
   db.movements.forEach(mov=>{
     if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
