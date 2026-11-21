@@ -272,22 +272,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .dash-section-title{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
 .dash-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;width:100%;box-sizing:border-box}
-.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18);min-width:0;box-sizing:border-box}
+.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1rem 1.1rem;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18);min-width:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;text-align:center}
 .prog-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;z-index:1}
 .prog-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-.pc-top{display:flex;align-items:center;gap:8px;margin-bottom:.85rem;min-width:0}
-.pc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;flex-shrink:0}
-.pc-name{font-size:.95rem;font-weight:700;line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc-type{font-size:.7rem;color:var(--text-muted);margin-top:2px}
-.pc-stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem;min-width:0}
-.pc-stat{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:.5rem .65rem;min-width:0;overflow:hidden}
-.pc-stat-label{font-size:.58rem;color:var(--text-muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-stat-val{font-size:.92rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-stat-val.gold{color:var(--gold)}
-.pc-stat-val.teal{color:var(--teal)}
-.pc-footer{display:flex;align-items:center;justify-content:space-between}
-.pc-cpm-badge{font-size:.75rem;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--gold-bg);color:var(--gold-text)}
-.pc-action{font-size:.72rem;color:var(--text-muted);display:flex;align-items:center;gap:3px}
+/* topo: ícone + nome + saldo na mesma linha */
+.pc-top{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:.9rem}
+.pc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.pc-top-info{flex:1;min-width:0;text-align:left}
+.pc-name{font-size:.9rem;font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-type{font-size:.65rem;color:var(--text-muted);margin-top:1px}
+.pc-saldo-inline{text-align:right;flex-shrink:0}
+.pc-saldo-label{font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.pc-saldo-val{font-size:.88rem;font-weight:700;white-space:nowrap}
+/* divisor */
+.pc-divider{width:100%;height:1px;background:var(--border);margin-bottom:.85rem}
+/* cpm centralizado */
+.pc-cpm-block{width:100%;margin-bottom:.7rem}
+.pc-cpm-label{font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:3px}
+.pc-cpm-val{font-size:1.1rem;font-weight:700;color:var(--gold)}
+/* investimento centralizado maior */
+.pc-invest-block{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:.6rem .75rem}
+.pc-invest-label{font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px}
+.pc-invest-val{font-size:1.05rem;font-weight:700;color:var(--teal)}
 .dash-add-card{background:none;border:1px dashed var(--border);border-radius:var(--radius);padding:1.1rem 1.15rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:var(--text-muted);font-size:.78rem;font-family:'Inter',sans-serif;transition:color .12s,border-color .12s;min-height:140px}
 .dash-add-card:hover{color:var(--gold);border-color:var(--gold-dim)}
 /* wallet + pie */
@@ -2788,29 +2794,28 @@ function renderDashboard(){
         expiryBadge = `<div style="font-size:.65rem;color:${diff<=30?'var(--red)':'var(--yellow,#e0b03a)'};margin-top:3px;font-weight:600">⏱ Vence em ${diff===0?'hoje':diff===1?'1 dia':diff+' dias'}</div>`;
       }
     }
-    html += `<div class="prog-card" onclick="selectProg('${p.id}')" style="border-top-color:${p.color}">
+    html += `<div class="prog-card" onclick="selectProg('${p.id}')">
       <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${p.color};border-radius:var(--radius) var(--radius) 0 0"></div>
       <div class="pc-top">
-        ${getProgLogo(p,44,10)}
-        <div>
-          <div class="pc-name">${p.name}</div>
+        ${getProgLogo(p,40,9)}
+        <div class="pc-top-info">
+          <div class="pc-name">${esc(p.name)}</div>
           <div class="pc-type">${TYPE_LABELS[p.type]||p.type}</div>
           ${expiryBadge}
         </div>
-      </div>
-      <div class="pc-stats">
-        <div class="pc-stat">
-          <div class="pc-stat-label">Saldo</div>
-          <div class="pc-stat-val">${fmt(s.balance)}</div>
-        </div>
-        <div class="pc-stat">
-          <div class="pc-stat-label">Investimento</div>
-          <div class="pc-stat-val teal">R$${fmtBRL(s.invest)}</div>
+        <div class="pc-saldo-inline">
+          <div class="pc-saldo-label">Saldo</div>
+          <div class="pc-saldo-val">${fmt(s.balance)}</div>
         </div>
       </div>
-      <div class="pc-footer">
-        <div class="pc-cpm-badge">CPM R$ ${fmtBRL(s.cpm)}</div>
-        <div class="pc-action">${movCount} mov. <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="pc-divider"></div>
+      <div class="pc-cpm-block">
+        <div class="pc-cpm-label">CPM</div>
+        <div class="pc-cpm-val">R$ ${fmtBRL(s.cpm)}</div>
+      </div>
+      <div class="pc-invest-block">
+        <div class="pc-invest-label">Investimento</div>
+        <div class="pc-invest-val">R$ ${fmtBRL(s.invest)}</div>
       </div>
     </div>`;
   }
