@@ -959,7 +959,10 @@ body.layout-vertical .page-label{display:none}
           <button onclick="cCancelarUpgrade()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:.75rem;font-weight:600">✕ cancelar</button>
         </div>
         <div class="frow">
-          <div class="fg"><label>Clube</label><input class="fi" id="cPrograma" type="text" placeholder="ex: Smiles, Livelo…" autocomplete="off"></div>
+          <div class="fg" style="position:relative"><label>Clube</label>
+            <input class="fi" id="cPrograma" type="text" placeholder="ex: Smiles, Livelo…" autocomplete="off" oninput="cProgramaSugg(this);cVerificarPrograma()" onblur="setTimeout(()=>document.getElementById('cProgramaSuggList').style.display='none',200);cVerificarPrograma()">
+            <div id="cProgramaSuggList" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:50;max-height:120px;overflow-y:auto"></div>
+          </div>
           <div class="fg" style="flex:1.4"><label>Nome do plano</label><input class="fi" id="cNome" type="text" placeholder="ex: Smiles 2.000, TudoAzul Plus"></div>
         </div>
         <div class="frow">
@@ -1006,6 +1009,7 @@ body.layout-vertical .page-label{display:none}
         </div>
         <div id="cPdfInfo" style="display:none;font-size:.72rem;color:var(--text-muted)"></div>
         <div id="cCpmDisplay" class="hidden cpm-display">CPM: —</div>
+        <div id="cProgramaAviso" style="display:none;font-size:.74rem;color:var(--gold);margin-top:4px">⚠ Programa não encontrado na carteira — créditos não serão lançados automaticamente.</div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="cCancelarUpgrade()">Cancelar</button>
           <button class="btn btn-primary" id="cBtnRegistrar" onclick="cSimularRegistro()">Registrar plano</button>
@@ -1083,7 +1087,10 @@ body.layout-vertical .page-label{display:none}
       <button onclick="cFecharEditModal()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1.2rem;line-height:1;padding:.2rem .4rem">✕</button>
     </div>
     <div class="frow">
-      <div class="fg"><label>Clube</label><input class="fi" id="ceClube" type="text" placeholder="ex: Smiles, Livelo…" autocomplete="off"></div>
+      <div class="fg" style="position:relative"><label>Clube</label>
+        <input class="fi" id="ceClube" type="text" placeholder="ex: Smiles, Livelo…" autocomplete="off" oninput="cProgramaSuggEdit(this)" onblur="setTimeout(()=>document.getElementById('ceClubeSuggList').style.display='none',200)">
+        <div id="ceClubeSuggList" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:50;max-height:120px;overflow-y:auto"></div>
+      </div>
       <div class="fg" style="flex:1.4"><label>Nome do plano</label><input class="fi" id="ceNome" type="text" placeholder="ex: Smiles 2.000"></div>
     </div>
     <div class="frow">
@@ -4231,6 +4238,43 @@ async function signOut(){
 <!-- ═══════════════════════════════════════════════ -->
 <script>
 (function(){
+// ——— Autocomplete Programa ———
+function cVerificarPrograma(){
+  const v=(document.getElementById('cPrograma')?.value||'').trim().toLowerCase();
+  const aviso=document.getElementById('cProgramaAviso');
+  if(!aviso) return;
+  if(!v){ aviso.style.display='none'; return; }
+  const existe=(db&&db.programs||[]).some(p=>(p.name||'').trim().toLowerCase()===v);
+  aviso.style.display=existe?'none':'';
+}
+window.cVerificarPrograma=cVerificarPrograma;
+
+function cProgramaSuggEdit(input){
+  const q=(input.value||'').trim().toLowerCase();
+  const list=document.getElementById('ceClubeSuggList'); if(!list) return;
+  const progs=(db&&db.programs)||[];
+  const matches=q?progs.filter(p=>(p.name||'').toLowerCase().includes(q)):progs;
+  if(!matches.length){ list.style.display='none'; return; }
+  list.innerHTML=matches.map(p=>
+    `<div style="padding:.4rem .7rem;font-size:.82rem;cursor:pointer;color:var(--text)" onmousedown="document.getElementById('ceClube').value='${p.name.replace(/'/g,"\\'")}';document.getElementById('ceClubeSuggList').style.display='none'">${p.name}</div>`
+  ).join('');
+  list.style.display='block';
+}
+window.cProgramaSuggEdit=cProgramaSuggEdit;
+
+function cProgramaSugg(input){
+  const q=(input.value||'').trim().toLowerCase();
+  const list=document.getElementById('cProgramaSuggList'); if(!list) return;
+  const progs=(db&&db.programs)||[];
+  const matches=q?progs.filter(p=>(p.name||'').toLowerCase().includes(q)):progs;
+  if(!matches.length){ list.style.display='none'; return; }
+  list.innerHTML=matches.map(p=>
+    `<div style="padding:.4rem .7rem;font-size:.82rem;cursor:pointer;color:var(--text)" onmousedown="document.getElementById('cPrograma').value='${p.name.replace(/'/g,"\\'")}';document.getElementById('cProgramaSuggList').style.display='none'">${p.name}</div>`
+  ).join('');
+  list.style.display='block';
+}
+window.cProgramaSugg=cProgramaSugg;
+
 // ——— Estado ———
 let cPlanos=[], cMovimentos=[], _cUpgradingFrom=null, _cGid=1;
 function cUid(){ return 'c'+(++_cGid); }
@@ -4760,13 +4804,70 @@ function cRenderExtrato(){
 }
 window.cRenderExtrato=cRenderExtrato;
 
-function cConfirmar(id){ const m=cMovimentos.find(x=>x.id===id); if(!m) return; const prev=m.status; m.status='confirmado'; cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Recebido!',4000,()=>{ m.status=prev; cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); }); }
+// Cria movimento no sistema principal (db.movements) para um crédito confirmado do clube
+function cCriarMovSistema(cMov){
+  const plano=cPlanos.find(p=>p.id===cMov.planoId); if(!plano) return null;
+  const nomePrograma=(plano.programa||plano.nome||'').trim().toLowerCase();
+  if(!nomePrograma) return null;
+  const prog=db.programs.find(p=>(p.name||'').trim().toLowerCase()===nomePrograma);
+  if(!prog) return null;
+  const movId=uid();
+  const obs='Clube: '+plano.nome+(cMov.total?' ('+cMov.mes+'/'+cMov.total+')':cMov.mes?' (mês '+cMov.mes+')':'');
+  db.movements.push({id:movId,programId:prog.id,type:'acumulo_simples',date:cMov.date,points:cMov.pts,value:0,obs,_clube:cMov.id,_ts:Date.now()});
+  if(typeof saveDB==='function') saveDB();
+  if(typeof render==='function') render();
+  return movId;
+}
+
+// Remove movimento do sistema principal gerado pelo clube
+function cRemoverMovSistema(cMovId){
+  if(!db||!db.movements) return;
+  db.movements=db.movements.filter(m=>m._clube!==cMovId);
+  if(typeof saveDB==='function') saveDB();
+  if(typeof render==='function') render();
+}
+
+function cConfirmar(id){
+  const m=cMovimentos.find(x=>x.id===id); if(!m) return;
+  const prev=m.status;
+  m.status='confirmado';
+  const movSistemaId=cCriarMovSistema(m);
+  cRenderExtrato(); cUpdateBadges(); cSalvar();
+  const plano=cPlanos.find(p=>p.id===m.planoId);
+  const progNome=plano?.programa||plano?.nome||'';
+  const prog=db.programs.find(p=>(p.name||'').trim().toLowerCase()===(progNome).trim().toLowerCase());
+  const aviso=prog?` → +${fmtNum(m.pts)} em ${prog.name}`:'';
+  cToast('Recebido!'+aviso,4000,()=>{
+    m.status=prev;
+    cRemoverMovSistema(id);
+    cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.');
+  });
+}
 window.cConfirmar=cConfirmar;
-function cCancelarMov(id){ const m=cMovimentos.find(x=>x.id===id); if(!m) return; const prev=m.status; m.status='cancelado'; cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Crédito cancelado.',4000,()=>{ m.status=prev; cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); }); }
+
+function cCancelarMov(id){
+  const m=cMovimentos.find(x=>x.id===id); if(!m) return;
+  const prev=m.status;
+  m.status='cancelado';
+  cRemoverMovSistema(id);
+  cRenderExtrato(); cUpdateBadges(); cSalvar();
+  cToast('Crédito cancelado.',4000,()=>{ m.status=prev; cCriarMovSistema(m); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); });
+}
 window.cCancelarMov=cCancelarMov;
-function cReverterMov(id){ const m=cMovimentos.find(x=>x.id===id); if(!m) return; m.status='pendente'; cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido para pendente.'); }
+
+function cReverterMov(id){
+  const m=cMovimentos.find(x=>x.id===id); if(!m) return;
+  m.status='pendente';
+  cRemoverMovSistema(id);
+  cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido para pendente.');
+}
 window.cReverterMov=cReverterMov;
-function cConfirmarTodos(){ const list=cFilterPlano?cMovimentos.filter(m=>m.planoId===cFilterPlano):cMovimentos; list.filter(m=>m.status==='pendente'||m.status==='em_revisao').forEach(m=>{ m.status='confirmado'; }); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Todos confirmados!'); }
+
+function cConfirmarTodos(){
+  const list=cFilterPlano?cMovimentos.filter(m=>m.planoId===cFilterPlano):cMovimentos;
+  list.filter(m=>m.status==='pendente'||m.status==='em_revisao').forEach(m=>{ m.status='confirmado'; cCriarMovSistema(m); });
+  cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Todos confirmados!');
+}
 window.cConfirmarTodos=cConfirmarTodos;
 function cAdicionarMesMensal(planoId){ const p=cPlanos.find(x=>x.id===planoId); if(!p) return; const movs=cMovimentos.filter(m=>m.planoId===planoId).sort((a,b)=>b.date.localeCompare(a.date)); const ultimo=movs[0]; if(!ultimo){ cToast('Nenhum mês encontrado.'); return; } const [ly,lm,ld]=ultimo.date.split('-').map(Number); const nm=lm===12?1:lm+1,ny=lm===12?ly+1:ly; const novaData=`${ny}-${String(nm).padStart(2,'0')}-${String(ld).padStart(2,'0')}`; const novoMes=ultimo.mes+1; cMovimentos.push({id:cUid(),planoId,grupoId:ultimo.grupoId,date:novaData,pts:p.milhasMes,status:'pendente',mes:novoMes,total:null}); cRenderPlanos(); cUpdateBadges(); cSalvar(); cToast(`Mês ${novoMes} adicionado.`); }
 window.cAdicionarMesMensal=cAdicionarMesMensal;
