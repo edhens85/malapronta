@@ -959,9 +959,10 @@ body.layout-vertical .page-label{display:none}
           <button onclick="cCancelarUpgrade()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:.75rem;font-weight:600">✕ cancelar</button>
         </div>
         <div class="frow">
-          <div class="fg" style="position:relative"><label>Clube</label>
-            <input class="fi" id="cPrograma" type="text" placeholder="ex: Smiles, Livelo…" autocomplete="off" oninput="cProgramaSugg(this);cVerificarPrograma()" onblur="setTimeout(()=>document.getElementById('cProgramaSuggList').style.display='none',200);cVerificarPrograma()">
-            <div id="cProgramaSuggList" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:50;max-height:120px;overflow-y:auto"></div>
+          <div class="fg"><label>Clube / Programa</label>
+            <select class="fs" id="cPrograma" onchange="cVerificarPrograma()">
+              <option value="">— selecione —</option>
+            </select>
           </div>
           <div class="fg" style="flex:1.4"><label>Nome do plano</label><input class="fi" id="cNome" type="text" placeholder="ex: Smiles 2.000, TudoAzul Plus"></div>
         </div>
@@ -1009,7 +1010,6 @@ body.layout-vertical .page-label{display:none}
         </div>
         <div id="cPdfInfo" style="display:none;font-size:.72rem;color:var(--text-muted)"></div>
         <div id="cCpmDisplay" class="hidden cpm-display">CPM: —</div>
-        <div id="cProgramaAviso" style="display:none;font-size:.74rem;color:var(--gold);margin-top:4px">⚠ Programa não encontrado na carteira — créditos não serão lançados automaticamente.</div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="cCancelarUpgrade()">Cancelar</button>
           <button class="btn btn-primary" id="cBtnRegistrar" onclick="cSimularRegistro()">Registrar plano</button>
@@ -1087,9 +1087,10 @@ body.layout-vertical .page-label{display:none}
       <button onclick="cFecharEditModal()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1.2rem;line-height:1;padding:.2rem .4rem">✕</button>
     </div>
     <div class="frow">
-      <div class="fg" style="position:relative"><label>Clube</label>
-        <input class="fi" id="ceClube" type="text" placeholder="ex: Smiles, Livelo…" autocomplete="off" oninput="cProgramaSuggEdit(this)" onblur="setTimeout(()=>document.getElementById('ceClubeSuggList').style.display='none',200)">
-        <div id="ceClubeSuggList" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:50;max-height:120px;overflow-y:auto"></div>
+      <div class="fg"><label>Clube / Programa</label>
+        <select class="fs" id="ceClube">
+          <option value="">— selecione —</option>
+        </select>
       </div>
       <div class="fg" style="flex:1.4"><label>Nome do plano</label><input class="fi" id="ceNome" type="text" placeholder="ex: Smiles 2.000"></div>
     </div>
@@ -4238,42 +4239,10 @@ async function signOut(){
 <!-- ═══════════════════════════════════════════════ -->
 <script>
 (function(){
-// ——— Autocomplete Programa ———
-function cVerificarPrograma(){
-  const v=(document.getElementById('cPrograma')?.value||'').trim().toLowerCase();
-  const aviso=document.getElementById('cProgramaAviso');
-  if(!aviso) return;
-  if(!v){ aviso.style.display='none'; return; }
-  const existe=(db&&db.programs||[]).some(p=>(p.name||'').trim().toLowerCase()===v);
-  aviso.style.display=existe?'none':'';
-}
+// ——— (autocomplete removido — select populado via cPopularSelectPrograma) ———
+function cVerificarPrograma(){ /* no-op: select já filtra por db.programs */ }
 window.cVerificarPrograma=cVerificarPrograma;
 
-function cProgramaSuggEdit(input){
-  const q=(input.value||'').trim().toLowerCase();
-  const list=document.getElementById('ceClubeSuggList'); if(!list) return;
-  const progs=(db&&db.programs)||[];
-  const matches=q?progs.filter(p=>(p.name||'').toLowerCase().includes(q)):progs;
-  if(!matches.length){ list.style.display='none'; return; }
-  list.innerHTML=matches.map(p=>
-    `<div style="padding:.4rem .7rem;font-size:.82rem;cursor:pointer;color:var(--text)" onmousedown="document.getElementById('ceClube').value='${p.name.replace(/'/g,"\\'")}';document.getElementById('ceClubeSuggList').style.display='none'">${p.name}</div>`
-  ).join('');
-  list.style.display='block';
-}
-window.cProgramaSuggEdit=cProgramaSuggEdit;
-
-function cProgramaSugg(input){
-  const q=(input.value||'').trim().toLowerCase();
-  const list=document.getElementById('cProgramaSuggList'); if(!list) return;
-  const progs=(db&&db.programs)||[];
-  const matches=q?progs.filter(p=>(p.name||'').toLowerCase().includes(q)):progs;
-  if(!matches.length){ list.style.display='none'; return; }
-  list.innerHTML=matches.map(p=>
-    `<div style="padding:.4rem .7rem;font-size:.82rem;cursor:pointer;color:var(--text)" onmousedown="document.getElementById('cPrograma').value='${p.name.replace(/'/g,"\\'")}';document.getElementById('cProgramaSuggList').style.display='none'">${p.name}</div>`
-  ).join('');
-  list.style.display='block';
-}
-window.cProgramaSugg=cProgramaSugg;
 
 // ——— Estado ———
 let cPlanos=[], cMovimentos=[], _cUpgradingFrom=null, _cGid=1;
@@ -4519,7 +4488,7 @@ function cIniciarUpgrade(planoId){
   document.getElementById('cUpgradeBannerText').textContent='↑ Upgrade de "'+plano.nome+'"';
   document.getElementById('cBtnRegistrar').textContent='Registrar upgrade';
   const sel=document.getElementById('cPrograma');
-  if(plano.programa){ sel.value=plano.programa; }
+  if(plano.programaId){ sel.value=plano.programaId; }
   sel.readOnly=true; sel.style.opacity='.6'; sel.style.cursor='not-allowed';
   clubeShowTab('cadastro');
   cToast('Configure o novo plano e clique em Registrar upgrade.');
@@ -4543,12 +4512,13 @@ function cSimularRegistro(){
   const grupoId=cUid(), planoId=cUid();
   const inicio=document.getElementById('cDate').value;
   let novosMovs=[];
-  const programa=document.getElementById('cPrograma').value.trim();
+  const programaId=document.getElementById('cPrograma').value||null;
+  const programaNome=programaId?(db.programs.find(p=>p.id===programaId)?.name||''):'';
   const fidelidade=parseInt(document.getElementById('cFidelidade').value)||0;
   const pdfFile=document.getElementById('cPdf').files[0]||null;
   const pdfNomeCustom=document.getElementById('cPdfNome').value.trim()||null;
   const pdfNomeFinal=pdfNomeCustom||(pdfFile?pdfFile.name:null);
-  let planoData={id:planoId,nome,programa,fidelidade,modalidade:modal,inicio,status:'ativo',upgradeDe:_cUpgradingFrom||null,pdfNome:pdfNomeFinal};
+  let planoData={id:planoId,nome,programaId,programa:programaNome,fidelidade,modalidade:modal,inicio,status:'ativo',upgradeDe:_cUpgradingFrom||null,pdfNome:pdfNomeFinal};
   if(pdfFile){ const r=new FileReader(); r.onload=e=>cSalvarPdf(planoId,e.target.result,pdfNomeFinal||pdfFile.name); r.readAsDataURL(pdfFile); }
 
   if(modal==='mensal'){
@@ -4677,10 +4647,10 @@ function cRenderPlanos(){
     const addMesBtn=(isAtivo&&p.modalidade==='mensal')?`<button class="btn btn-sm btn-secondary" onclick="cAdicionarMesMensal('${p.id}')" style="border-color:var(--gold);color:var(--gold);font-size:.72rem;padding:.25rem .6rem">+ Mês</button>`:'';
     return `<div class="plano-card ${cardClass}" onclick="if(!event.target.closest('button'))cAbrirEditModal('${p.id}')" style="cursor:pointer">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <div style="font-size:1rem;font-weight:700;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.programa||p.nome}</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(p.programaId?(db.programs.find(x=>x.id===p.programaId)?.name||p.programa||p.nome):p.programa||p.nome)}</div>
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">${verBtn}<span class="badge ${badgeClass}">${badgeText}</span></div>
       </div>
-      ${p.programa?`<div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-top:-4px">${p.nome}</div>`:''}
+      ${p.programaId||p.programa?`<div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-top:-4px">${p.nome}</div>`:''}
       <div style="font-size:.72rem;color:var(--text-muted);border-top:1px solid var(--border);padding-top:8px">
         ${p.modalidade==='mensal'?'Mensal':'Anual'} · desde ${p.inicio}${p.fidelidade?` · fid. ${p.fidelidade}m`:''}
       </div>
@@ -4740,7 +4710,7 @@ function cAtualizarFiltroSelect(){
   const sel=document.getElementById('cFiltroPlanoSelect');
   if(!sel) return;
   sel.innerHTML='<option value="">Todos os planos</option>'+
-    cPlanos.map(p=>`<option value="${p.id}">${p.programa?p.programa+' — ':''}${p.nome}</option>`).join('');
+    cPlanos.map(p=>{ const pNome=p.programaId?(db.programs.find(x=>x.id===p.programaId)?.name||p.programa||''):p.programa||''; return `<option value="${p.id}">${pNome?pNome+' — ':''}${p.nome}</option>`; }).join('');
   sel.value=cFilterPlano||'';
 }
 function cSetFiltroPlanoSelect(id){ cFilterPlano=id||null; cRenderExtrato(); }
@@ -4795,7 +4765,7 @@ function cRenderExtrato(){
     return `<tr class="${isPend?'pending':''} ${isCan?'canceled':''}" ${rowClick}>
       <td style="font-size:.75rem;font-weight:700;color:var(--text-dim);white-space:nowrap;text-align:center">${sub}</td>
       <td style="font-size:.75rem;white-space:nowrap">${m.date.split('-').reverse().join('/')}</td>
-      <td><div style="font-weight:700;font-size:.78rem">${plano.programa||plano.nome}</div><div style="font-size:.72rem;color:var(--text-dim)">${plano.programa?plano.nome:''}</div></td>
+      <td><div style="font-weight:700;font-size:.78rem">${plano.programaId?(db.programs.find(x=>x.id===plano.programaId)?.name||plano.programa||plano.nome):plano.programa||plano.nome}</div><div style="font-size:.72rem;color:var(--text-dim)">${(plano.programaId||plano.programa)?plano.nome:''}</div></td>
       <td style="color:${isOk?'var(--green)':isCan?'var(--text-muted)':isRev?'var(--purple)':'rgba(224,176,58,.8)'};font-weight:700;font-size:.85rem">${isCan?'—':'+'+fmtNum(m.pts)}</td>
       <td>${badge}</td>
       <td style="text-align:right;white-space:nowrap;width:56px;padding:0.5rem 2px 0.5rem 0">${acao}</td>
@@ -4807,9 +4777,7 @@ window.cRenderExtrato=cRenderExtrato;
 // Cria movimento no sistema principal (db.movements) para um crédito confirmado do clube
 function cCriarMovSistema(cMov){
   const plano=cPlanos.find(p=>p.id===cMov.planoId); if(!plano) return null;
-  const nomePrograma=(plano.programa||plano.nome||'').trim().toLowerCase();
-  if(!nomePrograma) return null;
-  const prog=db.programs.find(p=>(p.name||'').trim().toLowerCase()===nomePrograma);
+  const prog=plano.programaId?db.programs.find(p=>p.id===plano.programaId):null;
   if(!prog) return null;
   const movId=uid();
   const obs='Clube: '+plano.nome+(cMov.total?' ('+cMov.mes+'/'+cMov.total+')':cMov.mes?' (mês '+cMov.mes+')':'');
@@ -4834,8 +4802,7 @@ function cConfirmar(id){
   const movSistemaId=cCriarMovSistema(m);
   cRenderExtrato(); cUpdateBadges(); cSalvar();
   const plano=cPlanos.find(p=>p.id===m.planoId);
-  const progNome=plano?.programa||plano?.nome||'';
-  const prog=db.programs.find(p=>(p.name||'').trim().toLowerCase()===(progNome).trim().toLowerCase());
+  const prog=plano?.programaId?db.programs.find(p=>p.id===plano.programaId):null;
   const aviso=prog?` → +${fmtNum(m.pts)} em ${prog.name}`:'';
   cToast('Recebido!'+aviso,4000,()=>{
     m.status=prev;
@@ -4893,7 +4860,8 @@ let _cEditingId=null, _cePresetCredits={}, _ceRemoveAnexo=false;
 function cAbrirEditModal(planoId){
   const p=cPlanos.find(x=>x.id===planoId); if(!p) return;
   _cEditingId=planoId; _ceRemoveAnexo=false; _cePresetCredits={};
-  document.getElementById('ceClube').value=p.programa||'';
+  cPopularSelectPrograma();
+  document.getElementById('ceClube').value=p.programaId||'';
   document.getElementById('ceNome').value=p.nome||'';
   document.getElementById('ceDate').value=p.inicio||'';
   document.getElementById('ceFidelidade').value=p.fidelidade||'';
@@ -4994,7 +4962,9 @@ window.ceRemoverAnexo=ceRemoverAnexo;
 function cSalvarEdicao(){
   if(!_cEditingId) return;
   const p=cPlanos.find(x=>x.id===_cEditingId); if(!p) return;
-  p.programa=document.getElementById('ceClube').value.trim();
+  const ceProgId=document.getElementById('ceClube').value||null;
+  p.programaId=ceProgId;
+  p.programa=(ceProgId?(db.programs.find(x=>x.id===ceProgId)?.name||''):'');
   p.nome=document.getElementById('ceNome').value.trim();
   if(!p.nome){ alert('Informe o nome do plano.'); return; }
   p.inicio=document.getElementById('ceDate').value;
@@ -5015,11 +4985,24 @@ function cSalvarEdicao(){
 }
 window.cSalvarEdicao=cSalvarEdicao;
 
+// Popula selects de programa com db.programs
+function cPopularSelectPrograma(){
+  const progs=(db&&db.programs)||[];
+  ['cPrograma','ceClube'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    const atual=sel.value;
+    sel.innerHTML='<option value="">— selecione —</option>'+
+      progs.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+    if(atual) sel.value=atual;
+  });
+}
+window.cPopularSelectPrograma=cPopularSelectPrograma;
+
 // ——— Init showPage para incluir clube ———
 const _origShowPage=window.showPage;
 window.showPage=function(page, el){
   _origShowPage(page, el);
-  if(page==='clube'){ cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); }
+  if(page==='clube'){ cPopularSelectPrograma(); cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); }
 };
 
 })();
