@@ -98,7 +98,7 @@
     let _lastUpdateTime = Date.now();
     const _pollInterval = setInterval(async ()=>{
       if(window._fbCurrentUid !== uid){ clearInterval(_pollInterval); return; }
-      if(window._pendingSave) return; // não sobrescreve enquanto está salvando
+      if(window._pendingSave || (Date.now()-(_lastSaveTs||0))<5000) return; // não sobrescreve após save recente
       try{
         const token = window._fbLastToken || (auth.currentUser ? await auth.currentUser.getIdToken() : null);
         if(!token) return;
@@ -1882,10 +1882,12 @@ function _setSyncStatus(s){ // 'ok'|'pending'|'offline'
   if(s==='pending') dot.classList.add('pending');
   else if(s==='offline') dot.classList.add('offline');
 }
+let _lastSaveTs = 0; // timestamp do último save local
 function saveDB(){
   try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
   if(window._fbCurrentUid){
     _pendingSave = true; window._pendingSave = true;
+    _lastSaveTs = Date.now();
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
     // Salva imediatamente sem delay — garante sync antes de fechar
@@ -1893,6 +1895,7 @@ function saveDB(){
       try{
         await window._fbSetDoc(window._fbCurrentUid, { db });
         _pendingSave = false; window._pendingSave = false;
+        _lastSaveTs = Date.now(); // mantém timestamp para ignorar echo do onSnapshot
         _setSyncStatus('ok');
       }catch(e){ console.error('Firestore save error', e); _setSyncStatus('offline'); }
     }, 0);
@@ -4350,7 +4353,9 @@ async function signOut(){
 
           // 2) Após carregar, ativa onSnapshot para atualizações em tempo real de outros devices
           window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
-            if(!_pendingSave){
+            // Ignora snapshot por 5s após save local para evitar sobrescrever dado recém-salvo
+            if(_pendingSave || (Date.now()-_lastSaveTs)<5000) return;
+            if(true){
               db = remoteDB;
               ensureDBDefaults();
               _migrateDB({noSave:true});
