@@ -985,7 +985,7 @@ body.layout-vertical .page-label{display:none}
         <div id="cBoxAnual" class="hidden">
           <div class="frow">
             <div class="fg"><label>Custo total</label><input class="fi fi-money" id="cCusto" type="text" placeholder="0,00" oninput="cCalcCpm()"></div>
-            <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="cTotalMilhasAnual" type="text" placeholder="0" oninput="" onblur="cDistribuirMilhas()"></div>
+            <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="cTotalMilhasAnual" type="text" placeholder="0" onblur="cExpandMilhasTotal(this);cDistribuirMilhas()"></div>
             <div class="fg"><label>Nº de meses</label><input class="fi" id="cMeses" type="number" min="1" max="24" placeholder="12" oninput="cRebuildRows()"></div>
           </div>
           <div id="cParcelasSection" class="hidden" style="margin-top:8px">
@@ -1099,7 +1099,7 @@ body.layout-vertical .page-label{display:none}
     <div id="ceBoxAnual" style="display:none">
       <div class="frow">
         <div class="fg"><label>Custo total</label><input class="fi fi-money" id="ceCusto" type="text" placeholder="0,00" oninput="ceCalcCpm()"></div>
-        <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="ceTotalMilhasAnual" type="text" placeholder="0" oninput="" onblur="ceDistribuirMilhas()"></div>
+        <div class="fg"><label>Total de milhas</label><input class="fi fi-pts" id="ceTotalMilhasAnual" type="text" placeholder="0" onblur="cExpandMilhasTotal(this);ceDistribuirMilhas()"></div>
         <div class="fg"><label>Nº de meses</label><input class="fi" id="ceMeses" type="number" min="1" max="24" placeholder="12" oninput="ceRebuildRows()"></div>
       </div>
       <div id="ceParcelasSection" class="hidden" style="margin-top:8px">
@@ -4339,6 +4339,16 @@ function cDistribuirMilhas(){
   cCalcCpm();
 }
 window.cDistribuirMilhas=cDistribuirMilhas;
+
+// Expande milheiro no campo total de milhas: 100→100.000, 2→2.000
+function cExpandMilhasTotal(el){
+  let raw=el.value.replace(/\D/g,'');
+  if(!raw){el.value='';return;}
+  let n=parseInt(raw);
+  if(n<1000) n*=1000;
+  el.value=fmtNum(n);
+}
+window.cExpandMilhasTotal=cExpandMilhasTotal;
 
 // Ao sair de uma parcela: expande milheiro + ajusta último para fechar total
 function cParcelaBlur(el){
