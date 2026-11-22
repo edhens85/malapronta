@@ -303,8 +303,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .pc-cpm-block,.pc-invest-block{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:.65rem .8rem;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.08)}
 .pc-cpm-block::before,.pc-invest-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);pointer-events:none}
 .pc-cpm-label,.pc-invest-label{font-size:.57rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px}
-.pc-cpm-val{font-size:1.1rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-invest-val{font-size:1.1rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-cpm-val{font-size:1.1rem;font-weight:700;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-invest-val{font-size:1.1rem;font-weight:700;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dash-add-card{background:none;border:1px dashed var(--border);border-radius:var(--radius);padding:1.1rem 1.15rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:var(--text-muted);font-size:.78rem;font-family:'Inter',sans-serif;transition:color .12s,border-color .12s;min-height:140px}
 .dash-add-card:hover{color:var(--gold);border-color:var(--gold-dim)}
 /* wallet + pie */
@@ -3196,14 +3196,14 @@ function renderDashboard(){
         </div>
         <div class="pc-saldo-inline">
           <div class="pc-saldo-label">CPM</div>
-          <div class="pc-saldo-val">R$ ${fmtBRL(s.cpm)}</div>
+          <div class="pc-saldo-val" style="color:var(--gold)">R$ ${fmtBRL(s.cpm)}</div>
         </div>
       </div>
       <div class="pc-divider"></div>
       <div class="pc-blocks">
         <div class="pc-cpm-block">
           <div class="pc-cpm-label">Saldo</div>
-          <div class="pc-cpm-val">${fmt(s.balance)}</div>
+          <div class="pc-cpm-val" style="color:${s.balance>0?'var(--green)':'#fff'}">${fmt(s.balance)}</div>
         </div>
         <div class="pc-invest-block">
           <div class="pc-invest-label">Investimento</div>
