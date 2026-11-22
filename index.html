@@ -7297,16 +7297,19 @@ function renderVencimentos(){
     // Render dos lotes
     const lotesHtml=lotes.map(l=>{
       const lr=l.date?_vencDiasBadge(l.date):{badge:'',borderColor:'var(--border)',diasLabel:''};
+      const ptsDisplay=l.pts?(parseInt(l.pts)||0).toLocaleString('pt-BR'):'';
       return `<div style="display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--surface3);border-radius:7px;border:1px solid ${lr.borderColor}">
         <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:.4rem">
-            <input type="number" placeholder="Qtd. pontos" value="${l.pts||''}"
-              min="0" step="1000"
+          <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
+            <input type="text" inputmode="numeric" placeholder="Qtd. pontos" value="${ptsDisplay}"
+              data-pid="${p.id}" data-lid="${l.id}" data-field="pts"
               style="width:110px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit"
-              onchange="vencLoteAtualizar('${p.id}','${l.id}','pts',this.value)">
-            <input type="date" value="${l.date||''}"
-              style="border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit;cursor:pointer"
-              onchange="vencLoteAtualizar('${p.id}','${l.id}','date',this.value)">
+              oninput="vencMascaraMilhar(this)"
+              onblur="vencLoteAtualizar(this.dataset.pid,this.dataset.lid,'pts',this.dataset.raw||'0')">
+            <input type="text" readonly placeholder="Data de vencimento" value="${l.date?l.date.split('-').reverse().join('/'):''}"
+              data-pid="${p.id}" data-lid="${l.id}" data-isodate="${l.date||''}"
+              class="venc-date-input"
+              style="width:118px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit;cursor:pointer">
             ${l.date?lr.badge:''}
           </div>
         </div>
@@ -7319,7 +7322,7 @@ function renderVencimentos(){
     const lotesPanelId='vencLotes_'+p.id;
     const isOpen=window._vencOpen&&window._vencOpen[p.id];
 
-    return `<div style="background:var(--surface2);border:1px solid ${mainBorder};border-radius:var(--radius);overflow:hidden;margin-bottom:0">
+    return `<div style="background:var(--surface2);border:1px solid ${mainBorder};border-radius:var(--radius);margin-bottom:0">
       <div style="padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer" onclick="vencTogglePrograma('${p.id}')">
         ${dot}
         <div style="flex:1">
@@ -7355,6 +7358,7 @@ function vencTogglePrograma(progId){
     const chevron=header.querySelector('svg:last-child');
     if(chevron) chevron.style.transform=window._vencOpen[progId]?'rotate(180deg)':'rotate(0deg)';
   }
+  if(window._vencOpen[progId]) setTimeout(vencInitDatepickers,50);
 }
 window.vencTogglePrograma=vencTogglePrograma;
 
@@ -7369,6 +7373,7 @@ function vencLoteAdicionar(progId){
   window._vencOpen=window._vencOpen||{}; window._vencOpen[progId]=true;
   const panel=document.getElementById('vencLotes_'+progId);
   if(panel) panel.style.display='block';
+  setTimeout(vencInitDatepickers,50);
 }
 window.vencLoteAdicionar=vencLoteAdicionar;
 
@@ -7394,6 +7399,7 @@ function vencLoteRemover(progId,loteId){
   window._vencOpen=window._vencOpen||{}; window._vencOpen[progId]=true;
   const panel=document.getElementById('vencLotes_'+progId);
   if(panel) panel.style.display='block';
+  setTimeout(vencInitDatepickers,50);
 }
 window.vencLoteRemover=vencLoteRemover;
 
@@ -7415,6 +7421,39 @@ function vencSalvarData(progId, val){
   if(p){ p.expiry=val||null; saveDB(); }
   _vencAtualizarNavBadge();
 }
+
+// Máscara de milhar para inputs de pontos nos lotes
+function vencMascaraMilhar(el){
+  const raw=el.value.replace(/\D/g,'');
+  el.dataset.raw=raw;
+  el.value=raw?parseInt(raw,10).toLocaleString('pt-BR'):'';
+}
+window.vencMascaraMilhar=vencMascaraMilhar;
+
+// Inicializa flatpickr nos inputs de data dos lotes (chamado após renderVencimentos)
+function vencInitDatepickers(){
+  document.querySelectorAll('.venc-date-input').forEach(el=>{
+    if(el._fp) return; // já inicializado
+    el._fp=flatpickr(el,{
+      locale:'pt',
+      dateFormat:'d/m/Y',
+      allowInput:false,
+      disableMobile:true,
+      appendTo:document.body,
+      position:'auto',
+      defaultDate:el.dataset.isodate||null,
+      onChange(sel,dateStr,inst){
+        // converter d/m/Y → YYYY-MM-DD
+        if(sel[0]){
+          const iso=sel[0].toISOString().slice(0,10);
+          el.dataset.isodate=iso;
+          vencLoteAtualizar(el.dataset.pid,el.dataset.lid,'date',iso);
+        }
+      }
+    });
+  });
+}
+window.vencInitDatepickers=vencInitDatepickers;
 
 })();
 </script>
