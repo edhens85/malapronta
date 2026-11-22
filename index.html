@@ -486,11 +486,14 @@ tr.row-pendente td{opacity:.85}
 #mDateWrap input[id$="-alt"]{width:130px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.8rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:pointer!important;font-family:'Inter',sans-serif!important;color:var(--text)!important}
 #mDateWrap .flatpickr-input{width:130px}
 .mov-section-lbl{font-size:.6rem;font-weight:800;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem}
-.mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.42rem;padding:.75rem .2rem .65rem;font-size:.62rem;font-weight:700;letter-spacing:.03em;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:13px;cursor:pointer;transition:all .14s;line-height:1.2;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.05)}
-.mov-cat-btn svg{opacity:.7;transition:all .14s;flex-shrink:0}
-.mov-cat-btn:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));color:var(--text-dim);background:var(--surface3);box-shadow:0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.07)}
+.mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;padding:.6rem .15rem .5rem;font-size:.6rem;font-weight:700;letter-spacing:.04em;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .13s;line-height:1.2;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.04)}
+.mov-cat-btn .cat-icon{width:32px;height:32px;border-radius:8px;background:color-mix(in srgb,var(--border) 60%,var(--surface2));display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}
+.mov-cat-btn svg{opacity:.8;transition:all .13s;flex-shrink:0}
+.mov-cat-btn:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--border));color:var(--text-dim);background:var(--surface3);box-shadow:0 2px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06)}
+.mov-cat-btn:hover .cat-icon{background:color-mix(in srgb,var(--accent) 18%,var(--surface2))}
 .mov-cat-btn:hover svg{opacity:1}
-.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--surface2));color:var(--accent);box-shadow:0 0 0 1.5px var(--accent),0 2px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08)}
+.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface2));color:var(--accent);box-shadow:0 0 0 1.5px var(--accent),0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.07)}
+.mov-cat-btn.active .cat-icon{background:color-mix(in srgb,var(--accent) 22%,transparent)}
 .mov-cat-btn.active svg{opacity:1;stroke:var(--accent)}
 .mov-subchip{padding:.28rem .75rem;font-size:.78rem;font-weight:600;border-radius:20px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);cursor:pointer;transition:all .15s}
 .mov-subchip:hover{border-color:var(--accent);color:var(--text)}
@@ -1672,43 +1675,43 @@ body.layout-vertical .page-label{display:none}
 
         <!-- Acúmulo -->
         <button type="button" class="mov-cat-btn" data-cat="acumulo" onclick="selectMovCat('acumulo')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
           <span>Acúmulo</span>
         </button>
 
         <!-- Compra -->
         <button type="button" class="mov-cat-btn" id="mCatCompra" data-cat="compra" onclick="selectMovCat('compra')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
           <span>Compra</span>
         </button>
 
         <!-- Emissão -->
         <button type="button" class="mov-cat-btn" id="mCatEmissao" data-cat="emissao" onclick="selectMovCat('emissao')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg></div>
           <span>Emissão</span>
         </button>
 
         <!-- Hospedagem -->
         <button type="button" class="mov-cat-btn" id="mCatHospedagem" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
           <span>Hospedagem</span>
         </button>
 
         <!-- Saída -->
         <button type="button" class="mov-cat-btn" data-cat="saida" onclick="selectMovCat('saida')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/><polyline points="12 8 16 12 12 16"/></svg></div>
           <span>Saída</span>
         </button>
 
         <!-- Ajuste -->
         <button type="button" class="mov-cat-btn" data-cat="ajuste" onclick="selectMovCat('ajuste')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
           <span>Ajuste</span>
         </button>
 
         <!-- Transferir -->
         <button type="button" class="mov-cat-btn" data-cat="transferir" onclick="selectMovCat('transferir')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
           <span>Transferir</span>
         </button>
 
@@ -2262,10 +2265,11 @@ const MOV_LABELS = {
 // bonus_transferencia: pendente até confirmação → quando confirmado vira crédito normal
 const MOV_CREDIT = new Set(['acumulo_simples','compra','compra_bonificada','assinatura','bonus','cashback','ajuste_entrada','transferencia_recebida','bonus_transferencia']);
 const MOV_DEBIT  = new Set(['resgate','expiracao','ajuste_saida','transferencia_enviada','emissao_passagem','hospedagem']);
-const MOV_HAS_VALUE = new Set(['compra','compra_bonificada','assinatura','bonus','cashback','ajuste_entrada','transferencia_recebida']);
+const MOV_HAS_VALUE = new Set(['acumulo_simples','compra','compra_bonificada','assinatura','bonus','cashback','ajuste_entrada','transferencia_recebida']);
 function getValueLabel(t){
   if(t==='compra'||t==='compra_bonificada') return 'Valor pago';
   if(t==='assinatura') return 'Valor da assinatura';
+  if(t==='acumulo_simples') return 'Valor (opcional)';
   return 'Valor';
 }
 // Tipos que podem ser marcados PENDENTE (aguardando confirmação de crédito)
