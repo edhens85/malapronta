@@ -4376,8 +4376,8 @@ function renderEmissoes(){
       <div style="font-size:1rem;font-weight:700;color:${color}">${val}</div>
     </div>`;
   document.getElementById('emrTotals').innerHTML=`
-    <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:.75rem;text-align:center">${movs.length} emissão${movs.length!==1?'s':''}</div>
     <div style="display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center">
+      ${tile('Emissões', movs.length, 'var(--text)')}
       ${tile('Milhas usadas', fmt(totMilhas))}
       ${tile('Custo resgate', 'R$ '+fmtBRL(totCusto))}
       ${tile('Taxas', 'R$ '+fmtBRL(totTaxas))}
