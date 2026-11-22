@@ -1734,10 +1734,6 @@ body.layout-vertical .page-label{display:none}
           <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="date"></div>
         </div>
         <div class="frow">
-          <div class="fg"><label>Noites</label><input class="fi fi-pts" id="mHospNoites" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
-          <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="mHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
-        </div>
-        <div class="frow">
           <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('m')"></div>
           <div class="fg"><label>Valor da hospedagem (R$)</label><input class="fi fi-money" id="mHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcHospedagem('m')"></div>
         </div>
@@ -1939,10 +1935,6 @@ body.layout-vertical .page-label{display:none}
       <div class="frow">
         <div class="fg"><label>Check-in</label><input class="fi" id="emHospCheckin" type="date"></div>
         <div class="fg"><label>Check-out</label><input class="fi" id="emHospCheckout" type="date"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Noites</label><input class="fi fi-pts" id="emHospNoites" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
-        <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="emHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
       </div>
       <div class="frow">
         <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="emHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('em')"></div>
@@ -4098,7 +4090,7 @@ function _openMovementModal(targetProgId){
   const dvTop=document.getElementById('mEmDataVooTop'); if(dvTop){ dvTop.value=''; if(dvTop._fp) dvTop._fp.clear(); }
   setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
-  ['mHotel','mHospDestino','mHospCheckin','mHospCheckout','mHospNoites','mHospQuartos','mHospPontos','mHospValor','mHospCpp','mHospCusto','mHospResultado'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.background='';el.style.color='';}});
+  ['mHotel','mHospDestino','mHospCheckin','mHospCheckout','mHospPontos','mHospValor','mHospCpp','mHospCusto','mHospResultado'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.background='';el.style.color='';}});
   // Reset bônus
   const bonusPct=document.getElementById('mBonusPct'); if(bonusPct) bonusPct.value='';
   const bonusPts=document.getElementById('mBonusPts'); if(bonusPts) bonusPts.value='';
