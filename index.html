@@ -963,35 +963,34 @@ body.layout-vertical .page-label{display:none}
 <!--  PAGE: MILHAS                              -->
 <!-- ══════════════════════════════════════════ -->
 <div class="page active" id="pageMilhas">
-  <!-- Summary strip global — visível só no dashboard -->
+  <!-- Summary strip unificada — pontos + milhas + emissões + botão registrar -->
   <div class="summary-strip" id="globalSummary">
     <div class="sum-group-label sum-group-pontos">Pontos</div>
     <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumPontos">0</div></div>
-    <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" id="sumAcumPontos">0</div></div>
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvestPontos">R$ 0,00</div></div>
     <div class="sum-item sum-item-last"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpp">R$ 0,00</div></div>
     <div class="sum-divider"></div>
     <div class="sum-group-label sum-group-milhas">Milhas</div>
     <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumMilhas">0</div></div>
-    <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" id="sumAcumMilhas">0</div></div>
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvest">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpm">R$ 0,00</div></div>
     <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
-  </div>
-
-  <!-- Faixa global de emissões + botão registrar -->
-  <div class="summary-strip" id="emissoesSummary" style="display:none">
-    <div class="sum-item"><div class="sum-label" style="white-space:normal;line-height:1.3">Economia<br>de passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
-    <div class="sum-item"><div class="sum-label" style="white-space:normal;line-height:1.3">Venda de<br>passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
-    <div class="sum-item"><div class="sum-label" style="white-space:normal;line-height:1.3">Economia de<br>hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
-    <div class="sum-item sum-item-last" id="dashQuickReg" style="display:none;margin-left:auto;padding-left:.75rem">
-      <button onclick="openAddMovementGlobal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:var(--accent);border:none;border-radius:8px;padding:.35rem .7rem;cursor:pointer;line-height:1.2;min-width:64px">
+    <!-- emissões inline -->
+    <div class="sum-divider" id="emDivider" style="display:none"></div>
+    <div class="sum-item" id="sumItemEconomia" style="display:none"><div class="sum-label" style="white-space:normal;line-height:1.3">Econ.<br>passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
+    <div class="sum-item" id="sumItemVenda" style="display:none"><div class="sum-label" style="white-space:normal;line-height:1.3">Venda<br>passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
+    <div class="sum-item" id="sumItemHosp" style="display:none"><div class="sum-label" style="white-space:normal;line-height:1.3">Econ.<br>hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
+    <!-- botão registrar -->
+    <div class="sum-item sum-item-last" id="dashQuickReg" style="display:none;margin-left:auto;border-left:1px solid var(--border)">
+      <button onclick="openAddMovementGlobal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:var(--accent);border:none;border-radius:8px;padding:.35rem .7rem;cursor:pointer;line-height:1.2;min-width:60px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         <span style="font-size:.6rem;font-weight:800;letter-spacing:.08em;color:#fff;text-transform:uppercase">Registrar</span>
         <span style="font-size:.6rem;font-weight:600;color:rgba(255,255,255,.8)">movimento</span>
       </button>
     </div>
   </div>
+  <!-- strip legada (mantida para compatibilidade de JS que a mostra/oculta) -->
+  <div id="emissoesSummary" style="display:none"></div>
 
   <!-- DASHBOARD: cards de todos os programas -->
   <div id="dashView" class="dash-wrap">
@@ -3268,11 +3267,11 @@ function renderSummary(){
   const cpp = totBalPontos>0?(totInvestPontos/totBalPontos)*1000:0;
 
   document.getElementById('sumPontos').textContent = fmt(totBalPontos);
-  document.getElementById('sumAcumPontos').textContent = fmt(totAcumPontos);
+  const _elAcumP=document.getElementById('sumAcumPontos'); if(_elAcumP) _elAcumP.textContent=fmt(totAcumPontos);
   document.getElementById('sumInvestPontos').textContent = 'R$ '+fmtBRL(totInvestPontos);
   document.getElementById('sumCpp').textContent = 'R$ '+fmtBRL(cpp);
   document.getElementById('sumMilhas').textContent = fmt(totBalMilhas);
-  document.getElementById('sumAcumMilhas').textContent = fmt(totAcumMilhas);
+  const _elAcumM=document.getElementById('sumAcumMilhas'); if(_elAcumM) _elAcumM.textContent=fmt(totAcumMilhas);
   document.getElementById('sumInvest').textContent = 'R$ '+fmtBRL(totInvestMilhas);
   document.getElementById('sumCpm').textContent = 'R$ '+fmtBRL(cpm);
   const totCarteira = totInvestMilhas + totInvestPontos;
@@ -3305,9 +3304,11 @@ function renderSummary(){
   }
   const elGHosp=document.getElementById('sumEconomiaHosp');
   if(elGHosp){ elGHosp.textContent=gHasHosp?(gHosp>=0?'R$ '+fmtBRL(gHosp):'- R$ '+fmtBRL(Math.abs(gHosp))):'—'; elGHosp.style.color=gHasHosp?(gHosp>=0?'var(--green)':'var(--red)'):''; }
-  // faixa de emissões sempre visível
-  const esEl=document.getElementById('emissoesSummary');
-  if(esEl) esEl.style.display='';
+  // mostra itens de emissão inline na strip principal
+  const hasAny = gHasEco || gHasRes || gHasHosp;
+  ['emDivider','sumItemEconomia','sumItemVenda','sumItemHosp'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display=hasAny?'':'none';
+  });
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
@@ -4125,11 +4126,6 @@ function _renderModalProgChips(){
   // Exibe/oculta botão rápido na dashboard
   const qr = document.getElementById('dashQuickReg');
   if(qr) qr.style.display = db.programs.length ? '' : 'none';
-  // Garante que a strip de emissões esteja visível (abriga o botão)
-  if(db.programs.length){
-    const es = document.getElementById('emissoesSummary');
-    if(es) es.style.display='';
-  }
 }
 function setEmBenef(prefix, val){
   const hiddenEl = document.getElementById((prefix==='m'?'mEmBenef':'emEmBenef'));
