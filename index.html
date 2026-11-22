@@ -487,10 +487,11 @@ tr.row-pendente td{opacity:.85}
 #mDateWrap{position:relative;display:inline-flex;align-items:center}
 #mDateWrap input.flatpickr-input.flatpickr-mobile,
 #mDateWrap input[id$="-alt"],
-#mDateWrap input#mDate{width:138px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.8rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:text!important;font-family:'Inter',sans-serif!important;color:var(--text)!important;box-sizing:border-box!important}
+#mDateWrap input#mDate{width:138px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.9rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:text!important;font-family:'Inter',sans-serif!important;color:var(--text)!important;box-sizing:border-box!important}
 /* Esconde o input original (oculto pelo flatpickr) */
 #mDateWrap input#mDate.flatpickr-input:not(.flatpickr-mobile){display:none!important}
-#mDateIcon{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5;z-index:3}
+/* Ícone sempre na frente — posicionado pelo wrapper, nunca pelo DOM do input */
+#mDateIcon{position:absolute;left:.52rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5;z-index:10}
 .mov-section-lbl{font-size:.6rem;font-weight:800;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem}
 .mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.38rem;padding:.7rem .2rem .6rem;font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#9aa3b0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .13s;line-height:1.1;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.04)}
 .mov-cat-btn .cat-icon{width:34px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--border) 55%,var(--surface));display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}
@@ -5631,10 +5632,30 @@ function openModal(id){
         },
         onReady(_,__,fp){
           fp.calendarContainer.style.zIndex='10000';
-          // Move o ícone para depois do altInput para garantir z-index
+          // Garante ícone sempre como último filho do wrapper (acima do altInput)
           const wrap=document.getElementById('mDateWrap');
           const icon=document.getElementById('mDateIcon');
           if(wrap&&icon) wrap.appendChild(icon);
+          // Máscara automática dd/mm/aaaa no altInput
+          const altEl = fp.altInput;
+          if(altEl){
+            altEl.addEventListener('input', function(e){
+              // Não interferir se veio do calendário (valor já formatado)
+              let v = this.value.replace(/\D/g,'');
+              if(v.length===0){this.value='';return;}
+              let masked='';
+              if(v.length<=2) masked=v;
+              else if(v.length<=4) masked=v.slice(0,2)+'/'+v.slice(2);
+              else masked=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);
+              this.value=masked;
+              // Quando completar dd/mm/aaaa faz parse
+              if(/^\d{2}\/\d{2}\/\d{4}$/.test(masked)){
+                const [dd,mm,yyyy]=masked.split('/');
+                const d=new Date(+yyyy,+mm-1,+dd);
+                if(!isNaN(d.getTime())) fp.setDate(d,false);
+              }
+            });
+          }
         }
       });
     }
