@@ -377,9 +377,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .stat-sub{font-size:.7rem;color:#9aa3b0;margin-top:4px;font-weight:500}
 .det-stat-mini{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem .75rem;flex:1;min-width:0;background:linear-gradient(145deg,var(--surface2),color-mix(in srgb,var(--surface3) 70%,var(--surface2)));border:1px solid color-mix(in srgb,var(--border) 80%,transparent);border-radius:12px;gap:.18rem;transition:all .15s;position:relative;overflow:hidden;text-align:center}
 .det-stat-mini::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);pointer-events:none}
-.det-stat-mini-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:.18rem;flex-shrink:0}
-.det-stat-mini-lbl{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);white-space:nowrap}
-.det-stat-mini-val{font-size:1.35rem;font-weight:700;letter-spacing:-.03em;white-space:nowrap}
+.det-stat-mini-icon{display:none}
+.det-stat-mini-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);white-space:nowrap}
+.det-stat-mini-val{font-size:1.55rem;font-weight:700;letter-spacing:-.03em;white-space:nowrap}
 .det-stat-mini-sep{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;margin:0 .1rem;display:none}
 .mov-prog-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .65rem .32rem .4rem;border:1.5px solid var(--border);border-radius:999px;background:var(--surface2);cursor:pointer;transition:all .13s;color:var(--text-muted);font-size:.72rem;font-weight:700;line-height:1}
 .mov-prog-chip:hover{border-color:var(--accent);background:var(--surface3);color:var(--text)}
@@ -414,7 +414,7 @@ td{padding:.7rem .9rem;vertical-align:middle}
 .em-table{padding:2rem;text-align:center;color:var(--text-muted);font-size:.8rem}
 
 /* Badges */
-.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:.68rem;font-weight:500;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600;white-space:nowrap;text-transform:uppercase;letter-spacing:.03em}
 .b-acumulo_simples,.b-bonus,.b-cashback{background:var(--gold-bg);color:var(--gold)}
 .b-compra{background:var(--green-bg);color:var(--green)}
 .b-compra_bonificada{background:var(--teal-bg);color:var(--teal)}
@@ -620,9 +620,8 @@ body.sidebar-layout .btn-sidebar-toggle{display:flex}
   .ticker-item{padding:0 1rem;font-size:.7rem}
   .topbar{height:48px;padding:0 .9rem}
   .detail-header{flex-wrap:wrap;padding:.85rem 1rem !important;gap:.6rem !important}
-  .det-stat-mini-val{font-size:1.1rem}
+  .det-stat-mini-val{font-size:1.2rem}
   .det-stat-mini{padding:.4rem .55rem;border-radius:10px}
-  .det-stat-mini-icon{width:22px;height:22px;border-radius:6px}
 }
 
 /* ── TOPBAR RESPONSIVO (janela estreita desktop) ── */
@@ -1176,6 +1175,10 @@ body.layout-vertical .page-label{display:none}
         <div class="sec-header">
           <div class="sec-title">Movimentos</div>
           <div class="mov-controls">
+            <button class="btn-new-op" onclick="openAddMovementGlobal()" style="display:flex;align-items:center;gap:.35rem;padding:.32rem .7rem;background:var(--accent);color:#000;border:none;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova operação
+            </button>
             <input class="search-sm" id="movSearch" placeholder="Buscar…" oninput="renderMovTable()">
             <select class="select-sm" id="movFilter" onchange="renderMovTable()">
               <option value="">Todos os tipos</option>
@@ -1865,13 +1868,10 @@ body.layout-vertical .page-label{display:none}
 
       <!-- Campos exclusivos: Hospedagem -->
       <div id="mHospedagemBox" class="hidden">
-        <div class="frow">
-          <div class="fg"><label>Hotel / Propriedade</label><input class="fi" id="mHotel" type="text" placeholder="Nome do hotel…"></div>
-          <div class="fg"><label>Destino</label><input class="fi" id="mHospDestino" type="text" placeholder="Cidade, País…"></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label>Check-in</label><input class="fi" id="mHospCheckin" type="text" placeholder="dd/mm/aaaa"></div>
-          <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="text" placeholder="dd/mm/aaaa"></div>
+        <div class="frow" style="align-items:flex-end">
+          <div class="fg" style="flex:2"><label>Hotel / Destino</label><input class="fi" id="mHotel" type="text" placeholder="Nome do hotel, cidade…"></div>
+          <div class="fg" style="flex:1"><label>Check-in</label><input class="fi" id="mHospCheckin" type="text" placeholder="dd/mm/aaaa"></div>
+          <div style="flex:0 0 70px"><label style="display:block;font-size:.72rem;font-weight:600;color:var(--text-muted);margin-bottom:4px">Noites</label><input class="fi" id="mHospNoites" type="text" inputmode="numeric" placeholder="1" style="width:100%" oninput="this.value=this.value.replace(/\D/g,'');calcHospedagem('m')"></div>
         </div>
         <div class="frow">
           <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('m')"></div>
@@ -2068,13 +2068,10 @@ body.layout-vertical .page-label{display:none}
     </div>
     <!-- Campos exclusivos: Hospedagem (edit) -->
     <div id="emHospedagemBox" class="hidden">
-      <div class="frow">
-        <div class="fg"><label>Hotel / Propriedade</label><input class="fi" id="emHotel" type="text" placeholder="Nome do hotel…"></div>
-        <div class="fg"><label>Destino</label><input class="fi" id="emHospDestino" type="text" placeholder="Cidade, País…"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Check-in</label><input class="fi" id="emHospCheckin" type="text" placeholder="dd/mm/aaaa"></div>
-        <div class="fg"><label>Check-out</label><input class="fi" id="emHospCheckout" type="text" placeholder="dd/mm/aaaa"></div>
+      <div class="frow" style="align-items:flex-end">
+        <div class="fg" style="flex:2"><label>Hotel / Destino</label><input class="fi" id="emHotel" type="text" placeholder="Nome do hotel, cidade…"></div>
+        <div class="fg" style="flex:1"><label>Check-in</label><input class="fi" id="emHospCheckin" type="text" placeholder="dd/mm/aaaa"></div>
+        <div style="flex:0 0 70px"><label style="display:block;font-size:.72rem;font-weight:600;color:var(--text-muted);margin-bottom:4px">Noites</label><input class="fi" id="emHospNoites" type="text" inputmode="numeric" placeholder="1" style="width:100%" oninput="this.value=this.value.replace(/\D/g,'');calcHospedagem('em')"></div>
       </div>
       <div class="frow">
         <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="emHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('em')"></div>
@@ -3054,7 +3051,7 @@ function renderMovimentos(){
         return `<tr style="cursor:pointer" onclick="selectProg('${m.programId}');setTimeout(()=>openEditMov('${m.id}'),200)">
           <td style="white-space:nowrap;color:var(--text-muted);font-size:.75rem">${fmtDate(m.date)}</td>
           <td style="white-space:nowrap">${dot}${esc(p?p.name:'?')}</td>
-          <td><span class="badge b-${m.type}" style="background:${isCredit(m)?'var(--green)':'var(--red)'};color:#fff;font-size:.65rem">${MOV_LABELS[m.type]||m.type}</span></td>
+          <td><span class="badge b-${m.type}" style="background:${isCredit(m)?'var(--green)':'var(--red)'};color:#fff">${MOV_LABELS[m.type]||m.type}</span></td>
           <td style="color:var(--text-muted);font-size:.75rem;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(m.obs||'')}${m.emTrecho?' | '+m.emTrecho:''}">${esc(snippet)}</td>
           <td style="text-align:right">${ptsStr}</td>
           <td style="text-align:right;color:var(--text-muted);font-size:.75rem">${val?'R$ '+fmtBRL(val):'—'}</td>
@@ -3103,7 +3100,7 @@ function renderDashSearch(){
         return `<tr style="cursor:pointer" onclick="selectProg('${m.programId}');setTimeout(()=>openEditMov('${m.id}'),200)">
           <td style="white-space:nowrap;color:var(--text-muted);font-size:.75rem">${fmtDate(m.date)}</td>
           <td>${dot}${esc(p?p.name:'?')}</td>
-          <td><span class="badge b-${m.type}" style="background:${isCredit(m)?'var(--green)':'var(--red)'};color:#fff;font-size:.65rem">${MOV_LABELS[m.type]||m.type}</span></td>
+          <td><span class="badge b-${m.type}" style="background:${isCredit(m)?'var(--green)':'var(--red)'};color:#fff">${MOV_LABELS[m.type]||m.type}</span></td>
           <td style="color:var(--text-muted);font-size:.75rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(m.obs||'')}${m.emTrecho?' | '+m.emTrecho:''}">${esc(snippet)}</td>
           <td style="text-align:right">${ptsStr}</td>
           <td style="text-align:right;color:var(--text-muted);font-size:.75rem">${val?'R$ '+fmtBRL(val):'—'}</td>
@@ -4510,11 +4507,8 @@ function saveMovement(){
   const mov={id:uid(),programId:selProg,type,date,points:pts,value:val,obs,link,_linkName:linkName||undefined,resgateCost,_ts:Date.now()};
   if(isHosp){
     mov.hospHotel=document.getElementById('mHotel').value.trim()||undefined;
-    mov.hospDestino=document.getElementById('mHospDestino').value.trim()||undefined;
     mov.hospCheckin=document.getElementById('mHospCheckin').value||undefined;
-    mov.hospCheckout=document.getElementById('mHospCheckout').value||undefined;
-    mov.hospNoites=parsePts(document.getElementById('mHospNoites'))||undefined;
-    mov.hospQuartos=parsePts(document.getElementById('mHospQuartos'))||undefined;
+    mov.hospNoites=parseInt(document.getElementById('mHospNoites').value)||undefined;
     mov.hospValor=parseMoney(document.getElementById('mHospValor'))||undefined;
     const _hospCpp=parseFloat((document.getElementById('mHospCpp').value||'0').replace(/\./g,'').replace(',','.'))||0;
     mov.hospCpp=_hospCpp||undefined;
@@ -4604,11 +4598,8 @@ function openEditMov(id){
   }
   if(m.type==='hospedagem'){
     document.getElementById('emHotel').value=m.hospHotel||'';
-    document.getElementById('emHospDestino').value=m.hospDestino||'';
     document.getElementById('emHospCheckin').value=m.hospCheckin||'';
-    document.getElementById('emHospCheckout').value=m.hospCheckout||'';
     document.getElementById('emHospNoites').value=m.hospNoites?parseInt(m.hospNoites,10).toLocaleString('pt-BR'):'';
-    document.getElementById('emHospQuartos').value=m.hospQuartos?parseInt(m.hospQuartos,10).toLocaleString('pt-BR'):'';
     document.getElementById('emHospPontos').value=m.points?parseInt(m.points,10).toLocaleString('pt-BR'):'';
     document.getElementById('emHospValor').value=m.hospValor>0?fmtBRL(m.hospValor):'';
     // CPP: usa o salvo ou recalcula pelo CPP atual do programa
@@ -4694,11 +4685,8 @@ function updateMovement(){
   } else { m.emCpm=undefined; m.emTaxas=undefined; m.emMercado=undefined; m.emTrecho=undefined; m.emCabine=undefined; }
   if(isHosp){
     m.hospHotel=document.getElementById('emHotel').value.trim()||undefined;
-    m.hospDestino=document.getElementById('emHospDestino').value.trim()||undefined;
     m.hospCheckin=document.getElementById('emHospCheckin').value||undefined;
-    m.hospCheckout=document.getElementById('emHospCheckout').value||undefined;
-    m.hospNoites=parsePts(document.getElementById('emHospNoites'))||undefined;
-    m.hospQuartos=parsePts(document.getElementById('emHospQuartos'))||undefined;
+    m.hospNoites=parseInt(document.getElementById('emHospNoites').value)||undefined;
     m.hospValor=parseMoney(document.getElementById('emHospValor'))||undefined;
     const _hospCpp=parseFloat((document.getElementById('emHospCpp').value||'0').replace(/\./g,'').replace(',','.'))||0;
     m.hospCpp=_hospCpp||undefined;
@@ -5695,9 +5683,7 @@ function openModal(id){
     if(emDvEl && emDvEl._fp && emDvEl.value) emDvEl._fp.setDate(emDvEl.value, false);
     // Check-in / Check-out hospedagem
     const emCiEl = document.getElementById('emHospCheckin');
-    const emCoEl = document.getElementById('emHospCheckout');
     initDatePicker(emCiEl);
-    initDatePicker(emCoEl);
     if(emCiEl && emCiEl._fp && emCiEl.value) emCiEl._fp.setDate(emCiEl.value, false);
     if(emCoEl && emCoEl._fp && emCoEl.value) emCoEl._fp.setDate(emCoEl.value, false);
   }
