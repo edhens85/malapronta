@@ -1021,7 +1021,7 @@ body.layout-vertical .page-label{display:none}
           <div class="stat-sub">custo acumulado</div>
         </div>
         <div class="stat">
-          <div class="stat-label">CPM</div>
+          <div class="stat-label" id="detCpmLabel">CPM</div>
           <div class="stat-val gold" id="detCpm">R$ 0,00</div>
         </div>
       </div>
@@ -3080,6 +3080,7 @@ function renderDetail(){
   document.getElementById('detBalance').textContent = fmt(s.balance);
   document.getElementById('detInvest').textContent = 'R$ '+fmtBRL(s.invest);
   document.getElementById('detCpm').textContent = 'R$ '+fmtBRL(s.cpm);
+  const detCpmLbl=document.getElementById('detCpmLabel'); if(detCpmLbl) detCpmLbl.textContent=isAerea?'CPM':'CPP';
   // Ajustar label do botão de transferência
   const tBtn = document.querySelector('button[onclick="openTransfer()"]');
   if(tBtn){
