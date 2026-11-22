@@ -5514,23 +5514,33 @@ async function approveUser(uid, status){
         // 1) Busca via REST API (HTTP puro, sem cache SDK, sem ITP Safari) com fallback SDK
         let _appShown = false;
         const _showFromServer = async () => {
+          // Lê localStorage ANTES do Firebase — nunca descarta dados locais
+          let _localDB = null;
+          try{ const r=localStorage.getItem('milhas_v3'); if(r) _localDB=JSON.parse(r); }catch(_){}
+
           try {
             const snap = await window._fbGetDocREST(user.uid);
             if(snap.exists() && snap.data().db){
               db = snap.data().db;
             } else {
-              db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
+              db = _localDB || {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
             }
           } catch(e) {
             console.error('REST get error, tentando SDK', e);
             try {
               const snap2 = await window._fbGetDoc(user.uid);
               if(snap2.exists() && snap2.data().db) db = snap2.data().db;
-              else db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
+              else db = _localDB || {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
             } catch(e2) {
               console.error('SDK get error', e2);
-              try { const s=localStorage.getItem('milhas_v3'); if(s) db=JSON.parse(s); } catch(_){}
+              db = _localDB || {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
             }
+          }
+          // Mescla: adiciona movimentos locais que não chegaram ao Firebase
+          if(_localDB && _localDB.movements && db.movements){
+            const remoteIds = new Set(db.movements.map(m=>m.id));
+            const missing = _localDB.movements.filter(m=>m.id && !remoteIds.has(m.id));
+            if(missing.length > 0) db.movements = [...db.movements, ...missing];
           }
           ensureDBDefaults();
           _migrateDB();
