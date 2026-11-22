@@ -485,8 +485,10 @@ tr.row-pendente td{opacity:.85}
 #mDateWrap{position:relative;display:inline-flex;align-items:center}
 #mDateWrap input.flatpickr-input.flatpickr-mobile,
 #mDateWrap input[id$="-alt"],
-#mDateWrap input#mDate{width:130px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.8rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:pointer!important;font-family:'Inter',sans-serif!important;color:var(--text)!important;box-sizing:border-box!important}
-#mDateIcon{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5;z-index:2}
+#mDateWrap input#mDate{width:138px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.8rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:text!important;font-family:'Inter',sans-serif!important;color:var(--text)!important;box-sizing:border-box!important}
+/* Esconde o input original (oculto pelo flatpickr) */
+#mDateWrap input#mDate.flatpickr-input:not(.flatpickr-mobile){display:none!important}
+#mDateIcon{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5;z-index:3}
 .mov-section-lbl{font-size:.6rem;font-weight:800;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem}
 .mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.38rem;padding:.7rem .2rem .6rem;font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#9aa3b0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .13s;line-height:1.1;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.04)}
 .mov-cat-btn .cat-icon{width:34px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--border) 55%,var(--surface));display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}
@@ -5606,10 +5608,24 @@ function openModal(id){
       mDateEl._fp = flatpickr(mDateEl,{
         locale:'pt', dateFormat:'Y-m-d',
         altInput:true, altFormat:'d/m/Y',
-        disableMobile:true, allowInput:false,
+        disableMobile:true, allowInput:true,
         appendTo: document.body,
         position:'auto',
-        onReady(_,__,fp){ fp.calendarContainer.style.zIndex='10000'; }
+        parseDate(d,fmt){
+          // Aceita digitação dd/mm/aaaa além do formato ISO interno
+          if(fmt==='d/m/Y'&&/^\d{2}\/\d{2}\/\d{4}$/.test(d)){
+            const [dd,mm,yyyy]=d.split('/');
+            return new Date(+yyyy,+mm-1,+dd);
+          }
+          return new Date(d);
+        },
+        onReady(_,__,fp){
+          fp.calendarContainer.style.zIndex='10000';
+          // Move o ícone para depois do altInput para garantir z-index
+          const wrap=document.getElementById('mDateWrap');
+          const icon=document.getElementById('mDateIcon');
+          if(wrap&&icon) wrap.appendChild(icon);
+        }
       });
     }
     if(mDateEl && mDateEl._fp) mDateEl._fp.setDate(today(), true);
