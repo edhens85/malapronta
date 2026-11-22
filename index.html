@@ -129,11 +129,18 @@
   // Listener em tempo real: onSnapshot + polling REST a cada 10s como garantia
   window._fbSubscribe = (uid, onData) => {
     // onSnapshot para atualizações em tempo real
+    let _snapLastUpdateTime = 0;
     const unsub = firestore.collection('users').doc(uid).onSnapshot(
       snap => {
-        if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites && !window._pendingSave && (Date.now()-(_lastSaveTs||0))>=30000){
-          onData(snap.data().db);
-        }
+        if(!snap.exists() || !snap.data().db || snap.metadata.hasPendingWrites || window._pendingSave) return;
+        if((Date.now()-(_lastSaveTs||0))<30000) return; // guard pós-save
+        // Só aceita se o documento no servidor é mais novo que o que já vimos
+        const snapTs = snap.updateTime ? snap.updateTime.toMillis() : 0;
+        if(snapTs && snapTs <= _snapLastUpdateTime) return;
+        _snapLastUpdateTime = snapTs || Date.now();
+        // Só aceita se o Firebase tem versão posterior ao último save local
+        if(snapTs && snapTs < _lastSaveTs) return;
+        onData(snap.data().db);
       },
       err => console.error('onSnapshot error', err)
     );
@@ -151,9 +158,9 @@
         if(!res.ok) return;
         const json = await res.json();
         const updatedAt = json.updateTime ? new Date(json.updateTime).getTime() : 0;
-        if(updatedAt > _lastUpdateTime){
+        if(updatedAt > _lastUpdateTime && updatedAt >= _lastSaveTs){
           _lastUpdateTime = updatedAt;
-          // Tem versão mais nova no servidor — parseia e atualiza
+          // Tem versão mais nova no servidor E posterior ao último save local — parseia e atualiza
           const parseFirestoreValue = (v) => {
             if(v.stringValue!==undefined) return v.stringValue;
             if(v.integerValue!==undefined) return Number(v.integerValue);
