@@ -4051,7 +4051,7 @@ function calcTransfer(){
   // dest program current stats
   const destId=document.getElementById('tTo').value;
   const destStats=destId?computeStats(destId):{balance:0,invest:0,cpm:0};
-  document.getElementById('tcCpm').textContent=`R$ ${fmtBRL(cpmSrc)}/milheiro`;
+  document.getElementById('tcCpm').textContent=`R$ ${fmtBRL(cpmSrc)}`;
   document.getElementById('tcCustoHerdado').textContent=`R$ ${fmtBRL(costHerdado)}`;
   const extraRow=document.getElementById('tcCustoExtra');
   if(transferType==='plus_dinheiro'){ extraRow.classList.remove('hidden'); extraRow.textContent=`R$ ${fmtBRL(extraVal)}`; }
@@ -4059,7 +4059,7 @@ function calcTransfer(){
   document.getElementById('tcBase').textContent=fmt(totalBase);
   document.getElementById('tcBonus').textContent=`+${fmt(bonusPts)}`;
   document.getElementById('tcTotal').textContent=fmt(totalReceived);
-  document.getElementById('tcCpmDest').textContent=`R$ ${fmtBRL(cpmDest)}/milheiro`;
+  document.getElementById('tcCpmDest').textContent=`R$ ${fmtBRL(cpmDest)}`;
 }
 function saveTransfer(){
   const pts=parsePts(document.getElementById('tPoints'));
