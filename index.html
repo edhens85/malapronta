@@ -4065,30 +4065,11 @@ function openAddMovement(){
 }
 
 function _updateCatsByProgType(){
-  const p = db.programs.find(x=>x.id===selProg);
-  const tipo = p ? p.type : '';
-  const isAerea = tipo==='aerea';
-  const isHotel = tipo==='hotel';
-  // Emissão: só aéreas
-  const catEmissao = document.getElementById('mCatEmissao');
-  if(catEmissao) catEmissao.style.display = isAerea ? '' : 'none';
-  // Hospedagem: só hotel
-  const catHosp = document.getElementById('mCatHospedagem');
-  if(catHosp) catHosp.style.display = isHotel ? '' : 'none';
-  // Compra: só não-aéreas (aéreas não compram milhas diretamente)
-  const catCompra = document.getElementById('mCatCompra');
-  if(catCompra) catCompra.style.display = isAerea ? 'none' : '';
-  // Se a categoria ativa ficou oculta, reseta
-  const activeCat = document.querySelector('.mov-cat-btn.active');
-  if(activeCat){
-    const hidden = activeCat.style.display==='none';
-    if(hidden){
-      document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.remove('active'));
-      document.getElementById('mSubtypeRow').classList.add('hidden');
-      document.getElementById('mFieldsArea').classList.add('hidden');
-      document.getElementById('mSaveBtn').style.display='none';
-    }
-  }
+  // Todas as categorias disponíveis para todos os programas
+  ['mCatCompra','mCatEmissao','mCatHospedagem'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='';
+  });
 }
 
 function _openMovementModal(targetProgId){
