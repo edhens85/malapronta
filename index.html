@@ -2228,36 +2228,39 @@ function loadDB(){
   ensureDBDefaults();
 }
 async function loadDBFromFirestore(uid){
+  // 1) Carrega localStorage primeiro — fonte de verdade local
+  let localDB = null;
+  try{ const r=localStorage.getItem('milhas_v3'); if(r) localDB=JSON.parse(r); }catch(e){}
+
   try{
     const timeoutPromise = new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000));
     const snap = await Promise.race([window._fbGetDoc(uid), timeoutPromise]);
     if(snap.exists() && snap.data().db){
       const remoteDB = snap.data().db;
-      // Mescla movimentos do localStorage que não chegaram ao Firebase (save pendente)
-      let localDB = null;
-      try{ const r=localStorage.getItem('milhas_v3'); if(r) localDB=JSON.parse(r); }catch(e){}
+      // Mescla: começa com Firebase, adiciona movimentos locais que não estão lá
       db = remoteDB;
-      if(localDB && localDB.movements && remoteDB.movements){
-        const remoteIds = new Set(remoteDB.movements.map(m=>m.id));
+      if(localDB && localDB.movements){
+        const remoteIds = new Set((remoteDB.movements||[]).map(m=>m.id));
         const missing = localDB.movements.filter(m=>m.id && !remoteIds.has(m.id));
         if(missing.length > 0){
-          // Há movimentos locais que não chegaram ao Firebase — adiciona e re-salva
-          db.movements = [...remoteDB.movements, ...missing];
-          setTimeout(()=>{ if(window._fbCurrentUid===uid) saveDB(); }, 500);
+          db.movements = [...(remoteDB.movements||[]), ...missing];
         }
       }
-      ensureDBDefaults();
-      try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+    } else if(localDB) {
+      // Firebase vazio mas tem dados locais — usa local
+      db = localDB;
     } else {
-      // Documento não existe ainda — começa vazio (não usa localStorage de outro dispositivo)
       db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
-      ensureDBDefaults();
     }
   }catch(e){
-    console.error('Firestore load error', e);
-    // Só usa localStorage como fallback offline real (sem conexão)
-    loadDB();
+    // Firebase falhou — usa localStorage
+    db = localDB || {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
   }
+  ensureDBDefaults();
+  // Sempre persiste o estado mesclado
+  try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+  // Sincroniza Firebase com o estado atual (inclui movimentos pendentes)
+  if(window._fbCurrentUid===uid) setTimeout(()=>saveDB(), 1000);
 }
 let _saveTimer = null;
 window._pendingSave = false;
