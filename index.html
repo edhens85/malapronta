@@ -1497,7 +1497,6 @@ body.layout-vertical .page-label{display:none}
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div>
             <div style="font-size:.95rem;font-weight:700;color:var(--text)">Vencimento das Milhas</div>
-            <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">Configure a data de expiração de cada programa para receber alertas</div>
           </div>
         </div>
         <div id="vencKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem"></div>
@@ -7234,33 +7233,38 @@ function renderVencimentos(){
     else if(typeof MOV_DEBIT!=='undefined'&&MOV_DEBIT.has(m.type)) saldos[m.programId]-=m.points||0;
   });
 
-  // KPIs — baseado na data de lote mais próxima de cada programa
-  let vencendo30=0, vencendo90=0, semVencimento=0;
+  // KPIs — saldo de pontos por janela de vencimento
+  let pts30=0, pts90=0, ptsSemData=0;
   progs.forEach(p=>{
     const lotes=_vencGetLotes(p);
-    const proxData=_vencProximaData(lotes);
-    if(!proxData){ semVencimento++; return; }
-    const exp=new Date(proxData+'T00:00:00');
-    const dias=Math.round((exp-today)/(1000*60*60*24));
-    if(dias<=30) vencendo30++;
-    else if(dias<=90) vencendo90++;
+    if(!lotes.length){ ptsSemData+=(saldos[p.id]||0); return; }
+    lotes.forEach(l=>{
+      const pts=parseInt(l.pts)||0;
+      if(!l.date){ ptsSemData+=pts; return; }
+      const exp=new Date(l.date+'T00:00:00');
+      const dias=Math.round((exp-today)/(1000*60*60*24));
+      if(dias<=30) pts30+=pts;
+      else if(dias<=90) pts90+=pts;
+    });
   });
+  const fmtKpi=n=>n>=1000000?(n/1000000).toFixed(1).replace('.',',')+'M':n>=1000?(n/1000).toFixed(1).replace('.',',')+'k':n.toLocaleString('pt-BR');
+  const kpiStyle=(border)=>`display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--surface2);border:1px solid ${border};border-radius:var(--radius);padding:1rem .5rem;gap:.25rem`;
   const kpis=document.getElementById('vencKpis');
   if(kpis) kpis.innerHTML=`
-    <div style="background:var(--surface2);border:1px solid var(--red);border-radius:var(--radius);padding:.9rem">
-      <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.4rem">Vencem em 30 dias</div>
-      <div style="font-size:1.5rem;font-weight:700;color:${vencendo30>0?'var(--red)':'var(--text)'}">${vencendo30}</div>
-      <div style="font-size:.68rem;color:var(--text-muted)">programa(s)</div>
+    <div style="${kpiStyle('var(--red)')}">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Vencem em 30d</div>
+      <div style="font-size:1.65rem;font-weight:700;color:${pts30>0?'var(--red)':'#fff'};line-height:1.1">${fmtKpi(pts30)}</div>
+      <div style="font-size:.68rem;color:rgba(255,255,255,.45)">pontos / milhas</div>
     </div>
-    <div style="background:var(--surface2);border:1px solid var(--gold);border-radius:var(--radius);padding:.9rem">
-      <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.4rem">Vencem em 90 dias</div>
-      <div style="font-size:1.5rem;font-weight:700;color:${vencendo90>0?'var(--gold)':'var(--text)'}">${vencendo90}</div>
-      <div style="font-size:.68rem;color:var(--text-muted)">programa(s)</div>
+    <div style="${kpiStyle('var(--gold)')}">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Vencem em 90d</div>
+      <div style="font-size:1.65rem;font-weight:700;color:${pts90>0?'var(--gold)':'#fff'};line-height:1.1">${fmtKpi(pts90)}</div>
+      <div style="font-size:.68rem;color:rgba(255,255,255,.45)">pontos / milhas</div>
     </div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem">
-      <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.4rem">Sem vencimento</div>
-      <div style="font-size:1.5rem;font-weight:700;color:var(--text-muted)">${semVencimento}</div>
-      <div style="font-size:.68rem;color:var(--text-muted)">programa(s)</div>
+    <div style="${kpiStyle('var(--border)')}">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Sem data</div>
+      <div style="font-size:1.65rem;font-weight:700;color:#fff;line-height:1.1">${fmtKpi(ptsSemData)}</div>
+      <div style="font-size:.68rem;color:rgba(255,255,255,.45)">pontos / milhas</div>
     </div>`;
 
   // Lista
