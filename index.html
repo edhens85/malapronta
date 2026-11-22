@@ -808,18 +808,7 @@ body.layout-vertical .page-label{display:none}
       </button>
       <div class="nav-dropdown-menu">
         <div class="nav-dropdown-menu-inner" id="ddMenuInner">
-          <button class="nav-dropdown-item" id="ddRotas" data-ddid="rotas" onclick="showPage('rotas',null)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 3.5 9A15 15 0 0 1 12 21A15 15 0 0 1 8.5 12A15 15 0 0 1 12 3z"/></svg>
-            Rotas de Emissão
-          </button>
-          <button class="nav-dropdown-item" id="ddRelatorio" data-ddid="emissoes" onclick="showPage('emissoes',null)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg>
-            Passagens Emitidas
-          </button>
-          <button class="nav-dropdown-item" id="ddMovimentos" data-ddid="relatorios" onclick="showPage('relatorios',null)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            Movimentos
-          </button>
+          <!-- ordem renderizada dinamicamente por renderDdMenu() -->
         </div>
       </div>
     </div>
@@ -4815,15 +4804,11 @@ function showPage(page, el){
   if(page==='rotas'||page==='emissoes'||page==='relatorios'){
     if(emTab){ emTab.classList.add('active'); }
     if(emIcon){ emIcon.style.borderColor='var(--gold)'; emIcon.style.background='var(--surface3)'; }
-    if(ddRotas){ ddRotas.classList.toggle('active', page==='rotas'); }
-    if(ddRel){ ddRel.classList.toggle('active', page==='emissoes'); }
-    if(ddMov){ ddMov.classList.toggle('active', page==='relatorios'); }
+    renderDdMenu(page);
   } else {
     if(emTab){ emTab.classList.remove('active'); }
     if(emIcon){ emIcon.style.borderColor=''; emIcon.style.background=''; }
-    if(ddRotas){ ddRotas.classList.remove('active'); }
-    if(ddRel){ ddRel.classList.remove('active'); }
-    if(ddMov){ ddMov.classList.remove('active'); }
+    renderDdMenu('');
   }
   syncMobileNav(page);
   if(page==='rotas'){ if(!db.routes) db.routes=[]; renderRotasSaldos(); renderRoutes(); }
@@ -4832,6 +4817,75 @@ function showPage(page, el){
   // close col filter dropdowns on page change
   document.querySelectorAll('.col-filter-dropdown').forEach(d=>d.classList.remove('open'));
 }
+// ═══════════════════════════════════════════════
+//  MENU RELATÓRIOS — drag & drop reordenável
+// ═══════════════════════════════════════════════
+const DD_MENU_ITEMS_DEFAULT = [
+  { id:'ddRotas',     page:'rotas',      label:'Rotas de Emissão',   svg:'<circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15 15 0 0 1 3.5 9A15 15 0 0 1 12 21A15 15 0 0 1 8.5 12A15 15 0 0 1 12 3z"/>',  sw:'1.8' },
+  { id:'ddRelatorio', page:'emissoes',   label:'Passagens Emitidas', svg:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/>',  sw:'2' },
+  { id:'ddMovimentos',page:'relatorios', label:'Movimentos',         svg:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',  sw:'2' },
+];
+
+function getDdOrder(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('mp_dd_relatorios_order')||'null');
+    if(saved&&saved.length===DD_MENU_ITEMS_DEFAULT.length) return saved;
+  }catch(e){}
+  return DD_MENU_ITEMS_DEFAULT.map(i=>i.id);
+}
+function saveDdOrder(ids){ try{ localStorage.setItem('mp_dd_relatorios_order', JSON.stringify(ids)); }catch(e){} }
+
+function renderDdMenu(activePage){
+  const inner=document.getElementById('ddMenuInner'); if(!inner) return;
+  const order=getDdOrder();
+  const items=order.map(id=>DD_MENU_ITEMS_DEFAULT.find(x=>x.id===id)).filter(Boolean);
+  inner.innerHTML='';
+  items.forEach(item=>{
+    const btn=document.createElement('button');
+    btn.className='nav-dropdown-item'+(activePage===item.page?' active':'');
+    btn.id=item.id;
+    btn.dataset.ddid=item.page;
+    btn.draggable=true;
+    btn.innerHTML=
+      `<span class="dd-drag-handle" title="Arrastar">` +
+        `<svg width="9" height="12" viewBox="0 0 9 12" fill="none" style="opacity:.35"><circle cx="2.5" cy="2" r="1.2" fill="currentColor"/><circle cx="6.5" cy="2" r="1.2" fill="currentColor"/><circle cx="2.5" cy="6" r="1.2" fill="currentColor"/><circle cx="6.5" cy="6" r="1.2" fill="currentColor"/><circle cx="2.5" cy="10" r="1.2" fill="currentColor"/><circle cx="6.5" cy="10" r="1.2" fill="currentColor"/></svg>` +
+      `</span>` +
+      `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${item.sw}" stroke-linecap="round" stroke-linejoin="round">${item.svg}</svg>` +
+      `<span>${item.label}</span>`;
+    btn.addEventListener('click', e=>{
+      if(e.target.closest('.dd-drag-handle')) return;
+      showPage(item.page, null);
+    });
+    // Drag events
+    btn.addEventListener('dragstart', e=>{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', item.id); btn.classList.add('dd-dragging'); });
+    btn.addEventListener('dragend', ()=>{ btn.classList.remove('dd-dragging'); inner.querySelectorAll('.nav-dropdown-item').forEach(b=>b.classList.remove('dd-over')); });
+    btn.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; btn.classList.add('dd-over'); });
+    btn.addEventListener('dragleave', ()=>btn.classList.remove('dd-over'));
+    btn.addEventListener('drop', e=>{
+      e.preventDefault(); btn.classList.remove('dd-over');
+      const fromId=e.dataTransfer.getData('text/plain');
+      if(fromId===item.id) return;
+      const cur=getDdOrder();
+      const fi=cur.indexOf(fromId), ti=cur.indexOf(item.id);
+      if(fi<0||ti<0) return;
+      cur.splice(fi,1); cur.splice(ti,0,fromId);
+      saveDdOrder(cur);
+      renderDdMenu(document.querySelector('.nav-dropdown-item.active')?.dataset.ddid||'');
+    });
+    inner.appendChild(btn);
+  });
+}
+
+// CSS para drag
+(function(){
+  const s=document.createElement('style');
+  s.textContent=`.dd-drag-handle{display:inline-flex;align-items:center;margin-right:4px;cursor:grab;padding:0 2px}.dd-drag-handle:active{cursor:grabbing}.dd-dragging{opacity:.45}.dd-over{background:color-mix(in srgb,var(--accent) 12%,var(--surface3))!important;border-radius:6px}`;
+  document.head.appendChild(s);
+})();
+
+// Inicializa menu ao carregar
+document.addEventListener('DOMContentLoaded', ()=>renderDdMenu(''));
+
 function syncMobileNav(page){
   document.querySelectorAll('.mobile-nav-tab').forEach(t=>t.classList.remove('active'));
   // rotas e emissoes mapeiam para o mesmo botão mobile
