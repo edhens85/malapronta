@@ -291,19 +291,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .pc-top{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:.9rem}
 .pc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
 .pc-top-info{flex:1;min-width:0;text-align:left}
-.pc-name{font-size:.9rem;font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc-type{font-size:.65rem;color:var(--text-muted);margin-top:1px}
+.pc-name{font-size:.92rem;font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
+.pc-type{font-size:.67rem;color:rgba(255,255,255,.65);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .pc-saldo-inline{text-align:right;flex-shrink:0}
-.pc-saldo-label{font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
-.pc-saldo-val{font-size:.88rem;font-weight:700;white-space:nowrap;color:var(--gold)}
+.pc-saldo-label{font-size:.55rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.pc-saldo-val{font-size:.92rem;font-weight:700;white-space:nowrap;color:#fff}
 /* divisor */
 .pc-divider{width:100%;height:1px;background:var(--border);margin-bottom:.85rem}
 /* blocos empilhados: saldo acima, investimento abaixo */
 .pc-blocks{display:flex;flex-direction:column;gap:.5rem;width:100%}
-.pc-cpm-block,.pc-invest-block{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:.6rem .75rem}
-.pc-cpm-label,.pc-invest-label{font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px}
-.pc-cpm-val{font-size:1.05rem;font-weight:700;color:var(--text,#e2e8f0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-invest-val{font-size:1.05rem;font-weight:700;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-cpm-block,.pc-invest-block{background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:.65rem .8rem;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.08)}
+.pc-cpm-block::before,.pc-invest-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);pointer-events:none}
+.pc-cpm-label,.pc-invest-label{font-size:.57rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:5px}
+.pc-cpm-val{font-size:1.1rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-invest-val{font-size:1.1rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dash-add-card{background:none;border:1px dashed var(--border);border-radius:var(--radius);padding:1.1rem 1.15rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;color:var(--text-muted);font-size:.78rem;font-family:'Inter',sans-serif;transition:color .12s,border-color .12s;min-height:140px}
 .dash-add-card:hover{color:var(--gold);border-color:var(--gold-dim)}
 /* wallet + pie */
@@ -341,16 +342,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .det-content{flex:1;display:flex;flex-direction:column;min-width:0;overflow-y:auto}
 
 /* ── SUMMARY STRIP ── */
-.summary-strip{display:flex;align-items:center;background:var(--surface2);border-bottom:2px solid var(--border);overflow-x:auto;min-height:64px;gap:0}
+.summary-strip{display:flex;align-items:center;background:linear-gradient(180deg,var(--surface2) 0%,color-mix(in srgb,var(--surface2) 85%,var(--surface)) 100%);border-bottom:2px solid var(--border);overflow-x:auto;min-height:68px;gap:0;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .sum-group{display:flex;align-items:center;flex-shrink:0}
 .sum-group-label{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.75);padding:.5rem .55rem;writing-mode:vertical-lr;transform:rotate(180deg);align-self:stretch;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sum-group-pontos{background:#1a3a5c;border-right:2px solid rgba(255,255,255,.12)}
 .sum-group-milhas{background:#1a3d2a;border-right:2px solid rgba(255,255,255,.12)}
 .sum-divider{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;margin:0 2px}
-.sum-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem 1.1rem;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;text-align:center;gap:3px}
+.sum-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.55rem 1.2rem;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;text-align:center;gap:4px;position:relative;background:linear-gradient(180deg,rgba(255,255,255,.03) 0%,transparent 100%);transition:background .15s}
+.sum-item::before{content:'';position:absolute;top:0;left:8px;right:8px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);pointer-events:none}
 .sum-item-last{border-right:none}
-.sum-label{font-size:.6rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;text-align:center;line-height:1.3}
-.sum-val{font-size:.95rem;font-weight:700;text-align:center;line-height:1}
+.sum-label{font-size:.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:center;line-height:1.1;white-space:nowrap}
+.sum-val{font-size:1.05rem;font-weight:700;text-align:center;line-height:1}
+.sum-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:2px;flex-shrink:0}
 
 /* ── MAIN CONTENT ── */
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
@@ -1100,9 +1103,9 @@ body.layout-vertical .page-label{display:none}
     <!-- GRUPO RESULTADOS (emissões) — aparece quando há dados -->
     <div class="sum-divider" id="emDivider" style="display:none"></div>
     <div class="sum-group" id="sumGroupResultados" style="display:none">
-      <div class="sum-item" id="sumItemEconomia"><div class="sum-label">Economia<br>passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
-      <div class="sum-item" id="sumItemVenda"><div class="sum-label">Venda<br>passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
-      <div class="sum-item" id="sumItemHosp"><div class="sum-label">Economia<br>hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
+      <div class="sum-item" id="sumItemEconomia"><div class="sum-label">Economia passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
+      <div class="sum-item" id="sumItemVenda"><div class="sum-label">Venda passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
+      <div class="sum-item" id="sumItemHosp"><div class="sum-label">Economia hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
     </div>
 
 
