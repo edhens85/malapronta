@@ -131,7 +131,7 @@
     // onSnapshot para atualizações em tempo real
     const unsub = firestore.collection('users').doc(uid).onSnapshot(
       snap => {
-        if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites){
+        if(snap.exists() && snap.data().db && !snap.metadata.hasPendingWrites && !window._pendingSave && (Date.now()-(_lastSaveTs||0))>=30000){
           onData(snap.data().db);
         }
       },
@@ -141,7 +141,7 @@
     let _lastUpdateTime = Date.now();
     const _pollInterval = setInterval(async ()=>{
       if(window._fbCurrentUid !== uid){ clearInterval(_pollInterval); return; }
-      if(window._pendingSave || (Date.now()-(_lastSaveTs||0))<5000) return; // não sobrescreve após save recente
+      if(window._pendingSave || (Date.now()-(_lastSaveTs||0))<30000) return; // não sobrescreve após save recente
       try{
         const token = window._fbLastToken || (auth.currentUser ? await auth.currentUser.getIdToken() : null);
         if(!token) return;
@@ -242,16 +242,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .menu-item.menu-nav-item.active{color:var(--gold);background:var(--surface2)}
 .menu-item.menu-nav-item.active svg{color:var(--gold)}
 .menu-sep{height:1px;background:var(--border);margin:.25rem 0}
-/* global search */
-.global-search-wrap{position:relative;flex:1;max-width:420px}
-.global-search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.38rem .85rem;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;box-sizing:border-box}
+/* global search — popup compacto ancorado ao botão de busca */
+.global-search-wrap{position:absolute;top:calc(100% + 6px);right:0;width:280px;z-index:600;display:none}
+.global-search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-top-left-radius:var(--radius-sm);border-top-right-radius:var(--radius-sm);border-bottom:none;padding:.38rem .75rem;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;box-sizing:border-box}
 .global-search-input:focus{outline:none;border-color:var(--gold)}
-.global-search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);z-index:200;overflow:auto;max-height:360px;box-shadow:0 8px 24px rgba(0,0,0,.35);display:none}
-.gsr-item{padding:.55rem 1rem;font-size:.8rem;cursor:pointer;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:.6rem}
+.global-search-results{background:var(--surface);border:1px solid var(--border);border-top:none;border-bottom-left-radius:var(--radius-sm);border-bottom-right-radius:var(--radius-sm);z-index:200;overflow:auto;max-height:300px;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
+.gsr-item{padding:.45rem .75rem;font-size:.76rem;cursor:pointer;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:.5rem}
 .gsr-item:last-child{border-bottom:none}
 .gsr-item:hover,.gsr-item:focus{background:var(--surface2);outline:none}
 .gsr-label{font-weight:600;color:var(--text)}
-.gsr-sub{color:var(--text-dim);font-size:.72rem}
+.gsr-sub{color:var(--text-dim);font-size:.68rem}
 
 /* ── TICKER ── */
 .ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
@@ -802,10 +802,6 @@ body.layout-vertical .page-label{display:none}
       <span class="tab-label">Promos</span>
     </button>
   </div>
-  <div class="global-search-wrap" id="globalSearchWrap" style="display:none">
-    <input class="global-search-input" id="globalSearchInput" placeholder="Buscar programas e movimentos… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){focusGlobalResult(0);}">
-    <div class="global-search-results" id="globalSearchResults"></div>
-  </div>
   <div class="topbar-right">
     <div class="user-info" id="userInfo" style="display:none">
       <span class="sync-dot" id="syncDot"></span>
@@ -827,10 +823,16 @@ body.layout-vertical .page-label{display:none}
         <div id="alertsList" style="max-height:340px;overflow-y:auto;padding:.5rem 0"></div>
       </div>
     </div>
-    <!-- botão busca global mantido separado por ser de uso frequente -->
-    <button class="btn-icon" onclick="toggleGlobalSearch()" title="Busca global (/)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    </button>
+    <!-- botão busca global com popup ancorado -->
+    <div style="position:relative">
+      <button class="btn-icon" id="btnSearch" onclick="toggleGlobalSearch()" title="Busca global (/)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div class="global-search-wrap" id="globalSearchWrap">
+        <input class="global-search-input" id="globalSearchInput" placeholder="Buscar… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){focusGlobalResult(0);}">
+        <div class="global-search-results" id="globalSearchResults"></div>
+      </div>
+    </div>
     <!-- MENU unificado -->
     <div class="menu-wrap" id="menuWrap">
       <button class="btn-menu" onclick="toggleAppMenu()">
@@ -3749,7 +3751,8 @@ function onMovTypeChange(){
     const prog=db.programs.find(x=>x.id===selProg);
     const progName=prog?prog.name:'';
     const cpmLbl=document.getElementById('mEmCpmLabel');
-    if(cpmLbl) cpmLbl.textContent='CPM '+(progName||'do programa');
+    const isAereaM=(prog&&prog.type==='aerea');
+    if(cpmLbl) cpmLbl.textContent=(isAereaM?'CPM':'CPP')+' '+(progName||'do programa');
     document.getElementById('mEmCpm').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcEmissao('m');
   }
@@ -3922,7 +3925,8 @@ function onEditMovTypeChange(){
     const prog=db.programs.find(x=>x.id===selProg);
     const progName=prog?prog.name:'';
     const cpmLbl=document.getElementById('emEmCpmLabel');
-    if(cpmLbl) cpmLbl.textContent='CPM '+(progName||'do programa');
+    const isAereaEm=(prog&&prog.type==='aerea');
+    if(cpmLbl) cpmLbl.textContent=(isAereaEm?'CPM':'CPP')+' '+(progName||'do programa');
     document.getElementById('emEmCpm').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcEmissao('em');
   }
@@ -4548,11 +4552,13 @@ function simDelPar(key){
 // ═══════════════════════════════════════════════
 function toggleGlobalSearch(){
   const wrap = document.getElementById('globalSearchWrap');
-  if(wrap.style.display==='none'||!wrap.style.display){
-    wrap.style.display='';
+  if(wrap.style.display==='block'){
+    closeGlobalSearch();
+  } else {
+    wrap.style.display='block';
     document.getElementById('globalSearchInput').focus();
     document.getElementById('globalSearchInput').select();
-  } else { closeGlobalSearch(); }
+  }
 }
 function closeGlobalSearch(){
   document.getElementById('globalSearchWrap').style.display='none';
@@ -5097,14 +5103,14 @@ async function approveUser(uid, status){
           selProg = db.programs[0]?.id || null;
           _appShown = true;
           _initialLoadDone = true; // libera onSnapshot após carregamento inicial
-          _lastSaveTs = Date.now(); // protege por mais 5s após load para evitar race
+          _lastSaveTs = Date.now(); // protege por 30s após load para evitar race condition
           _showApp(user);
           render();
 
           // 2) Após carregar, ativa onSnapshot para atualizações em tempo real de outros devices
           window._fbUnsubscribe = window._fbSubscribe(user.uid, (remoteDB) => {
             // Ignora snapshot até carregamento inicial estar completo E por 5s após save local
-            if(!_initialLoadDone || _pendingSave || (Date.now()-_lastSaveTs)<5000) return;
+            if(!_initialLoadDone || _pendingSave || (Date.now()-_lastSaveTs)<30000) return;
             if(true){
               db = remoteDB;
               ensureDBDefaults();
