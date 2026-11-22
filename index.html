@@ -227,7 +227,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .nav-dropdown{position:relative}
 .nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;padding-top:8px;z-index:300;min-width:168px}
 .nav-dropdown-menu-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.45);padding:4px;display:flex;flex-direction:column}
-.nav-dropdown:hover .nav-dropdown-menu{display:block}
+.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown.dd-open .nav-dropdown-menu{display:block}
 .nav-dropdown-item{display:flex;align-items:center;gap:8px;padding:.45rem .75rem;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);background:none;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .12s,color .12s;width:100%;text-align:left}
 .nav-dropdown-item:hover{background:var(--surface2);color:var(--text)}
 .nav-dropdown-item.active{color:var(--gold)}
@@ -4983,10 +4983,10 @@ function renderDdMenu(activePage){
       showPage(item.page, null);
     });
     // Drag events
-    btn.addEventListener('dragstart', e=>{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', item.id); btn.classList.add('dd-dragging'); // Manter dropdown visível durante drag
-      const menu=document.querySelector('.nav-dropdown-menu'); if(menu) menu.style.display='block'; });
-    btn.addEventListener('dragend', ()=>{ btn.classList.remove('dd-dragging'); inner.querySelectorAll('.nav-dropdown-item').forEach(b=>b.classList.remove('dd-over')); // Restaurar controle ao hover
-      const menu=document.querySelector('.nav-dropdown-menu'); if(menu) menu.style.display=''; });
+    btn.addEventListener('dragstart', e=>{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', item.id); btn.classList.add('dd-dragging');
+      const dd=document.getElementById('navDropdownEmissoes'); if(dd) dd.classList.add('dd-open'); });
+    btn.addEventListener('dragend', ()=>{ btn.classList.remove('dd-dragging'); inner.querySelectorAll('.nav-dropdown-item').forEach(b=>b.classList.remove('dd-over'));
+      const dd=document.getElementById('navDropdownEmissoes'); if(dd) dd.classList.remove('dd-open'); });
     btn.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; btn.classList.add('dd-over'); });
     btn.addEventListener('dragleave', ()=>btn.classList.remove('dd-over'));
     btn.addEventListener('drop', e=>{
