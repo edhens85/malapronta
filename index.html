@@ -969,7 +969,7 @@ body.layout-vertical .page-label{display:none}
     <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumPontos">0</div></div>
     <div class="sum-item"><div class="sum-label">Total acumulado</div><div class="sum-val" id="sumAcumPontos">0</div></div>
     <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvestPontos">R$ 0,00</div></div>
-    <div class="sum-item sum-item-last"><div class="sum-label">CPP médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpp">R$ 0,00</div></div>
+    <div class="sum-item sum-item-last"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpp">R$ 0,00</div></div>
     <div class="sum-divider"></div>
     <div class="sum-group-label sum-group-milhas">Milhas</div>
     <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumMilhas">0</div></div>
@@ -1183,7 +1183,7 @@ body.layout-vertical .page-label{display:none}
           <th style="white-space:nowrap">Tipo</th>
           <th style="white-space:nowrap;text-align:right">Pontos/Milhas</th>
           <th style="white-space:nowrap;text-align:right">Valor (R$)</th>
-          <th style="white-space:nowrap;text-align:right">CPM/CPP</th>
+          <th style="white-space:nowrap;text-align:right">CPM</th>
           <th style="white-space:nowrap">Obs / Detalhes</th>
           <th style="white-space:nowrap"></th>
         </tr></thead>
@@ -1739,7 +1739,7 @@ body.layout-vertical .page-label{display:none}
         </div>
         <div class="frow" style="align-items:flex-end">
           <div class="fg">
-            <label id="mHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPP do programa</label>
+            <label id="mHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPM do programa</label>
             <input class="fi" id="mHospCpp" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
           </div>
           <div class="fg">
@@ -1942,7 +1942,7 @@ body.layout-vertical .page-label{display:none}
       </div>
       <div class="frow" style="align-items:flex-end">
         <div class="fg">
-          <label id="emHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPP do programa</label>
+          <label id="emHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPM do programa</label>
           <input class="fi" id="emHospCpp" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
         </div>
         <div class="fg">
@@ -3056,7 +3056,7 @@ function renderDashboard(){
           ${expiryBadge}
         </div>
         <div class="pc-saldo-inline">
-          <div class="pc-saldo-label">${p.type==='aerea'?'CPM':'CPP'}</div>
+          <div class="pc-saldo-label">CPM</div>
           <div class="pc-saldo-val">R$ ${fmtBRL(s.cpm)}</div>
         </div>
       </div>
@@ -3443,7 +3443,7 @@ function renderDetail(){
   document.getElementById('detBalance').textContent = fmt(s.balance);
   document.getElementById('detInvest').textContent = 'R$ '+fmtBRL(s.invest);
   document.getElementById('detCpm').textContent = 'R$ '+fmtBRL(s.cpm);
-  const detCpmLbl=document.getElementById('detCpmLabel'); if(detCpmLbl) detCpmLbl.textContent=isAerea?'CPM':'CPP';
+  const detCpmLbl=document.getElementById('detCpmLabel'); if(detCpmLbl) detCpmLbl.textContent='CPM';
   // Ajustar label do botão de transferência
   const tBtn = document.querySelector('button[onclick="openTransfer()"]');
   if(tBtn){
@@ -3568,7 +3568,7 @@ function renderMovTable(){
   const thP = document.getElementById('thPontosLabel');
   const thC = document.getElementById('thCpmLabel');
   if(thP) thP.textContent = isAerea ? 'Milhas' : 'Pontos';
-  if(thC) thC.textContent = isAerea ? 'CPM' : 'CPP';
+  if(thC) thC.textContent = 'CPM';
 
   const tbody = document.getElementById('movTbody');
   const search = (document.getElementById('movSearch').value||'').toLowerCase();
@@ -3705,7 +3705,7 @@ function renderRotasSaldos(){
     const bal = st.balance;
     const isAerea = p.type==='aerea';
     const label = isAerea ? 'milhas' : 'pontos';
-    const cpmLabel = isAerea ? 'CPM' : 'CPP';
+    const cpmLabel = 'CPM';
     const cpmVal = st.cpm!=null ? `R$ ${fmtBRL(st.cpm)}` : '—';
     const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color||'#888'};margin-right:5px;flex-shrink:0"></span>`;
     return `<div style="
@@ -4231,7 +4231,7 @@ function onMovTypeChange(){
     const progName=prog?prog.name:'';
     const cpmLbl=document.getElementById('mEmCpmLabel');
     const isAereaM=(prog&&prog.type==='aerea');
-    if(cpmLbl) cpmLbl.textContent=(isAereaM?'CPM':'CPP')+' '+(progName||'do programa');
+    if(cpmLbl) cpmLbl.textContent='CPM '+(progName||'do programa');
     document.getElementById('mEmCpm').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcEmissao('m');
   }
@@ -4240,7 +4240,7 @@ function onMovTypeChange(){
     const prog=db.programs.find(x=>x.id===selProg);
     const progName=prog?prog.name:'';
     const cppLbl=document.getElementById('mHospCppLabel');
-    if(cppLbl) cppLbl.textContent='CPP '+( progName||'do programa');
+    if(cppLbl) cppLbl.textContent='CPM '+(progName||'do programa');
     document.getElementById('mHospCpp').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcHospedagem('m');
   }
@@ -4291,7 +4291,7 @@ function calcCompraBonus(){
   if(cppBox && cppTxt){
     if(val>0 && total>0){
       const cpp = val/(total/1000);
-      const label = isAerea ? 'CPM' : 'CPP';
+      const label = 'CPM';
       cppTxt.textContent = `${label}: R$ ${fmtBRL(cpp)}  •  Total: ${fmt(total)} ${unit}  •  Valor: R$ ${fmtBRL(val)}`;
       cppBox.style.display='';
     } else {
@@ -4484,7 +4484,7 @@ function onEditMovTypeChange(){
     const progName=prog?prog.name:'';
     const cpmLbl=document.getElementById('emEmCpmLabel');
     const isAereaEm=(prog&&prog.type==='aerea');
-    if(cpmLbl) cpmLbl.textContent=(isAereaEm?'CPM':'CPP')+' '+(progName||'do programa');
+    if(cpmLbl) cpmLbl.textContent='CPM '+(progName||'do programa');
     document.getElementById('emEmCpm').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcEmissao('em');
   }
@@ -4493,7 +4493,7 @@ function onEditMovTypeChange(){
     const prog=db.programs.find(x=>x.id===selProg);
     const progName=prog?prog.name:'';
     const cppLbl=document.getElementById('emHospCppLabel');
-    if(cppLbl) cppLbl.textContent='CPP '+(progName||'do programa');
+    if(cppLbl) cppLbl.textContent='CPM '+(progName||'do programa');
     document.getElementById('emHospCpp').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcHospedagem('em');
   }
