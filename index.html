@@ -979,23 +979,22 @@ body.layout-vertical .page-label{display:none}
     <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
   </div>
 
-  <!-- Faixa global de emissões -->
+  <!-- Faixa global de emissões + botão registrar -->
   <div class="summary-strip" id="emissoesSummary" style="display:none">
     <div class="sum-item"><div class="sum-label">Economia de passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
     <div class="sum-item"><div class="sum-label">Venda de passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
-    <div class="sum-item sum-item-last"><div class="sum-label">Economia de hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
+    <div class="sum-item"><div class="sum-label">Economia de hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
+    <div class="sum-item sum-item-last" id="dashQuickReg" style="display:none;margin-left:auto;padding-left:.75rem">
+      <button onclick="openAddMovementGlobal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;background:var(--accent);border:none;border-radius:8px;padding:.35rem .7rem;cursor:pointer;line-height:1.2;min-width:64px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span style="font-size:.6rem;font-weight:800;letter-spacing:.08em;color:#fff;text-transform:uppercase">Registrar</span>
+        <span style="font-size:.6rem;font-weight:600;color:rgba(255,255,255,.8)">movimento</span>
+      </button>
+    </div>
   </div>
-
 
   <!-- DASHBOARD: cards de todos os programas -->
   <div id="dashView" class="dash-wrap">
-    <!-- Botão rápido de registro -->
-    <div id="dashQuickReg" style="display:none;margin-bottom:.75rem;text-align:right">
-      <button class="btn btn-primary" onclick="openAddMovementGlobal()" style="font-size:.82rem;padding:.4rem .9rem">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Registrar movimento
-      </button>
-    </div>
     <div id="dashEmpty" class="empty" style="display:none">
       <svg class="empty-icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       <div class="empty-title">Nenhum programa cadastrado</div>
@@ -4126,6 +4125,11 @@ function _renderModalProgChips(){
   // Exibe/oculta botão rápido na dashboard
   const qr = document.getElementById('dashQuickReg');
   if(qr) qr.style.display = db.programs.length ? '' : 'none';
+  // Garante que a strip de emissões esteja visível (abriga o botão)
+  if(db.programs.length){
+    const es = document.getElementById('emissoesSummary');
+    if(es) es.style.display='';
+  }
 }
 function setEmBenef(prefix, val){
   const hiddenEl = document.getElementById((prefix==='m'?'mEmBenef':'emEmBenef'));
