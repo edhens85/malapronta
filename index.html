@@ -2278,8 +2278,6 @@ function saveDB(){
     _lastSaveTs = Date.now(); // protege imediatamente contra race com onSnapshot
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
-    // Também salva via keepalive imediatamente como backup (caso o async falhe antes do unload)
-    _saveToFirestoreKeepalive && _saveToFirestoreKeepalive();
     _saveTimer = setTimeout(async ()=>{
       try{
         await window._fbSetDoc(window._fbCurrentUid, { db });
