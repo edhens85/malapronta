@@ -250,7 +250,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .menu-item.menu-nav-item.active svg{color:var(--gold)}
 .menu-sep{height:1px;background:var(--border);margin:.25rem 0}
 /* global search — popup compacto ancorado ao botão de busca */
-.global-search-wrap{position:fixed;top:46px;right:8px;width:300px;z-index:600;display:none;border-radius:var(--radius-sm);box-shadow:0 8px 28px rgba(0,0,0,.45);max-height:calc(100vh - 56px);display:none;flex-direction:column}
+.global-search-wrap{position:fixed;top:46px;right:8px;width:300px;z-index:600;border-radius:var(--radius-sm);box-shadow:0 8px 28px rgba(0,0,0,.45);max-height:calc(100vh - 56px);flex-direction:column}
 .global-search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-top-left-radius:var(--radius-sm);border-top-right-radius:var(--radius-sm);border-bottom:none;padding:.4rem .75rem;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;box-sizing:border-box;flex-shrink:0}
 .global-search-input:focus{outline:none;border-color:var(--gold)}
 .global-search-results{background:var(--surface);border:1px solid var(--border);border-top:none;border-bottom-left-radius:var(--radius-sm);border-bottom-right-radius:var(--radius-sm);overflow-y:auto;min-height:0;flex:1;display:none}
@@ -842,7 +842,7 @@ body.layout-vertical .page-label{display:none}
       <button class="btn-icon" id="btnSearch" onclick="toggleGlobalSearch()" title="Busca global (/)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
-      <div class="global-search-wrap" id="globalSearchWrap">
+      <div class="global-search-wrap" id="globalSearchWrap" style="display:none">
         <input class="global-search-input" id="globalSearchInput" placeholder="Buscar… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){event.preventDefault();focusGlobalResult(0);}">
         <div class="global-search-results" id="globalSearchResults"></div>
       </div>
@@ -4756,16 +4756,19 @@ function simDelPar(key){
 // ═══════════════════════════════════════════════
 function toggleGlobalSearch(){
   const wrap = document.getElementById('globalSearchWrap');
-  if(wrap.style.display==='flex'){
+  if(wrap._open){
     closeGlobalSearch();
   } else {
+    wrap._open=true;
     wrap.style.display='flex';
     document.getElementById('globalSearchInput').focus();
     document.getElementById('globalSearchInput').select();
   }
 }
 function closeGlobalSearch(){
-  document.getElementById('globalSearchWrap').style.display='none';
+  const wrap=document.getElementById('globalSearchWrap');
+  wrap._open=false;
+  wrap.style.display='none';
   document.getElementById('globalSearchInput').value='';
   document.getElementById('globalSearchResults').style.display='none';
   document.getElementById('globalSearchResults').innerHTML='';
