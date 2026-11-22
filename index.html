@@ -2275,17 +2275,18 @@ function saveDB(){
   try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
   if(window._fbCurrentUid){
     _pendingSave = true; window._pendingSave = true;
-    _lastSaveTs = Date.now(); // protege imediatamente contra race com onSnapshot
+    _lastSaveTs = Date.now();
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
-    _saveTimer = setTimeout(async ()=>{
+    // Salva imediatamente no Firebase (sem setTimeout — garante que o save ocorre antes de qualquer reload)
+    (async ()=>{
       try{
         await window._fbSetDoc(window._fbCurrentUid, { db });
         _pendingSave = false; window._pendingSave = false;
-        _lastSaveTs = Date.now(); // mantém timestamp para ignorar echo do onSnapshot
+        _lastSaveTs = Date.now();
         _setSyncStatus('ok');
       }catch(e){ console.error('Firestore save error', e); _setSyncStatus('offline'); }
-    }, 0);
+    })();
   }
 }
 // Garante save antes de fechar a aba via fetch keepalive (funciona no Brave e browsers modernos)
@@ -2307,15 +2308,24 @@ function _saveToFirestoreKeepalive(){
   try{
     const body = JSON.stringify({fields:{db:_toFV(db)}});
     const uid = window._fbCurrentUid;
+    const token = window._fbLastToken;
     const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=db`;
     fetch(url, {
       method:'PATCH',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._fbLastToken},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body,
-      keepalive: true // garante envio mesmo após unload
+      keepalive: true
     });
   }catch(e){}
 }
+// Renova token a cada 50min para garantir que keepalive funciona
+setInterval(async()=>{
+  try{
+    if(window.auth && window.auth.currentUser){
+      window._fbLastToken = await window.auth.currentUser.getIdToken(false);
+    }
+  }catch(e){}
+}, 50*60*1000);
 window.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='hidden') _saveToFirestoreKeepalive();
 });
