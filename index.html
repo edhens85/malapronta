@@ -482,9 +482,11 @@ tr.row-pendente td{opacity:.85}
 .cost-info{background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);padding:.65rem .9rem;font-size:.75rem;color:var(--gold-text);margin-bottom:.85rem}
 /* Modal movimento — estética Apple */
 /* flatpickr altInput dentro do wrapper de data do modal */
+#mDateWrap{position:relative;display:inline-flex;align-items:center}
 #mDateWrap input.flatpickr-input.flatpickr-mobile,
-#mDateWrap input[id$="-alt"]{width:130px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.8rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:pointer!important;font-family:'Inter',sans-serif!important;color:var(--text)!important}
-#mDateWrap .flatpickr-input{width:130px}
+#mDateWrap input[id$="-alt"],
+#mDateWrap input#mDate{width:130px!important;font-size:.82rem!important;padding:.3rem .5rem .3rem 1.8rem!important;background:var(--surface3)!important;border-color:var(--border)!important;cursor:pointer!important;font-family:'Inter',sans-serif!important;color:var(--text)!important;box-sizing:border-box!important}
+#mDateIcon{position:absolute;left:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5;z-index:2}
 .mov-section-lbl{font-size:.6rem;font-weight:800;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem}
 .mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;padding:.6rem .15rem .5rem;font-size:.6rem;font-weight:700;letter-spacing:.04em;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .13s;line-height:1.2;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.04)}
 .mov-cat-btn .cat-icon{width:32px;height:32px;border-radius:8px;background:color-mix(in srgb,var(--border) 60%,var(--surface2));display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}
@@ -1655,10 +1657,9 @@ body.layout-vertical .page-label{display:none}
     <!-- Cabeçalho: título + data -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;gap:.6rem">
       <div style="font-size:1.05rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text)">Nova Operação</div>
-      <div style="position:relative;flex-shrink:0" id="mDateWrap">
-        <input class="fi" id="mDate" type="text" placeholder="Data" readonly
-          style="width:130px;font-size:.82rem;padding:.3rem .5rem .3rem 1.8rem;background:var(--surface3);border-color:var(--border);cursor:pointer">
-        <svg id="mDateIcon" style="position:absolute;left:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5;z-index:1" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      <div style="flex-shrink:0" id="mDateWrap">
+        <input class="fi" id="mDate" type="text" placeholder="Data" readonly>
+        <svg id="mDateIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
       </div>
     </div>
 
@@ -4979,7 +4980,6 @@ function renderDdMenu(activePage){
     btn.className='nav-dropdown-item'+(activePage===item.page?' active':'');
     btn.id=item.id;
     btn.dataset.ddid=item.page;
-    btn.draggable=true;
     btn.innerHTML=
       `<span class="dd-drag-handle" title="Arrastar">` +
         `<svg width="9" height="12" viewBox="0 0 9 12" fill="none" style="opacity:.35"><circle cx="2.5" cy="2" r="1.2" fill="currentColor"/><circle cx="6.5" cy="2" r="1.2" fill="currentColor"/><circle cx="2.5" cy="6" r="1.2" fill="currentColor"/><circle cx="6.5" cy="6" r="1.2" fill="currentColor"/><circle cx="2.5" cy="10" r="1.2" fill="currentColor"/><circle cx="6.5" cy="10" r="1.2" fill="currentColor"/></svg>` +
@@ -4990,23 +4990,11 @@ function renderDdMenu(activePage){
       if(e.target.closest('.dd-drag-handle')) return;
       showPage(item.page, null);
     });
-    // Drag events
-    btn.addEventListener('dragstart', e=>{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', item.id); btn.classList.add('dd-dragging');
-      const dd=document.getElementById('navDropdownEmissoes'); if(dd) dd.classList.add('dd-open'); });
-    btn.addEventListener('dragend', ()=>{ btn.classList.remove('dd-dragging'); inner.querySelectorAll('.nav-dropdown-item').forEach(b=>b.classList.remove('dd-over'));
-      const dd=document.getElementById('navDropdownEmissoes'); if(dd) dd.classList.remove('dd-open'); });
-    btn.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; btn.classList.add('dd-over'); });
-    btn.addEventListener('dragleave', ()=>btn.classList.remove('dd-over'));
-    btn.addEventListener('drop', e=>{
-      e.preventDefault(); btn.classList.remove('dd-over');
-      const fromId=e.dataTransfer.getData('text/plain');
-      if(fromId===item.id) return;
-      const cur=getDdOrder();
-      const fi=cur.indexOf(fromId), ti=cur.indexOf(item.id);
-      if(fi<0||ti<0) return;
-      cur.splice(fi,1); cur.splice(ti,0,fromId);
-      saveDdOrder(cur);
-      renderDdMenu(document.querySelector('.nav-dropdown-item.active')?.dataset.ddid||'');
+    // Drag via handle — mousedown/mousemove/mouseup para funcionar dentro de dropdown
+    const handle = btn.querySelector('.dd-drag-handle');
+    if(handle) handle.addEventListener('mousedown', e=>{
+      e.preventDefault();
+      ddStartDrag(item.id, btn, e);
     });
     inner.appendChild(btn);
   });
@@ -5015,9 +5003,61 @@ function renderDdMenu(activePage){
 // CSS para drag
 (function(){
   const s=document.createElement('style');
-  s.textContent=`.dd-drag-handle{display:inline-flex;align-items:center;margin-right:4px;cursor:grab;padding:0 2px}.dd-drag-handle:active{cursor:grabbing}.dd-dragging{opacity:.45}.dd-over{background:color-mix(in srgb,var(--accent) 12%,var(--surface3))!important;border-radius:6px}`;
+  s.textContent=`.dd-drag-handle{display:inline-flex;align-items:center;margin-right:4px;cursor:grab;padding:0 2px}.dd-drag-handle:active{cursor:grabbing}.dd-dragging{opacity:.45}.dd-over{background:color-mix(in srgb,var(--accent) 12%,var(--surface3))!important;border-radius:6px}.dd-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.85;background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:.45rem .75rem;font-size:.7rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);white-space:nowrap}`;
   document.head.appendChild(s);
 })();
+
+// Drag manual para o menu dropdown (funciona dentro de position:absolute)
+function ddStartDrag(fromId, fromBtn, startEvt){
+  const inner = document.getElementById('ddMenuInner');
+  const dd = document.getElementById('navDropdownEmissoes');
+  if(!inner || !dd) return;
+  dd.classList.add('dd-open');
+
+  // Ghost visual seguindo o mouse
+  const ghost = document.createElement('div');
+  ghost.className = 'dd-ghost';
+  ghost.textContent = fromBtn.querySelector('span:last-child')?.textContent || '';
+  document.body.appendChild(ghost);
+
+  let overBtn = null;
+
+  function movGhost(e){
+    ghost.style.left = (e.clientX + 12) + 'px';
+    ghost.style.top  = (e.clientY - 12) + 'px';
+    // Detecta sobre qual botão estamos
+    const els = inner.querySelectorAll('.nav-dropdown-item');
+    let found = null;
+    els.forEach(b=>{
+      b.classList.remove('dd-over');
+      const r = b.getBoundingClientRect();
+      if(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom) found = b;
+    });
+    if(found && found !== fromBtn){ found.classList.add('dd-over'); overBtn = found; }
+    else overBtn = null;
+  }
+
+  function endDrag(e){
+    document.removeEventListener('mousemove', movGhost);
+    document.removeEventListener('mouseup', endDrag);
+    ghost.remove();
+    inner.querySelectorAll('.nav-dropdown-item').forEach(b=>b.classList.remove('dd-over','dd-dragging'));
+    dd.classList.remove('dd-open');
+
+    if(overBtn && overBtn !== fromBtn){
+      const toId = overBtn.id;
+      const cur = getDdOrder();
+      const fi = cur.indexOf(fromId), ti = cur.indexOf(toId);
+      if(fi>=0 && ti>=0){ cur.splice(fi,1); cur.splice(ti,0,fromId); saveDdOrder(cur); }
+      renderDdMenu(document.querySelector('.nav-dropdown-item.active')?.dataset.ddid||'');
+    }
+  }
+
+  fromBtn.classList.add('dd-dragging');
+  movGhost(startEvt);
+  document.addEventListener('mousemove', movGhost);
+  document.addEventListener('mouseup', endDrag);
+}
 
 // Inicializa menu ao carregar
 document.addEventListener('DOMContentLoaded', ()=>renderDdMenu(''));
