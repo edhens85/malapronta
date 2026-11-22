@@ -1611,8 +1611,22 @@ body.layout-vertical .page-label{display:none}
         <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="mHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
       </div>
       <div class="frow">
-        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this)"></div>
-        <div class="fg"><label>Valor equivalente (R$)</label><input class="fi fi-money" id="mHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
+        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('m')"></div>
+        <div class="fg"><label>Valor da hospedagem (R$)</label><input class="fi fi-money" id="mHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcHospedagem('m')"></div>
+      </div>
+      <div class="frow" style="align-items:flex-end">
+        <div class="fg">
+          <label id="mHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPP do programa</label>
+          <input class="fi" id="mHospCpp" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
+        </div>
+        <div class="fg">
+          <label style="font-size:.74rem;color:var(--text-muted)">Custo dos pontos (R$)</label>
+          <input class="fi" id="mHospCusto" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
+        </div>
+        <div class="fg">
+          <label style="font-size:.74rem;color:var(--text-muted)">Resultado líquido (R$)</label>
+          <input class="fi" id="mHospResultado" readonly style="font-weight:700;cursor:default" placeholder="—" value="">
+        </div>
       </div>
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
@@ -1800,8 +1814,22 @@ body.layout-vertical .page-label{display:none}
         <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="emHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
       </div>
       <div class="frow">
-        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="emHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this)"></div>
-        <div class="fg"><label>Valor equivalente (R$)</label><input class="fi fi-money" id="emHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
+        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="emHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('em')"></div>
+        <div class="fg"><label>Valor da hospedagem (R$)</label><input class="fi fi-money" id="emHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcHospedagem('em')"></div>
+      </div>
+      <div class="frow" style="align-items:flex-end">
+        <div class="fg">
+          <label id="emHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPP do programa</label>
+          <input class="fi" id="emHospCpp" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
+        </div>
+        <div class="fg">
+          <label style="font-size:.74rem;color:var(--text-muted)">Custo dos pontos (R$)</label>
+          <input class="fi" id="emHospCusto" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
+        </div>
+        <div class="fg">
+          <label style="font-size:.74rem;color:var(--text-muted)">Resultado líquido (R$)</label>
+          <input class="fi" id="emHospResultado" readonly style="font-weight:700;cursor:default" placeholder="—" value="">
+        </div>
       </div>
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="emObs"></textarea></div>
@@ -2949,11 +2977,13 @@ function renderSummary(){
   let gHosp=0, gHasHosp=false;
   for(const prog of db.programs){
     computeRunning(prog.id).filter(m=>m.type==='hospedagem').forEach(m=>{
-      if(m.hospValor){ gHosp+=m.hospValor; gHasHosp=true; }
+      // usa hospResultado (valor hospedagem - custo dos pontos); fallback para hospValor legado
+      const result = m.hospResultado!=null ? m.hospResultado : (m.hospValor||null);
+      if(result!=null){ gHosp+=result; gHasHosp=true; }
     });
   }
   const elGHosp=document.getElementById('sumEconomiaHosp');
-  if(elGHosp){ elGHosp.textContent=gHasHosp?'R$ '+fmtBRL(gHosp):'—'; elGHosp.style.color=gHasHosp?'var(--green)':''; }
+  if(elGHosp){ elGHosp.textContent=gHasHosp?(gHosp>=0?'R$ '+fmtBRL(gHosp):'- R$ '+fmtBRL(Math.abs(gHosp))):'—'; elGHosp.style.color=gHasHosp?(gHosp>=0?'var(--green)':'var(--red)'):''; }
   // mostra faixa emissões só se houver emissões ou hospedagens
   const hasEmissoes = (db.movements||[]).some(m=>(m.type==='emissao_passagem'||m.type==='hospedagem')&&!m.pendente);
   const esEl=document.getElementById('emissoesSummary');
@@ -3720,7 +3750,7 @@ function openAddMovement(){
   const dvTop=document.getElementById('mEmDataVooTop'); if(dvTop){ dvTop.value=''; if(dvTop._fp) dvTop._fp.clear(); }
   setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
-  ['mHotel','mHospDestino','mHospCheckin','mHospCheckout','mHospNoites','mHospQuartos','mHospPontos','mHospValor'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['mHotel','mHospDestino','mHospCheckin','mHospCheckout','mHospNoites','mHospQuartos','mHospPontos','mHospValor','mHospCpp','mHospCusto','mHospResultado'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.background='';el.style.color='';}});
   setAnexoUI('m','','');
   onMovTypeChange();
   openModal('modalMovement');
@@ -3769,7 +3799,40 @@ function onMovTypeChange(){
     document.getElementById('mEmCpm').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcEmissao('m');
   }
+  if(isHosp){
+    const s=computeStats(selProg);
+    const prog=db.programs.find(x=>x.id===selProg);
+    const progName=prog?prog.name:'';
+    const cppLbl=document.getElementById('mHospCppLabel');
+    if(cppLbl) cppLbl.textContent='CPP '+( progName||'do programa');
+    document.getElementById('mHospCpp').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
+    calcHospedagem('m');
+  }
   calcResgate();
+}
+function calcHospedagem(prefix){
+  const pontos = parsePts(document.getElementById(prefix+'HospPontos'))||0;
+  const valor = parseMoney(document.getElementById(prefix+'HospValor'))||0;
+  const cppRaw = document.getElementById(prefix+'HospCpp').value||'0';
+  const cpp = parseFloat(cppRaw.replace(/\./g,'').replace(',','.'))||0;
+  const custoEl = document.getElementById(prefix+'HospCusto');
+  const resEl = document.getElementById(prefix+'HospResultado');
+  if(pontos>0&&cpp>0){
+    const custo=(pontos/1000)*cpp;
+    custoEl.value = custo.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(valor>0){
+      const resultado=valor-custo;
+      resEl.value = resultado>=0
+        ? resultado.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})
+        : '('+Math.abs(resultado).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+')';
+      resEl.style.background=resultado>=0?'#1a7a3a':'#8b1a1a';
+      resEl.style.color='#fff';
+    } else {
+      resEl.value=''; resEl.style.background=''; resEl.style.color='';
+    }
+  } else {
+    custoEl.value=''; resEl.value=''; resEl.style.background=''; resEl.style.color='';
+  }
 }
 function calcResgate(){
   const t=document.getElementById('mType').value;
@@ -3839,6 +3902,11 @@ function saveMovement(){
     mov.hospNoites=parsePts(document.getElementById('mHospNoites'))||undefined;
     mov.hospQuartos=parsePts(document.getElementById('mHospQuartos'))||undefined;
     mov.hospValor=parseMoney(document.getElementById('mHospValor'))||undefined;
+    const _hospCpp=parseFloat((document.getElementById('mHospCpp').value||'0').replace(/\./g,'').replace(',','.'))||0;
+    mov.hospCpp=_hospCpp||undefined;
+    mov.hospCusto=_hospCpp&&pts?((pts/1000)*_hospCpp)||undefined:undefined;
+    const _hospRes=mov.hospValor&&mov.hospCusto?(mov.hospValor-mov.hospCusto):undefined;
+    mov.hospResultado=_hospRes!=null?_hospRes:undefined;
   }
   if(isEmissao){
     mov.emCpm=parseMoney({value:(document.getElementById('mEmCpm').value||'0').replace(/\./g,'').replace(',','.')});
@@ -3912,6 +3980,13 @@ function openEditMov(id){
     document.getElementById('emHospQuartos').value=m.hospQuartos?parseInt(m.hospQuartos,10).toLocaleString('pt-BR'):'';
     document.getElementById('emHospPontos').value=m.points?parseInt(m.points,10).toLocaleString('pt-BR'):'';
     document.getElementById('emHospValor').value=m.hospValor>0?fmtBRL(m.hospValor):'';
+    // CPP: usa o salvo ou recalcula pelo CPP atual do programa
+    const _s=computeStats(selProg);
+    const _cpp=m.hospCpp!=null?m.hospCpp:(_s.cpm||0);
+    document.getElementById('emHospCpp').value=_cpp>0?fmtBRL(_cpp):'';
+    const _prog=db.programs.find(x=>x.id===selProg);
+    const emCppLbl=document.getElementById('emHospCppLabel');
+    if(emCppLbl) emCppLbl.textContent='CPP '+(_prog?_prog.name:'do programa');
   }
   onEditMovTypeChange();
   openModal('modalEditMov');
@@ -3942,6 +4017,15 @@ function onEditMovTypeChange(){
     if(cpmLbl) cpmLbl.textContent=(isAereaEm?'CPM':'CPP')+' '+(progName||'do programa');
     document.getElementById('emEmCpm').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
     calcEmissao('em');
+  }
+  if(isHosp){
+    const s=computeStats(selProg);
+    const prog=db.programs.find(x=>x.id===selProg);
+    const progName=prog?prog.name:'';
+    const cppLbl=document.getElementById('emHospCppLabel');
+    if(cppLbl) cppLbl.textContent='CPP '+(progName||'do programa');
+    document.getElementById('emHospCpp').value = s.cpm>0 ? fmtBRL(s.cpm) : '0,00';
+    calcHospedagem('em');
   }
 }
 function updateMovement(){
@@ -3985,7 +4069,12 @@ function updateMovement(){
     m.hospNoites=parsePts(document.getElementById('emHospNoites'))||undefined;
     m.hospQuartos=parsePts(document.getElementById('emHospQuartos'))||undefined;
     m.hospValor=parseMoney(document.getElementById('emHospValor'))||undefined;
-  } else { m.hospHotel=undefined; m.hospDestino=undefined; m.hospCheckin=undefined; m.hospCheckout=undefined; m.hospNoites=undefined; m.hospQuartos=undefined; m.hospValor=undefined; }
+    const _hospCpp=parseFloat((document.getElementById('emHospCpp').value||'0').replace(/\./g,'').replace(',','.'))||0;
+    m.hospCpp=_hospCpp||undefined;
+    m.hospCusto=_hospCpp&&pts?((pts/1000)*_hospCpp)||undefined:undefined;
+    const _hospRes=m.hospValor&&m.hospCusto?(m.hospValor-m.hospCusto):undefined;
+    m.hospResultado=_hospRes!=null?_hospRes:undefined;
+  } else { m.hospHotel=undefined; m.hospDestino=undefined; m.hospCheckin=undefined; m.hospCheckout=undefined; m.hospNoites=undefined; m.hospQuartos=undefined; m.hospValor=undefined; m.hospCpp=undefined; m.hospCusto=undefined; m.hospResultado=undefined; }
   saveDB(); closeModal('modalEditMov'); render();
 }
 function deleteMovement(){
