@@ -4141,7 +4141,16 @@ function saveMovement(){
     mov.emBenef=document.getElementById('mEmBenef').value||'propria';
   }
   db.movements.push(mov);
-  saveDB(); closeModal('modalMovement'); render();
+  // Salva localmente imediato
+  try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+  closeModal('modalMovement'); render();
+  // Salva no Firebase e aguarda confirmação
+  if(window._fbCurrentUid){
+    _pendingSave=true; window._pendingSave=true; _lastSaveTs=Date.now(); _setSyncStatus('pending');
+    window._fbSetDoc(window._fbCurrentUid,{db}).then(()=>{
+      _pendingSave=false; window._pendingSave=false; _lastSaveTs=Date.now(); _setSyncStatus('ok');
+    }).catch(e=>{ console.error('save error',e); _setSyncStatus('offline'); });
+  }
 }
 function deleteMovDirect(id){
   const btn = document.getElementById('confirmDeleteBtn');
