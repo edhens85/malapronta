@@ -473,7 +473,7 @@ tr.row-pendente td{opacity:.85}
 .routes-page{flex:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto}
 .routes-header{padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .routes-title{font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
-.routes-controls{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.routes-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:nowrap}
 .search-routes{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.4rem .85rem;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;width:220px}
 .search-routes:focus{outline:none;border-color:var(--gold)}
 .filter-btn{display:flex;align-items:center;gap:5px;padding:.38rem .75rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text-dim);font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .12s}
@@ -1159,12 +1159,10 @@ body.layout-vertical .page-label{display:none}
     <div class="routes-header">
       <div><div class="routes-title">Movimentos</div></div>
       <div class="routes-controls">
-        <select class="fs" id="relProgFilter" onchange="renderRelatorios()" style="font-size:.78rem;padding:.35rem .7rem;min-width:140px"><option value="">Todos os programas</option></select>
-        <select class="fs" id="relTypeFilter" onchange="renderRelatorios()" style="font-size:.78rem;padding:.35rem .7rem;min-width:130px">
-          <option value="">Todos os tipos</option>
-        </select>
-        <input class="search-routes" id="relSearch" placeholder="Buscar obs, trecho, hotel…" oninput="renderRelatorios()" style="min-width:180px">
-        <button class="btn btn-secondary btn-sm" onclick="exportRelatoriosCSV()">Exportar CSV</button>
+        <select class="fs" id="relProgFilter" onchange="renderRelatorios()" style="font-size:.75rem;padding:.3rem .6rem;min-width:120px;max-width:160px"><option value="">Todos os programas</option></select>
+        <select class="fs" id="relTypeFilter" onchange="renderRelatorios()" style="font-size:.75rem;padding:.3rem .6rem;min-width:110px;max-width:140px"><option value="">Todos os tipos</option></select>
+        <input class="search-routes" id="relSearch" placeholder="Buscar…" oninput="renderRelatorios()" style="flex:1;min-width:0">
+        <button class="btn btn-secondary btn-sm" onclick="exportRelatoriosCSV()" style="white-space:nowrap;flex-shrink:0">Exportar CSV</button>
       </div>
     </div>
     <div id="relEmpty" class="empty-routes hidden">
