@@ -495,13 +495,13 @@ tr.row-pendente td{opacity:.85}
 .mov-section-lbl{font-size:.6rem;font-weight:800;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem}
 .mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.38rem;padding:.7rem .2rem .6rem;font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#9aa3b0;background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .13s;line-height:1.1;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.04)}
 .mov-cat-btn .cat-icon{width:34px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--border) 55%,var(--surface));display:flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0}
-.mov-cat-btn svg{opacity:.85;transition:all .13s;flex-shrink:0}
+.mov-cat-btn svg{opacity:.9;transition:all .13s;flex-shrink:0}
 .mov-cat-btn:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--border));color:#cdd4de;background:var(--surface3);box-shadow:0 2px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.06)}
 .mov-cat-btn:hover .cat-icon{background:color-mix(in srgb,var(--accent) 20%,var(--surface2))}
 .mov-cat-btn:hover svg{opacity:1}
 .mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface2));color:var(--accent);box-shadow:0 0 0 1.5px var(--accent),0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.07)}
 .mov-cat-btn.active .cat-icon{background:color-mix(in srgb,var(--accent) 22%,transparent)}
-.mov-cat-btn.active svg{opacity:1;stroke:var(--accent)}
+.mov-cat-btn.active svg{opacity:1;stroke:#fff}
 .mov-subchip{padding:.28rem .75rem;font-size:.78rem;font-weight:600;border-radius:20px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);cursor:pointer;transition:all .15s}
 .mov-subchip:hover{border-color:var(--accent);color:var(--text)}
 .mov-subchip.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--text)}
@@ -1711,16 +1711,10 @@ body.layout-vertical .page-label{display:none}
           <span>Hospedagem</span>
         </button>
 
-        <!-- Saída -->
+        <!-- Saída / Ajuste unificados -->
         <button type="button" class="mov-cat-btn" data-cat="saida" onclick="selectMovCat('saida')">
           <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/><polyline points="12 8 16 12 12 16"/></svg></div>
           <span>Saída</span>
-        </button>
-
-        <!-- Ajuste -->
-        <button type="button" class="mov-cat-btn" data-cat="ajuste" onclick="selectMovCat('ajuste')">
-          <div class="cat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/></svg></div>
-          <span>Ajuste</span>
         </button>
 
         <!-- Transferir -->
@@ -4302,12 +4296,10 @@ const MOV_CATS = {
     {v:'hospedagem', l:'Hospedagem'},
   ],
   saida: [
-    {v:'resgate',      l:'Resgate'},
-    {v:'expiracao',    l:'Expiração'},
-  ],
-  ajuste: [
-    {v:'ajuste_entrada', l:'Ajuste de entrada'},
-    {v:'ajuste_saida',   l:'Ajuste de saída'},
+    {v:'resgate',        l:'Resgate'},
+    {v:'expiracao',      l:'Expiração'},
+    {v:'ajuste_entrada', l:'Ajuste entrada'},
+    {v:'ajuste_saida',   l:'Ajuste saída'},
   ],
 };
 
