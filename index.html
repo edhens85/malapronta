@@ -282,6 +282,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .prog-card{background:var(--surface);border-style:solid;border-width:3px 1.5px 1.5px;border-color:var(--border);border-radius:var(--radius);padding:1rem 1rem 1.1rem;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.18);min-width:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;text-align:center}
 .prog-card::before{display:none}
 .prog-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.prog-card.card-dragging{opacity:.35;scale:0.94;cursor:grabbing;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.prog-card.card-drag-over{box-shadow:0 0 0 2px var(--gold),0 8px 24px rgba(0,0,0,.35);transform:translateY(-2px)}
 /* topo: ícone + nome + saldo na mesma linha */
 .pc-top{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:.9rem}
 .pc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
@@ -2821,9 +2823,18 @@ function renderDashboard(){
   }
   empty.style.display='none';
   const typeOrder = {bancario:0,outro:1,aerea:2,hotel:3};
-  const sorted = [...db.programs].sort((a,b)=>
-    (typeOrder[a.type]??1)-(typeOrder[b.type]??1)
-  );
+  // Usa ordem customizada salva, senão ordena por tipo
+  const customOrder = db.programOrder && db.programOrder.length ? db.programOrder : null;
+  const sorted = [...db.programs].sort((a,b)=>{
+    if(customOrder){
+      const ia = customOrder.indexOf(a.id);
+      const ib = customOrder.indexOf(b.id);
+      const ra = ia>=0 ? ia : 9999;
+      const rb = ib>=0 ? ib : 9999;
+      if(ra!==rb) return ra-rb;
+    }
+    return (typeOrder[a.type]??1)-(typeOrder[b.type]??1);
+  });
 
   // Compute total carteira in R$
   const today = new Date(); today.setHours(0,0,0,0);
@@ -2874,7 +2885,7 @@ function renderDashboard(){
         expiryBadge = `<div style="font-size:.65rem;color:${diff<=30?'var(--red)':'var(--yellow,#e0b03a)'};margin-top:3px;font-weight:600">⏱ Vence em ${diff===0?'hoje':diff===1?'1 dia':diff+' dias'}</div>`;
       }
     }
-    html += `<div class="prog-card" onclick="selectProg('${p.id}')" style="border-color:${p.color}">
+    html += `<div class="prog-card" data-pid="${p.id}" onclick="selectProg('${p.id}')" style="border-color:${p.color}">
       <div class="pc-top">
         ${getProgLogo(p,40,9)}
         <div class="pc-top-info">
@@ -2906,7 +2917,98 @@ function renderDashboard(){
   </button>`;
   html += `</div></div>`;
   sections.innerHTML = html;
+  initCardDrag();
+}
 
+function initCardDrag(){
+  const grid = document.querySelector('.dash-grid');
+  if(!grid) return;
+  let dragEl=null, dragId=null, startX=0, startY=0, moved=false, longPressTimer=null;
+
+  const cards = [...grid.querySelectorAll('.prog-card[data-pid]')];
+  cards.forEach(card=>{
+    // Touch: segura 350ms para iniciar drag
+    card.addEventListener('touchstart', e=>{
+      const t=e.touches[0];
+      startX=t.clientX; startY=t.clientY; moved=false;
+      longPressTimer=setTimeout(()=>{
+        dragEl=card; dragId=card.dataset.pid;
+        card.classList.add('card-dragging');
+        // vibração leve (mobile)
+        if(navigator.vibrate) navigator.vibrate(30);
+      },350);
+    },{passive:true});
+    card.addEventListener('touchmove', e=>{
+      const t=e.touches[0];
+      const dx=Math.abs(t.clientX-startX), dy=Math.abs(t.clientY-startY);
+      if(dx>8||dy>8) moved=true;
+      if(moved&&longPressTimer&&!dragEl){ clearTimeout(longPressTimer); longPressTimer=null; return; }
+      if(!dragEl) return;
+      e.preventDefault();
+      // encontra card sob o toque
+      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
+      const el=document.elementFromPoint(t.clientX,t.clientY)?.closest('.prog-card[data-pid]');
+      if(el&&el!==dragEl) el.classList.add('card-drag-over');
+    },{passive:false});
+    card.addEventListener('touchend', e=>{
+      clearTimeout(longPressTimer); longPressTimer=null;
+      if(!dragEl){ return; }
+      dragEl.classList.remove('card-dragging');
+      const target=grid.querySelector('.prog-card.card-drag-over');
+      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
+      if(target&&target.dataset.pid&&target.dataset.pid!==dragId){
+        _swapProgOrder(dragId, target.dataset.pid);
+      }
+      dragEl=null; dragId=null;
+    });
+    // Mouse: botão esquerdo mantido > 300ms
+    let mouseTimer=null, mouseDragging=false;
+    card.addEventListener('mousedown', e=>{
+      if(e.button!==0) return;
+      startX=e.clientX; startY=e.clientY;
+      mouseTimer=setTimeout(()=>{
+        dragEl=card; dragId=card.dataset.pid; mouseDragging=true;
+        card.classList.add('card-dragging');
+      },300);
+    });
+    card.addEventListener('mousemove', e=>{
+      if(!mouseDragging||!dragEl) return;
+      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
+      const el=document.elementFromPoint(e.clientX,e.clientY)?.closest('.prog-card[data-pid]');
+      if(el&&el!==dragEl) el.classList.add('card-drag-over');
+    });
+    card.addEventListener('mouseup', e=>{
+      clearTimeout(mouseTimer); mouseTimer=null;
+      if(!dragEl||!mouseDragging){ mouseDragging=false; return; }
+      dragEl.classList.remove('card-dragging');
+      const target=grid.querySelector('.prog-card.card-drag-over');
+      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
+      if(target&&target.dataset.pid&&target.dataset.pid!==dragId){
+        _swapProgOrder(dragId, target.dataset.pid);
+      }
+      dragEl=null; dragId=null; mouseDragging=false;
+    });
+    card.addEventListener('mouseleave', e=>{
+      if(!mouseDragging) clearTimeout(mouseTimer);
+    });
+  });
+}
+
+function _swapProgOrder(fromId, toId){
+  // Constrói array de IDs na ordem atual exibida
+  const grid=document.querySelector('.dash-grid');
+  if(!grid) return;
+  const currentCards=[...grid.querySelectorAll('.prog-card[data-pid]')].map(c=>c.dataset.pid);
+  // se não há ordem salva ainda, usa a atual como base
+  let order = db.programOrder && db.programOrder.length ? [...db.programOrder] : [...currentCards];
+  // garante que todos os IDs atuais estão no array
+  currentCards.forEach(id=>{ if(!order.includes(id)) order.push(id); });
+  const fi=order.indexOf(fromId), ti=order.indexOf(toId);
+  if(fi<0||ti<0) return;
+  order.splice(fi,1); order.splice(ti,0,fromId);
+  db.programOrder=order;
+  saveDB();
+  renderDashboard();
 }
 
 function renderSidebar(){ /* substituído por renderDashboard() */ }
