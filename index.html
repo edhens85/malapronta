@@ -341,15 +341,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .det-content{flex:1;display:flex;flex-direction:column;min-width:0;overflow-y:auto}
 
 /* ── SUMMARY STRIP ── */
-.summary-strip{display:flex;align-items:stretch;background:var(--surface2);border-bottom:2px solid var(--border);overflow-x:auto}
-.sum-group-label{writing-mode:vertical-lr;transform:rotate(180deg);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#fff;padding:.6rem .65rem;background:var(--surface);border-right:2px solid rgba(255,255,255,.18);flex-shrink:0}
-.sum-group-pontos{background:#1a3a5c}
-.sum-group-milhas{background:#1a3d2a}
-.sum-divider{width:3px;background:rgba(255,255,255,.25);flex-shrink:0;align-self:stretch;margin:0 6px}
-.sum-item{padding:.85rem 1.4rem;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;text-align:center}
+.summary-strip{display:flex;align-items:center;background:var(--surface2);border-bottom:2px solid var(--border);overflow-x:auto;min-height:64px;gap:0}
+.sum-group{display:flex;align-items:center;flex-shrink:0}
+.sum-group-label{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.75);padding:.5rem .55rem;writing-mode:vertical-lr;transform:rotate(180deg);align-self:stretch;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sum-group-pontos{background:#1a3a5c;border-right:2px solid rgba(255,255,255,.12)}
+.sum-group-milhas{background:#1a3d2a;border-right:2px solid rgba(255,255,255,.12)}
+.sum-divider{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;margin:0 2px}
+.sum-item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem 1.1rem;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;text-align:center;gap:3px}
 .sum-item-last{border-right:none}
-.sum-label{font-size:.62rem;color:var(--text-muted);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;text-align:center}
-.sum-val{font-size:1rem;font-weight:700;text-align:center}
+.sum-label{font-size:.6rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;text-align:center;line-height:1.3}
+.sum-val{font-size:.95rem;font-weight:700;text-align:center;line-height:1}
 
 /* ── MAIN CONTENT ── */
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
@@ -566,10 +567,11 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
 }
 
 /* ── SUMMARY BAR RESPONSIVO ── */
-@media(max-width:860px) and (min-width:601px){
-  .sum-item{padding:0 .6rem}
+@media(max-width:860px){
+  .sum-item{padding:.4rem .7rem}
   .sum-val{font-size:.85rem}
   .sum-label{font-size:.55rem}
+  .sum-group-label{padding:.4rem .45rem;font-size:.52rem}
 }
 
 /* ── GRID: 6 colunas horizontal, 4 vertical ── */
@@ -962,31 +964,44 @@ body.layout-vertical .page-label{display:none}
 <div class="page active" id="pageMilhas">
   <!-- Summary strip unificada — pontos + milhas + emissões + botão registrar -->
   <div class="summary-strip" id="globalSummary">
-    <div class="sum-group-label sum-group-pontos">Pontos</div>
-    <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumPontos">0</div></div>
-    <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvestPontos">R$ 0,00</div></div>
-    <div class="sum-item sum-item-last"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpp">R$ 0,00</div></div>
+
+    <!-- GRUPO PONTOS -->
+    <div class="sum-group">
+      <div class="sum-group-label sum-group-pontos">Pontos</div>
+      <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumPontos">0</div></div>
+      <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvestPontos">R$ 0,00</div></div>
+      <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpp">R$ 0,00</div></div>
+    </div>
+
     <div class="sum-divider"></div>
-    <div class="sum-group-label sum-group-milhas">Milhas</div>
-    <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumMilhas">0</div></div>
-    <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvest">R$ 0,00</div></div>
-    <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpm">R$ 0,00</div></div>
-    <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
-    <!-- emissões inline -->
+
+    <!-- GRUPO MILHAS -->
+    <div class="sum-group">
+      <div class="sum-group-label sum-group-milhas">Milhas</div>
+      <div class="sum-item"><div class="sum-label">Saldo</div><div class="sum-val" id="sumMilhas">0</div></div>
+      <div class="sum-item"><div class="sum-label">Investimento</div><div class="sum-val" id="sumInvest">R$ 0,00</div></div>
+      <div class="sum-item"><div class="sum-label">CPM médio</div><div class="sum-val" style="color:var(--gold)" id="sumCpm">R$ 0,00</div></div>
+      <div class="sum-item"><div class="sum-label">Total em carteira</div><div class="sum-val" style="color:var(--green)" id="sumCarteira">R$ 0,00</div></div>
+    </div>
+
+    <!-- GRUPO RESULTADOS (emissões) — aparece quando há dados -->
     <div class="sum-divider" id="emDivider" style="display:none"></div>
-    <div class="sum-item" id="sumItemEconomia" style="display:none"><div class="sum-label" style="white-space:normal;line-height:1.3">Economia<br>passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
-    <div class="sum-item" id="sumItemVenda" style="display:none"><div class="sum-label" style="white-space:normal;line-height:1.3">Venda<br>passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
-    <div class="sum-item" id="sumItemHosp" style="display:none"><div class="sum-label" style="white-space:normal;line-height:1.3">Economia<br>hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
-    <!-- botão registrar -->
-    <div class="sum-item sum-item-last" id="dashQuickReg" style="display:none;margin-left:auto;border-left:1px solid var(--border)">
-      <button onclick="openAddMovementGlobal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.28rem;background:none;border:none;padding:.2rem .6rem;cursor:pointer;line-height:1.2;min-width:56px">
-        <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.25)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <div class="sum-group" id="sumGroupResultados" style="display:none">
+      <div class="sum-item" id="sumItemEconomia"><div class="sum-label">Economia<br>passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
+      <div class="sum-item" id="sumItemVenda"><div class="sum-label">Venda<br>passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
+      <div class="sum-item" id="sumItemHosp"><div class="sum-label">Economia<br>hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
+    </div>
+
+    <!-- BOTÃO REGISTRAR — aparece quando há programas -->
+    <div id="dashQuickReg" style="display:none;margin-left:auto;padding:0 .8rem;flex-shrink:0;border-left:1px solid var(--border);align-self:stretch;align-items:center;justify-content:center">
+      <button onclick="openAddMovementGlobal()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.22rem;background:none;border:none;padding:.3rem .4rem;cursor:pointer">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.3)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </div>
-        <span style="font-size:.56rem;font-weight:800;letter-spacing:.07em;color:var(--text-muted);text-transform:uppercase">Registrar</span>
-        <span style="font-size:.56rem;font-weight:700;letter-spacing:.07em;color:var(--text-muted);text-transform:uppercase">Movimento</span>
+        <span style="font-size:.55rem;font-weight:800;letter-spacing:.07em;color:var(--text-muted);text-transform:uppercase;line-height:1.3">Registrar<br>Movimento</span>
       </button>
     </div>
+
   </div>
   <!-- strip legada (mantida para compatibilidade de JS que a mostra/oculta) -->
   <div id="emissoesSummary" style="display:none"></div>
@@ -2994,7 +3009,7 @@ function renderDashboard(){
     return;
   }
   empty.style.display='none';
-  if(qr) qr.style.display='';
+  if(qr) qr.style.display='flex';
   const typeOrder = {bancario:0,outro:1,aerea:2,hotel:3};
   // Usa ordem customizada salva, senão ordena por tipo
   const customOrder = db.programOrder && db.programOrder.length ? db.programOrder : null;
@@ -3317,11 +3332,10 @@ function renderSummary(){
   }
   const elGHosp=document.getElementById('sumEconomiaHosp');
   if(elGHosp){ elGHosp.textContent=gHasHosp?(gHosp>=0?'R$ '+fmtBRL(gHosp):'- R$ '+fmtBRL(Math.abs(gHosp))):'—'; elGHosp.style.color=gHasHosp?(gHosp>=0?'var(--green)':'var(--red)'):''; }
-  // mostra itens de emissão inline na strip principal
+  // mostra grupo de resultados inline na strip principal
   const hasAny = gHasEco || gHasRes || gHasHosp;
-  ['emDivider','sumItemEconomia','sumItemVenda','sumItemHosp'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.style.display=hasAny?'':'none';
-  });
+  const elDiv=document.getElementById('emDivider'); if(elDiv) elDiv.style.display=hasAny?'':'none';
+  const elGrp=document.getElementById('sumGroupResultados'); if(elGrp) elGrp.style.display=hasAny?'flex':'none';
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
@@ -4138,7 +4152,7 @@ function _renderModalProgChips(){
   });
   // Exibe/oculta botão rápido na dashboard
   const qr = document.getElementById('dashQuickReg');
-  if(qr) qr.style.display = db.programs.length ? '' : 'none';
+  if(qr) qr.style.display = db.programs.length ? 'flex' : 'none';
 }
 function setEmBenef(prefix, val){
   const hiddenEl = document.getElementById((prefix==='m'?'mEmBenef':'emEmBenef'));
