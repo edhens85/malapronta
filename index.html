@@ -291,7 +291,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .pc-top{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:.9rem}
 .pc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
 .pc-top-info{flex:1;min-width:0;text-align:left}
-.pc-name{font-size:.92rem;font-weight:700;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff}
+.pc-name{font-size:.92rem;font-weight:700;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:#fff;word-break:break-word}
 .pc-type{font-size:.67rem;color:rgba(255,255,255,.65);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .pc-saldo-inline{text-align:right;flex-shrink:0}
 .pc-saldo-label{font-size:.67rem;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
@@ -3190,7 +3190,7 @@ function renderDashboard(){
       <div class="pc-top">
         ${getProgLogo(p,40,9)}
         <div class="pc-top-info">
-          <div class="pc-name">${esc(p.name)}</div>
+          <div class="pc-name" style="${p.name.length>18?'font-size:.78rem':''}">${esc(p.name)}</div>
           <div class="pc-type">${TYPE_LABELS[p.type]||p.type}</div>
           ${expiryBadge}
         </div>
