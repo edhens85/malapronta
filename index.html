@@ -2232,10 +2232,28 @@ async function loadDBFromFirestore(uid){
     const timeoutPromise = new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000));
     const snap = await Promise.race([window._fbGetDoc(uid), timeoutPromise]);
     if(snap.exists() && snap.data().db){
-      // Dados encontrados no Firestore — usa sempre o Firestore como fonte de verdade
-      db = snap.data().db;
+      const remoteDB = snap.data().db;
+      // Compara com localStorage: usa o que tiver movimentos mais recentes (_ts mais alto)
+      let localDB = null;
+      try{ const r=localStorage.getItem('milhas_v3'); if(r) localDB=JSON.parse(r); }catch(e){}
+      let useRemote = true;
+      if(localDB && localDB.movements && remoteDB.movements){
+        // Encontra o _ts mais alto de cada versão
+        const localMax = localDB.movements.reduce((m,x)=>Math.max(m,x._ts||0),0);
+        const remoteMax = remoteDB.movements.reduce((m,x)=>Math.max(m,x._ts||0),0);
+        // Usa local se tiver movimento mais recente que o remoto (indica save pendente)
+        if(localMax > remoteMax) useRemote = false;
+        // Também usa local se tiver mais movimentos na mesma janela de tempo (dentro de 5s)
+        if(useRemote && localDB.movements.length > remoteDB.movements.length && (localMax - remoteMax) < 5000) useRemote = false;
+      }
+      db = useRemote ? remoteDB : localDB;
       ensureDBDefaults();
-      try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+      // Se usou local (Firebase atrasado), re-envia para o Firebase
+      if(!useRemote){
+        setTimeout(()=>{ if(window._fbCurrentUid===uid) saveDB(); }, 1000);
+      } else {
+        try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+      }
     } else {
       // Documento não existe ainda — começa vazio (não usa localStorage de outro dispositivo)
       db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
@@ -2266,7 +2284,8 @@ function saveDB(){
     _lastSaveTs = Date.now(); // protege imediatamente contra race com onSnapshot
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
-    // Salva imediatamente sem delay — garante sync antes de fechar
+    // Também salva via keepalive imediatamente como backup (caso o async falhe antes do unload)
+    _saveToFirestoreKeepalive && _saveToFirestoreKeepalive();
     _saveTimer = setTimeout(async ()=>{
       try{
         await window._fbSetDoc(window._fbCurrentUid, { db });
@@ -2277,37 +2296,41 @@ function saveDB(){
     }, 0);
   }
 }
-// Garante save antes de fechar a aba via XHR síncrono (único método garantido)
+// Garante save antes de fechar a aba via fetch keepalive (funciona no Brave e browsers modernos)
+const _toFV = (v) => {
+  if(v===null||v===undefined) return {nullValue:null};
+  if(typeof v==='boolean') return {booleanValue:v};
+  if(typeof v==='number') return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+  if(typeof v==='string') return {stringValue:v};
+  if(Array.isArray(v)) return {arrayValue:{values:v.map(_toFV)}};
+  if(typeof v==='object'){
+    const fields={};
+    for(const [k,val] of Object.entries(v)) fields[k]=_toFV(val);
+    return {mapValue:{fields}};
+  }
+  return {nullValue:null};
+};
+function _saveToFirestoreKeepalive(){
+  if(!window._fbCurrentUid||!window._fbLastToken) return;
+  try{
+    const body = JSON.stringify({fields:{db:_toFV(db)}});
+    const uid = window._fbCurrentUid;
+    const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=db`;
+    fetch(url, {
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+window._fbLastToken},
+      body,
+      keepalive: true // garante envio mesmo após unload
+    });
+  }catch(e){}
+}
+window.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden') _saveToFirestoreKeepalive();
+});
+window.addEventListener('pagehide', ()=>{ _saveToFirestoreKeepalive(); });
 window.addEventListener('beforeunload', ()=>{
   clearTimeout(_saveTimer);
-  if(window._fbCurrentUid){
-    try{
-      // Converte db para formato REST do Firestore e envia via XHR síncrono
-      const toFV = (v) => {
-        if(v===null||v===undefined) return {nullValue:null};
-        if(typeof v==='boolean') return {booleanValue:v};
-        if(typeof v==='number') return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
-        if(typeof v==='string') return {stringValue:v};
-        if(Array.isArray(v)) return {arrayValue:{values:v.map(toFV)}};
-        if(typeof v==='object'){
-          const fields={};
-          for(const [k,val] of Object.entries(v)) fields[k]=toFV(val);
-          return {mapValue:{fields}};
-        }
-        return {nullValue:null};
-      };
-      const body = JSON.stringify({fields:{db:toFV(db)}});
-      const uid = window._fbCurrentUid;
-      const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=db`;
-      const xhr = new XMLHttpRequest();
-      xhr.open('PATCH', url, false); // false = síncrono, bloqueia até terminar
-      xhr.setRequestHeader('Content-Type','application/json');
-      // Tenta com token cacheado
-      const token = window._fbLastToken;
-      if(token) xhr.setRequestHeader('Authorization','Bearer '+token);
-      xhr.send(body);
-    }catch(e){}
-  }
+  _saveToFirestoreKeepalive();
 });
 
 // ═══════════════════════════════════════════════
