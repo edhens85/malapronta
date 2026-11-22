@@ -213,7 +213,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .brand-icon{color:var(--gold)}
 /* nav-tabs centralizadas absolutamente */
 .nav-tabs{display:flex;gap:4px;position:absolute;left:50%;transform:translateX(-50%)}
-.nav-tab{display:flex;align-items:center;gap:7px;padding:.32rem .85rem;border-radius:var(--radius-sm);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:grab;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:'Inter',sans-serif;transition:color .15s,background .15s,border-color .15s,box-shadow .15s}
+.nav-tab{display:flex;align-items:center;gap:7px;padding:.34rem .9rem;border-radius:var(--radius-sm);font-size:.73rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:grab;border:1px solid var(--border);background:var(--surface2);color:#8d96a3;font-family:'Inter',sans-serif;transition:color .15s,background .15s,border-color .15s,box-shadow .15s}
 .nav-tab:active{cursor:grabbing}
 .nav-tab.tab-dragging{opacity:.35;scale:.94;cursor:grabbing;box-shadow:none}
 .nav-tab.tab-drag-over{box-shadow:0 0 0 2px var(--gold);border-color:var(--gold)}
@@ -264,12 +264,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .gsr-sub{color:var(--text-dim);font-size:.68rem}
 
 /* ── TICKER ── */
-.ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:28px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
+.ticker{background:var(--surface2);border-bottom:1px solid var(--border);height:32px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;cursor:pointer;}
 .ticker-inner{display:flex;gap:0;white-space:nowrap;margin:0 auto;align-items:stretch}
-.ticker-item{padding:0 1.5rem;font-size:.7rem;display:flex;align-items:center;gap:.5rem;border-right:1px solid var(--border);flex-shrink:0;align-self:stretch}
+.ticker-item{padding:0 1.75rem;font-size:.76rem;display:flex;align-items:center;gap:.55rem;border-right:1px solid var(--border);flex-shrink:0;align-self:stretch}
 .ticker-item:last-child{border-right:none}
-.ticker-name{color:var(--text-dim);font-weight:500}
-.ticker-val{color:var(--gold);font-weight:600}
+.ticker-name{color:#9aa3b0;font-weight:600}
+.ticker-val{color:var(--gold);font-weight:700}
 
 /* ── LAYOUT ── */
 .app{display:flex;flex:1;min-height:0}
@@ -368,17 +368,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .detail-sub{font-size:.75rem;color:var(--text-dim);margin-top:2px}
 .detail-actions{display:flex;gap:7px;flex-wrap:wrap}
 
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;padding:0 1.5rem 1.25rem}
-.stat{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.stat-label{font-size:.62rem;color:var(--text-dim);font-weight:600;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em}
-.stat-val{font-size:1.4rem;font-weight:700;letter-spacing:-.03em}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;padding:0 1.5rem 1.4rem}
+.stat{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.3rem;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.stat-label{font-size:.68rem;color:var(--text-dim);font-weight:700;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
+.stat-val{font-size:1.5rem;font-weight:700;letter-spacing:-.03em}
 .stat-val.gold{color:var(--gold)}
 .stat-val.teal{color:var(--teal)}
-.stat-sub{font-size:.65rem;color:var(--text-muted);margin-top:3px}
-.det-stat-mini{display:flex;flex-direction:column;align-items:flex-start;padding:.35rem .9rem;flex-shrink:0}
-.det-stat-mini-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);white-space:nowrap;margin-bottom:2px}
-.det-stat-mini-val{font-size:.92rem;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.stat-sub{font-size:.7rem;color:#9aa3b0;margin-top:4px;font-weight:500}
+.det-stat-mini{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.4rem 1rem;flex:1;min-width:0}
+.det-stat-mini-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);white-space:nowrap;margin-bottom:3px}
+.det-stat-mini-val{font-size:1.25rem;font-weight:700;letter-spacing:-.03em;white-space:nowrap;text-align:center}
 .det-stat-mini-sep{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;margin:4px 0}
+.mov-prog-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.32rem .65rem .32rem .4rem;border:1.5px solid var(--border);border-radius:999px;background:var(--surface2);cursor:pointer;transition:all .13s;color:var(--text-muted);font-size:.72rem;font-weight:700;line-height:1}
+.mov-prog-chip:hover{border-color:var(--accent);background:var(--surface3);color:var(--text)}
+.mov-prog-chip.active{font-weight:800}
+.mov-prog-chip-name{white-space:nowrap}
 
 /* Movements */
 .mov-section{padding:0 1.5rem 2rem}
@@ -477,12 +481,12 @@ tr.row-pendente td{opacity:.85}
 /* Cost info box */
 .cost-info{background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);padding:.65rem .9rem;font-size:.75rem;color:var(--gold-text);margin-bottom:.85rem}
 /* Modal movimento — estética Apple */
-.mov-section-lbl{font-size:.64rem;font-weight:700;letter-spacing:.09em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem}
-.mov-cat-btn{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.55rem .15rem;font-size:.6rem;font-weight:700;letter-spacing:.02em;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .14s;line-height:1.2;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.06)}
-.mov-cat-btn svg{opacity:.55;transition:opacity .14s}
-.mov-cat-btn:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--border));color:var(--text-dim);box-shadow:0 2px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08)}
-.mov-cat-btn:hover svg{opacity:.8}
-.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--surface2));color:var(--text);box-shadow:0 0 0 1px var(--accent),0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1)}
+.mov-section-lbl{font-size:.6rem;font-weight:800;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem}
+.mov-cat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.42rem;padding:.75rem .2rem .65rem;font-size:.62rem;font-weight:700;letter-spacing:.03em;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:13px;cursor:pointer;transition:all .14s;line-height:1.2;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.05)}
+.mov-cat-btn svg{opacity:.7;transition:all .14s;flex-shrink:0}
+.mov-cat-btn:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));color:var(--text-dim);background:var(--surface3);box-shadow:0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.07)}
+.mov-cat-btn:hover svg{opacity:1}
+.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--surface2));color:var(--accent);box-shadow:0 0 0 1.5px var(--accent),0 2px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08)}
 .mov-cat-btn.active svg{opacity:1;stroke:var(--accent)}
 .mov-subchip{padding:.28rem .75rem;font-size:.78rem;font-weight:600;border-radius:20px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);cursor:pointer;transition:all .15s}
 .mov-subchip:hover{border-color:var(--accent);color:var(--text)}
@@ -551,8 +555,15 @@ th.filtered .col-filter-icon{opacity:1;color:var(--gold)}
 /* ── MOBILE ── */
 @media(max-width:680px){
   .app{flex-direction:column}
-  .stats{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:1fr 1fr;gap:.7rem;padding:0 1rem 1.1rem}
+  .stat{padding:1rem 1rem}
+  .stat-val{font-size:1.3rem}
   .frow{grid-template-columns:1fr}
+  .ticker-item{padding:0 1rem;font-size:.7rem}
+  .topbar{height:48px;padding:0 .9rem}
+  .detail-header{flex-wrap:wrap;padding:.85rem 1rem !important;gap:.6rem !important}
+  .det-stat-mini-val{font-size:1.05rem}
+  .det-stat-mini{padding:.35rem .6rem}
 }
 
 /* ── TOPBAR RESPONSIVO (janela estreita desktop) ── */
@@ -1546,64 +1557,68 @@ body.layout-vertical .page-label{display:none}
 
 <!-- Add Movement -->
 <div class="overlay hidden" id="modalMovement" onkeydown="if(event.key==='Enter'&&event.target.tagName!=='TEXTAREA')saveMovement()">
-  <div class="modal" style="max-width:500px;padding:1.1rem 1.1rem .9rem">
+  <div class="modal" style="max-width:520px;padding:1.3rem 1.3rem 1rem">
 
     <!-- Cabeçalho: título + data -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem">
-      <div style="font-size:.95rem;font-weight:700;letter-spacing:-.01em;color:var(--text)">Novo movimento</div>
-      <input class="fi" id="mDate" type="date" style="width:138px;font-size:.82rem;padding:.28rem .5rem;background:var(--surface3);border-color:var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;gap:.6rem">
+      <div style="font-size:1.05rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text)">Nova Operação</div>
+      <div style="position:relative;flex-shrink:0">
+        <input class="fi" id="mDate" type="text" placeholder="Data" readonly
+          style="width:130px;font-size:.82rem;padding:.3rem .5rem .3rem 1.8rem;background:var(--surface3);border-color:var(--border);cursor:pointer">
+        <svg style="position:absolute;left:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+      </div>
     </div>
 
     <!-- Programa -->
-    <div style="margin-bottom:.8rem">
+    <div style="margin-bottom:1rem">
       <div class="mov-section-lbl">Programa</div>
-      <div id="mProgChips" style="display:flex;flex-wrap:wrap;gap:.3rem"></div>
+      <div id="mProgChips" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
     </div>
 
-    <!-- NÍVEL 1: Categoria — ícones SVG monocromáticos estilo Apple -->
-    <div style="margin-bottom:.7rem">
+    <!-- NÍVEL 1: Categoria -->
+    <div style="margin-bottom:.8rem">
       <div class="mov-section-lbl">O que aconteceu?</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem" id="mCatCards">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem" id="mCatCards">
 
         <!-- Acúmulo -->
         <button type="button" class="mov-cat-btn" data-cat="acumulo" onclick="selectMovCat('acumulo')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           <span>Acúmulo</span>
         </button>
 
         <!-- Compra -->
         <button type="button" class="mov-cat-btn" id="mCatCompra" data-cat="compra" onclick="selectMovCat('compra')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           <span>Compra</span>
         </button>
 
         <!-- Emissão -->
         <button type="button" class="mov-cat-btn" id="mCatEmissao" data-cat="emissao" onclick="selectMovCat('emissao')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg>
           <span>Emissão</span>
         </button>
 
         <!-- Hospedagem -->
         <button type="button" class="mov-cat-btn" id="mCatHospedagem" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>Hospedagem</span>
         </button>
 
         <!-- Saída -->
         <button type="button" class="mov-cat-btn" data-cat="saida" onclick="selectMovCat('saida')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
           <span>Saída</span>
         </button>
 
         <!-- Ajuste -->
         <button type="button" class="mov-cat-btn" data-cat="ajuste" onclick="selectMovCat('ajuste')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
           <span>Ajuste</span>
         </button>
 
         <!-- Transferir -->
         <button type="button" class="mov-cat-btn" data-cat="transferir" onclick="selectMovCat('transferir')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
           <span>Transferir</span>
         </button>
 
@@ -4099,7 +4114,7 @@ function _openMovementModal(targetProgId){
   document.getElementById('mFieldsArea').classList.add('hidden');
   document.getElementById('mSaveBtn').style.display='none';
   document.getElementById('mType').value='acumulo_simples';
-  document.getElementById('mDate').value=today();
+  const _mDateEl=document.getElementById('mDate'); if(_mDateEl._fp) _mDateEl._fp.setDate(today(),true); else _mDateEl.value=today();
   document.getElementById('mPoints').value='';
   document.getElementById('mValue').value='';
   document.getElementById('mObs').value='';
@@ -4134,12 +4149,14 @@ function _renderModalProgChips(){
   if(!el) return;
   el.innerHTML = '';
   (db.programs||[]).forEach(p=>{
+    const isActive = p.id===selProg;
     const btn = document.createElement('button');
     btn.type='button';
-    btn.className='mov-subchip'+(p.id===selProg?' active':'');
-    btn.textContent = p.name;
-    btn.style.borderColor = p.id===selProg ? (p.color||'var(--accent)') : '';
-    btn.style.color = p.id===selProg ? (p.color||'var(--accent)') : '';
+    btn.className='mov-prog-chip'+(isActive?' active':'');
+    btn.style.cssText = isActive
+      ? `border-color:${p.color||'var(--accent)'};background:color-mix(in srgb,${p.color||'var(--accent)'} 14%,var(--surface2));color:${p.color||'var(--accent)'}`
+      : '';
+    btn.innerHTML = `<span style="flex-shrink:0;line-height:0">${getProgLogo(p,22,5)}</span><span class="mov-prog-chip-name">${p.name}</span>`;
     btn.onclick=()=>{
       selProg=p.id;
       _renderModalProgChips();
@@ -5430,6 +5447,19 @@ function openModal(id){
   document.getElementById(id).classList.remove('hidden');
   // Inicializa flatpickr nos campos de data do voo
   if(id==='modalMovement'){
+    // flatpickr no campo de data principal — appendTo body para nunca cortar
+    const mDateEl = document.getElementById('mDate');
+    if(mDateEl && !mDateEl._fp){
+      mDateEl._fp = flatpickr(mDateEl,{
+        locale:'pt', dateFormat:'Y-m-d', altInput:false,
+        disableMobile:true, allowInput:false,
+        appendTo: document.body,
+        position:'auto',
+        onReady(_,__,fp){ fp.calendarContainer.style.zIndex='10000'; },
+        onChange(dates){ mDateEl.dataset.val = dates[0] ? flatpickr.formatDate(dates[0],'Y-m-d') : ''; }
+      });
+    }
+    if(mDateEl && mDateEl._fp) mDateEl._fp.setDate(today(), true);
     const dvEl = document.getElementById('mEmDataVooTop');
     if(dvEl && !dvEl._fp){
       dvEl._fp = flatpickr(dvEl,{
