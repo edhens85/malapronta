@@ -650,7 +650,7 @@ body.layout-vertical .page-label{display:none}
 .dp-cal.dp-open{display:block}
 .dp-cal.dp-up{top:auto;bottom:calc(100% + 4px)}
 .dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem}
-.dp-head button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:3px 7px;border-radius:5px;font-size:.8rem;line-height:1}
+.dp-head button{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px 10px;border-radius:5px;font-size:1.1rem;line-height:1;font-weight:700}
 .dp-head button:hover{background:var(--surface3);color:var(--text)}
 .dp-title{font-size:.8rem;font-weight:600;color:var(--text);cursor:pointer;padding:3px 6px;border-radius:5px}
 .dp-title:hover{background:var(--surface3)}
@@ -962,9 +962,9 @@ body.layout-vertical .page-label{display:none}
 
   <!-- Faixa global de emissões -->
   <div class="summary-strip" id="emissoesSummary" style="display:none">
-    <div class="sum-group-label" style="color:var(--gold)">✈ Emissões</div>
-    <div class="sum-item"><div class="sum-label">Economia</div><div class="sum-val" id="sumEconomia">—</div></div>
-    <div class="sum-item sum-item-last"><div class="sum-label">Venda</div><div class="sum-val" id="sumResultadoEm">—</div></div>
+    <div class="sum-item"><div class="sum-label">Economia de passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
+    <div class="sum-item"><div class="sum-label">Venda de passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
+    <div class="sum-item sum-item-last"><div class="sum-label">Economia de hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
   </div>
 
 
@@ -1495,6 +1495,7 @@ body.layout-vertical .page-label{display:none}
         <option value="compra_bonificada">Compra bonificada</option>
         <option value="emissao_passagem">Emissão de passagem</option>
         <option value="expiracao">Expiração</option>
+        <option value="hospedagem">Hospedagem</option>
         <option value="resgate">Resgate</option>
       </select>
       <div id="mBenefToggle" style="display:none;gap:6px;margin-top:.4rem">
@@ -1580,6 +1581,25 @@ body.layout-vertical .page-label{display:none}
       <input type="hidden" id="mEmBenef" value="propria">
       <input type="hidden" id="mEmCia" value="">
       <input type="hidden" id="mEmDataVoo" value="">
+    </div>
+    <!-- Campos exclusivos: Hospedagem -->
+    <div id="mHospedagemBox" class="hidden">
+      <div class="frow">
+        <div class="fg"><label>Hotel / Propriedade</label><input class="fi" id="mHotel" type="text" placeholder="Nome do hotel…"></div>
+        <div class="fg"><label>Destino</label><input class="fi" id="mHospDestino" type="text" placeholder="Cidade, País…"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Check-in</label><input class="fi" id="mHospCheckin" type="date"></div>
+        <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="date"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Noites</label><input class="fi fi-pts" id="mHospNoites" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
+        <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="mHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this)"></div>
+        <div class="fg"><label>Valor equivalente (R$)</label><input class="fi fi-money" id="mHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
+      </div>
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
     <div class="fg">
@@ -1675,6 +1695,7 @@ body.layout-vertical .page-label{display:none}
         <option value="compra_bonificada">Compra bonificada</option>
         <option value="emissao_passagem">Emissão de passagem</option>
         <option value="expiracao">Expiração</option>
+        <option value="hospedagem">Hospedagem</option>
         <option value="resgate">Resgate</option>
         <option value="transferencia_enviada">Transferência enviada</option>
         <option value="transferencia_recebida">Transferência recebida</option>
@@ -1749,6 +1770,25 @@ body.layout-vertical .page-label{display:none}
         </div>
       </div>
       <input type="hidden" id="emEmBenef" value="propria">
+    </div>
+    <!-- Campos exclusivos: Hospedagem (edit) -->
+    <div id="emHospedagemBox" class="hidden">
+      <div class="frow">
+        <div class="fg"><label>Hotel / Propriedade</label><input class="fi" id="emHotel" type="text" placeholder="Nome do hotel…"></div>
+        <div class="fg"><label>Destino</label><input class="fi" id="emHospDestino" type="text" placeholder="Cidade, País…"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Check-in</label><input class="fi" id="emHospCheckin" type="date"></div>
+        <div class="fg"><label>Check-out</label><input class="fi" id="emHospCheckout" type="date"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Noites</label><input class="fi fi-pts" id="emHospNoites" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
+        <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="emHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="emHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this)"></div>
+        <div class="fg"><label>Valor equivalente (R$)</label><input class="fi fi-money" id="emHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
+      </div>
     </div>
     <div class="fg"><label>Observações</label><textarea class="fta" id="emObs"></textarea></div>
     <div class="fg">
@@ -1922,12 +1962,12 @@ const MOV_LABELS = {
   resgate:'Resgate',expiracao:'Expiração',bonus_transferencia:'Bônus de transf.',
   ajuste_entrada:'Ajuste entrada',ajuste_saida:'Ajuste saída',
   transferencia_enviada:'Transf. enviada',transferencia_recebida:'Transf. recebida',
-  saldo_inicial:'Saldo inicial',emissao_passagem:'Emissão de passagem'
+  saldo_inicial:'Saldo inicial',emissao_passagem:'Emissão de passagem',hospedagem:'Hospedagem'
 };
 // Positive = adds points AND investment; Negative = removes points AND investment (proportional)
 // bonus_transferencia: pendente até confirmação → quando confirmado vira crédito normal
 const MOV_CREDIT = new Set(['acumulo_simples','compra','compra_bonificada','assinatura','bonus','cashback','ajuste_entrada','transferencia_recebida','bonus_transferencia']);
-const MOV_DEBIT  = new Set(['resgate','expiracao','ajuste_saida','transferencia_enviada','emissao_passagem']);
+const MOV_DEBIT  = new Set(['resgate','expiracao','ajuste_saida','transferencia_enviada','emissao_passagem','hospedagem']);
 const MOV_HAS_VALUE = new Set(['compra','compra_bonificada','assinatura','bonus','cashback','ajuste_entrada','transferencia_recebida']);
 function getValueLabel(t){
   if(t==='compra'||t==='compra_bonificada') return 'Valor pago';
@@ -2891,10 +2931,19 @@ function renderSummary(){
   const elGRes=document.getElementById('sumResultadoEm');
   if(elGEco){ elGEco.textContent=gHasEco?'R$ '+fmtBRL(gEco):'—'; elGEco.style.color=gHasEco?(gEco>=0?'var(--green)':'var(--red)'):''; }
   if(elGRes){ elGRes.textContent=gHasRes?(gRes>=0?'+ ':'- ')+'R$ '+fmtBRL(Math.abs(gRes)):'—'; elGRes.style.color=gHasRes?(gRes>=0?'var(--green)':'var(--red)'):''; }
-  // mostra faixa emissões só se houver emissões
-  const hasEmissoes = (db.movements||[]).some(m=>m.type==='emissao_passagem'&&!m.pendente);
+  // Economia de hospedagem
+  let gHosp=0, gHasHosp=false;
+  for(const prog of db.programs){
+    computeRunning(prog.id).filter(m=>m.type==='hospedagem').forEach(m=>{
+      if(m.hospValor){ gHosp+=m.hospValor; gHasHosp=true; }
+    });
+  }
+  const elGHosp=document.getElementById('sumEconomiaHosp');
+  if(elGHosp){ elGHosp.textContent=gHasHosp?'R$ '+fmtBRL(gHosp):'—'; elGHosp.style.color=gHasHosp?'var(--green)':''; }
+  // mostra faixa emissões só se houver emissões ou hospedagens
+  const hasEmissoes = (db.movements||[]).some(m=>(m.type==='emissao_passagem'||m.type==='hospedagem')&&!m.pendente);
   const esEl=document.getElementById('emissoesSummary');
-  if(esEl) esEl.style.display=(hasEmissoes&&(gHasEco||gHasRes))?'':'none';
+  if(esEl) esEl.style.display=(hasEmissoes&&(gHasEco||gHasRes||gHasHosp))?'':'none';
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
@@ -3204,6 +3253,7 @@ function renderMovTable(){
         : `<span class="neg">-${fmt(m.points)}</span>`;
     // Para transferência enviada: mostra custo calculado (CPM × pontos)
     const isEmissaoRow = m.type==='emissao_passagem';
+    const isHospRow = m.type==='hospedagem';
     const custoVal = m._custoVal;
     const resStr = custoVal!=null
       ? `<span style="color:#fff;font-weight:600">R$ ${fmtBRL(custoVal)}</span>`
@@ -3237,12 +3287,19 @@ function renderMovTable(){
       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
         <span class="badge b-${m.type}" style="background:${isCredit?'var(--green)':'var(--red)'};color:#fff">${MOV_LABELS[m.type]||m.type}</span>${pendBadge}${relLabel}
       </div>
-      ${isEmissaoRow?(
-        (m.emCia?`<span class="td-obs" style="max-width:none;font-weight:600;color:var(--text)">${esc(m.emCia)}</span>`:'')
-        +(m.emTrecho||m.emCabine?`<span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="td-obs" style="max-width:none;color:var(--text-dim)">${[m.emTrecho,m.emCabine].filter(Boolean).map(x=>esc(x)).join(' · ')}</span>${anexoLink}</span>`:(anexoLink?`<span>${anexoLink}</span>`:''))
+      ${isEmissaoRow?(()=>{
+        const parts=[];
+        if(m.emCia) parts.push(`<span style="font-weight:600;color:var(--text)">${esc(m.emCia)}</span>`);
+        if(m.emTrecho) parts.push(`<span style="color:var(--text-dim)">${esc(m.emTrecho)}</span>`);
+        if(anexoLink) parts.push(anexoLink);
+        return parts.length?`<span style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:.78rem">${parts.join('<span style="color:var(--border2);padding:0 1px">|</span>')}</span>`:'';
+      })():isHospRow?(
+        (m.hospHotel?`<span class="td-obs" style="max-width:none;font-weight:600;color:var(--text)">${esc(m.hospHotel)}</span>`:'')
+        +(m.hospDestino?`<span class="td-obs" style="max-width:none;color:var(--text-dim)">${esc(m.hospDestino)}</span>`:'')
+        +((m.hospCheckin||m.hospNoites)?`<span class="td-obs" style="max-width:none;color:var(--text-dim)">${[m.hospCheckin?'Check-in: '+fmtDate(m.hospCheckin):null,m.hospNoites?m.hospNoites+' noite'+(m.hospNoites>1?'s':''):null].filter(Boolean).join(' · ')}</span>`:'')
       ):(
         (m.obs&&!relLabel&&m.type!=='transferencia_enviada'&&m.type!=='transferencia_recebida'&&m.type!=='bonus_transferencia'?`<span class="td-obs" style="max-width:none" title="${esc(m.obs)}">${esc(m.obs)}</span>`:'')+
-        ((!isEmissaoRow&&m.link)?`<span style="margin-top:1px;display:block">${anexoLink}</span>`:'')
+        ((!isEmissaoRow&&!isHospRow&&m.link)?`<span style="margin-top:1px;display:block">${anexoLink}</span>`:'')
       )}
     </div>`;
     // Botão confirmar (só para pendentes)
@@ -3648,6 +3705,7 @@ function openAddMovement(){
   const dvTop=document.getElementById('mEmDataVooTop'); if(dvTop){ dvTop.value=''; if(dvTop._fp) dvTop._fp.clear(); }
   setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
+  ['mHotel','mHospDestino','mHospCheckin','mHospCheckout','mHospNoites','mHospQuartos','mHospPontos','mHospValor'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   setAnexoUI('m','','');
   onMovTypeChange();
   openModal('modalMovement');
@@ -3668,6 +3726,7 @@ function onMovTypeChange(){
   const t=document.getElementById('mType').value;
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   const isEmissao = t==='emissao_passagem';
+  const isHosp = t==='hospedagem';
   const benefToggle = document.getElementById('mBenefToggle');
   if(benefToggle){ benefToggle.style.display = isEmissao ? 'flex' : 'none'; }
   const ciaInline = document.getElementById('mCiaDataRowInline');
@@ -3678,12 +3737,13 @@ function onMovTypeChange(){
   if(hasVal) document.getElementById('mValueLabel').textContent = getValueLabel(t);
   document.getElementById('mResgateBox').classList.toggle('hidden',t!=='resgate'&&t!=='expiracao'&&t!=='ajuste_saida');
   document.getElementById('mEmissaoBox').classList.toggle('hidden',!isEmissao);
+  document.getElementById('mHospedagemBox').classList.toggle('hidden',!isHosp);
   // Label Pontos/Milhas e visibilidade do campo pontos
   const lbl=document.getElementById('mPointsLabel');
   if(lbl) lbl.textContent = isAerea ? 'Milhas *' : 'Pontos *';
-  // No modo emissão, o campo "pontos" é preenchido internamente via mEmMilhas
+  // No modo emissão ou hospedagem, pontos vêm dos campos específicos
   const ptsRow = document.getElementById('mPoints')?.closest('.frow');
-  if(ptsRow) ptsRow.style.display = isEmissao ? 'none' : '';
+  if(ptsRow) ptsRow.style.display = (isEmissao||isHosp) ? 'none' : '';
   if(isEmissao){
     const s=computeStats(selProg);
     const prog=db.programs.find(x=>x.id===selProg);
@@ -3735,15 +3795,19 @@ function saveMovement(){
   const type=document.getElementById('mType').value;
   const date=document.getElementById('mDate').value;
   const isEmissao = type==='emissao_passagem';
+  const isHosp = type==='hospedagem';
   // Para emissão de passagem, pontos = milhas usadas (do campo específico)
+  // Para hospedagem, pontos = campo mHospPontos
   const pts = isEmissao
     ? (parsePts(document.getElementById('mEmMilhas'))||0)
-    : parsePts(document.getElementById('mPoints'));
+    : isHosp
+      ? (parsePts(document.getElementById('mHospPontos'))||0)
+      : parsePts(document.getElementById('mPoints'));
   const val=parseMoney(document.getElementById('mValue'));
   const obs=document.getElementById('mObs').value.trim();
   const link=document.getElementById('mLink').value.trim();
   const linkName=document.getElementById('mFileName').textContent.replace('Nenhum arquivo','').trim();
-  if(!date||!pts){alert('Preencha data e '+(isEmissao?'milhas usadas':'pontos')+'.');return;}
+  if(!date||!pts){alert('Preencha data e '+(isEmissao?'milhas usadas':isHosp?'pontos usados':'pontos')+'.');return;}
   // compute resgate cost BEFORE adding this movement
   let resgateCost=null;
   if(MOV_DEBIT.has(type)&&type!=='transferencia_enviada'){
@@ -3751,6 +3815,15 @@ function saveMovement(){
     resgateCost=(pts/1000)*s.cpm;
   }
   const mov={id:uid(),programId:selProg,type,date,points:pts,value:val,obs,link,_linkName:linkName||undefined,resgateCost,_ts:Date.now()};
+  if(isHosp){
+    mov.hospHotel=document.getElementById('mHotel').value.trim()||undefined;
+    mov.hospDestino=document.getElementById('mHospDestino').value.trim()||undefined;
+    mov.hospCheckin=document.getElementById('mHospCheckin').value||undefined;
+    mov.hospCheckout=document.getElementById('mHospCheckout').value||undefined;
+    mov.hospNoites=parsePts(document.getElementById('mHospNoites'))||undefined;
+    mov.hospQuartos=parsePts(document.getElementById('mHospQuartos'))||undefined;
+    mov.hospValor=parseMoney(document.getElementById('mHospValor'))||undefined;
+  }
   if(isEmissao){
     mov.emCpm=parseMoney({value:(document.getElementById('mEmCpm').value||'0').replace(/\./g,'').replace(',','.')});
     mov.emTaxas=parseMoney(document.getElementById('mEmTaxas'));
@@ -3814,6 +3887,16 @@ function openEditMov(id){
     setEmBenef('em', m.emBenef||'propria');
     calcEmissao('em');
   }
+  if(m.type==='hospedagem'){
+    document.getElementById('emHotel').value=m.hospHotel||'';
+    document.getElementById('emHospDestino').value=m.hospDestino||'';
+    document.getElementById('emHospCheckin').value=m.hospCheckin||'';
+    document.getElementById('emHospCheckout').value=m.hospCheckout||'';
+    document.getElementById('emHospNoites').value=m.hospNoites?parseInt(m.hospNoites,10).toLocaleString('pt-BR'):'';
+    document.getElementById('emHospQuartos').value=m.hospQuartos?parseInt(m.hospQuartos,10).toLocaleString('pt-BR'):'';
+    document.getElementById('emHospPontos').value=m.points?parseInt(m.points,10).toLocaleString('pt-BR'):'';
+    document.getElementById('emHospValor').value=m.hospValor>0?fmtBRL(m.hospValor):'';
+  }
   onEditMovTypeChange();
   openModal('modalEditMov');
 }
@@ -3821,6 +3904,7 @@ function onEditMovTypeChange(){
   const t=document.getElementById('emType').value;
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   const isEmissao = t==='emissao_passagem';
+  const isHosp = t==='hospedagem';
   const emBenefToggle = document.getElementById('emBenefToggle');
   if(emBenefToggle){ emBenefToggle.style.display = isEmissao ? 'flex' : 'none'; }
   if(!isEmissao){ document.getElementById('emEmBenef').value='propria'; setEmBenef('em','propria'); }
@@ -3828,10 +3912,11 @@ function onEditMovTypeChange(){
   document.getElementById('emValueGroup').classList.toggle('hidden',!hasVal);
   if(hasVal) document.getElementById('emValueLabel').textContent = getValueLabel(t);
   document.getElementById('emEmissaoBox').classList.toggle('hidden',!isEmissao);
+  document.getElementById('emHospedagemBox').classList.toggle('hidden',!isHosp);
   const lbl=document.getElementById('emPointsLabel');
   if(lbl) lbl.textContent = isAerea ? 'Milhas *' : 'Pontos *';
   const emPtsRow = document.getElementById('emPoints')?.closest('.frow');
-  if(emPtsRow) emPtsRow.style.display = isEmissao ? 'none' : '';
+  if(emPtsRow) emPtsRow.style.display = (isEmissao||isHosp) ? 'none' : '';
   if(isEmissao){
     const s=computeStats(selProg);
     const prog=db.programs.find(x=>x.id===selProg);
@@ -3846,9 +3931,12 @@ function updateMovement(){
   const m=db.movements.find(x=>x.id===editMovId); if(!m) return;
   const type=document.getElementById('emType').value;
   const isEmissao = type==='emissao_passagem';
+  const isHosp = type==='hospedagem';
   const pts = isEmissao
     ? (parsePts(document.getElementById('emEmMilhas'))||0)
-    : parsePts(document.getElementById('emPoints'));
+    : isHosp
+      ? (parsePts(document.getElementById('emHospPontos'))||0)
+      : parsePts(document.getElementById('emPoints'));
   m.type=type;
   m.date=document.getElementById('emDate').value;
   m.points=pts;
@@ -3872,6 +3960,15 @@ function updateMovement(){
     m.emDataVoo=document.getElementById('emEmDataVoo').value||undefined;
     m.emBenef=document.getElementById('emEmBenef').value||'propria';
   } else { m.emCpm=undefined; m.emTaxas=undefined; m.emMercado=undefined; m.emTrecho=undefined; m.emCabine=undefined; }
+  if(isHosp){
+    m.hospHotel=document.getElementById('emHotel').value.trim()||undefined;
+    m.hospDestino=document.getElementById('emHospDestino').value.trim()||undefined;
+    m.hospCheckin=document.getElementById('emHospCheckin').value||undefined;
+    m.hospCheckout=document.getElementById('emHospCheckout').value||undefined;
+    m.hospNoites=parsePts(document.getElementById('emHospNoites'))||undefined;
+    m.hospQuartos=parsePts(document.getElementById('emHospQuartos'))||undefined;
+    m.hospValor=parseMoney(document.getElementById('emHospValor'))||undefined;
+  } else { m.hospHotel=undefined; m.hospDestino=undefined; m.hospCheckin=undefined; m.hospCheckout=undefined; m.hospNoites=undefined; m.hospQuartos=undefined; m.hospValor=undefined; }
   saveDB(); closeModal('modalEditMov'); render();
 }
 function deleteMovement(){
@@ -6294,7 +6391,8 @@ function vencSalvarData(progId, val){
 
     display.addEventListener('click',()=>openPicker(picker));
     display.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openPicker(picker); }});
-    cal.addEventListener('mousedown',e=>{ e.preventDefault(); handleCal(picker,e); });
+    cal.addEventListener('pointerdown',e=>{ e.preventDefault(); });
+    cal.addEventListener('click',e=>{ handleCal(picker,e); });
 
     // observer: se o valor mudar por JS (ex: openEditMov seta .value)
     const obs=new MutationObserver(()=>updateDisplay(picker));
