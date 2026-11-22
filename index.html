@@ -471,6 +471,12 @@ tr.row-pendente td{opacity:.85}
 
 /* Cost info box */
 .cost-info{background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);padding:.65rem .9rem;font-size:.75rem;color:var(--gold-text);margin-bottom:.85rem}
+.mov-cat-btn{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.5rem .25rem;font-size:.7rem;font-weight:600;color:var(--text-muted);background:var(--surface2);border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;line-height:1.2;text-align:center}
+.mov-cat-btn:hover{border-color:var(--accent);color:var(--text)}
+.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--text)}
+.mov-subchip{padding:.28rem .75rem;font-size:.78rem;font-weight:600;border-radius:20px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.mov-subchip:hover{border-color:var(--accent);color:var(--text)}
+.mov-subchip.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--text)}
 
 /* ── ROUTES PAGE ── */
 .routes-page{flex:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto}
@@ -1531,157 +1537,210 @@ body.layout-vertical .page-label{display:none}
 
 <!-- Add Movement -->
 <div class="overlay hidden" id="modalMovement" onkeydown="if(event.key==='Enter'&&event.target.tagName!=='TEXTAREA')saveMovement()">
-  <div class="modal">
-    <div class="modal-title">Registrar movimento</div>
-    <div class="fg"><label>Tipo *</label>
-      <select class="fs" id="mType" onchange="onMovTypeChange()">
-        <option value="acumulo_simples">Acúmulo orgânico</option>
-        <option value="ajuste_entrada">Ajuste de entrada</option>
-        <option value="ajuste_saida">Ajuste de saída</option>
-        <option value="bonus">Bônus</option>
-        <option value="bonus_transferencia">Bônus de transferência</option>
-        <option value="cashback">Cashback</option>
-        <option value="compra">Compra de pontos</option>
-        <option value="compra_bonificada">Compra bonificada</option>
-        <option value="emissao_passagem">Emissão de passagem</option>
-        <option value="expiracao">Expiração</option>
-        <option value="hospedagem">Hospedagem</option>
-        <option value="resgate">Resgate</option>
-      </select>
-      <div id="mBenefToggle" style="display:none;gap:6px;margin-top:.4rem">
-        <button type="button" id="mBenefPropria" onclick="setEmBenef('m','propria')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--gold);color:#000;font-weight:600;cursor:pointer">✈ Própria</button>
-        <button type="button" id="mBenefVenda" onclick="setEmBenef('m','terceiro')" style="flex:1;padding:.3rem .6rem;font-size:.75rem;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda</button>
-      </div>
-      <!-- CIA aérea + Data do voo: logo abaixo de Própria/Venda -->
-      <div id="mCiaDataRowInline" class="frow hidden" style="margin-top:.5rem">
-        <div class="fg">
-          <label style="font-variant:normal;text-transform:none">Cia aérea</label>
-          <input class="fi" id="mEmCiaTop" type="text" placeholder="LATAM, Gol, Azul…">
-        </div>
-        <div class="fg">
-          <label style="font-variant:normal;text-transform:none">Data do voo</label>
-          <input class="fi" id="mEmDataVooTop" type="text" placeholder="dd/mm/aaaa" autocomplete="off">
-        </div>
-      </div>
+  <div class="modal" style="max-width:520px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div class="modal-title" style="margin:0">Registrar movimento</div>
+      <input class="fi" id="mDate" type="date" style="width:140px;font-size:.85rem;padding:.3rem .5rem">
     </div>
-    <div class="frow">
-      <div class="fg"><label>Data *</label><input class="fi" id="mDate" type="date"></div>
-      <div class="fg"><label id="mPointsLabel">Pontos *</label>
-        <input class="fi fi-pts" id="mPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcResgate()">
-        <div style="display:flex;gap:4px;margin-top:5px">
-          <button type="button" onclick="addQuickPts(10000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+10k</button>
-          <button type="button" onclick="addQuickPts(25000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+25k</button>
-          <button type="button" onclick="addQuickPts(50000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+50k</button>
-          <button type="button" onclick="addQuickPts(100000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+100k</button>
-        </div>
-      </div>
-    </div>
-    <div class="fg hidden" id="mValueGroup"><label id="mValueLabel">Valor</label><input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
-    <div id="mResgateBox" class="hidden">
-      <div class="cost-info" id="mResgateCost">—</div>
-    </div>
-    <!-- Campos exclusivos: Emissão de passagem -->
-    <div id="mEmissaoBox" class="hidden">
-      <div class="frow">
-        <div class="fg">
-          <label id="mEmCpmLabel">CPM do programa</label>
-          <input class="fi" id="mEmCpm" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
-        </div>
-        <div class="fg">
-          <label>Milhas usadas</label>
-          <input class="fi fi-pts" id="mEmMilhas" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcEmissao('m')">
-        </div>
-      </div>
-      <div class="frow">
-        <div class="fg">
-          <label>Custo da emissão</label>
-          <input class="fi" id="mEmCusto" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
-        </div>
-        <div class="fg">
-          <label>Taxas</label>
-          <input class="fi fi-money" id="mEmTaxas" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('m')">
-        </div>
-      </div>
-      <div class="frow">
-        <div class="fg">
-          <label id="mEmMercadoLabel">Preço de mercado</label>
-          <input class="fi fi-money" id="mEmMercado" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('m')">
-        </div>
-        <div class="fg">
-          <label>Resultado líquido</label>
-          <input class="fi" id="mEmResultado" type="text" readonly placeholder="—" style="font-weight:600;color:#fff">
-        </div>
-      </div>
-      <div class="frow">
-        <div class="fg">
-          <label>Trecho</label>
-          <input class="fi" id="mEmTrecho" type="text" placeholder="GRU→JFK" style="text-transform:uppercase" oninput="iataAutoArrow(this)" onkeydown="iataKeydown(this,event)">
-        </div>
-        <div class="fg">
-          <label>Cabine</label>
-          <select class="fs" id="mEmCabine">
-            <option value="">—</option>
-            <option value="Econômica">Econômica</option>
-            <option value="Premium Economy">Premium Economy</option>
-            <option value="Executiva">Executiva</option>
-            <option value="Primeira Classe">Primeira Classe</option>
-          </select>
-        </div>
-      </div>
-      <input type="hidden" id="mEmBenef" value="propria">
-      <input type="hidden" id="mEmCia" value="">
-      <input type="hidden" id="mEmDataVoo" value="">
-    </div>
-    <!-- Campos exclusivos: Hospedagem -->
-    <div id="mHospedagemBox" class="hidden">
-      <div class="frow">
-        <div class="fg"><label>Hotel / Propriedade</label><input class="fi" id="mHotel" type="text" placeholder="Nome do hotel…"></div>
-        <div class="fg"><label>Destino</label><input class="fi" id="mHospDestino" type="text" placeholder="Cidade, País…"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Check-in</label><input class="fi" id="mHospCheckin" type="date"></div>
-        <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="date"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Noites</label><input class="fi fi-pts" id="mHospNoites" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
-        <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="mHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('m')"></div>
-        <div class="fg"><label>Valor da hospedagem (R$)</label><input class="fi fi-money" id="mHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcHospedagem('m')"></div>
-      </div>
-      <div class="frow" style="align-items:flex-end">
-        <div class="fg">
-          <label id="mHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPP do programa</label>
-          <input class="fi" id="mHospCpp" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
-        </div>
-        <div class="fg">
-          <label style="font-size:.74rem;color:var(--text-muted)">Custo dos pontos (R$)</label>
-          <input class="fi" id="mHospCusto" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
-        </div>
-        <div class="fg">
-          <label style="font-size:.74rem;color:var(--text-muted)">Resultado líquido (R$)</label>
-          <input class="fi" id="mHospResultado" readonly style="font-weight:700;cursor:default" placeholder="—" value="">
-        </div>
-      </div>
-    </div>
-    <div class="fg"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…"></textarea></div>
-    <div class="fg">
-      <label>Anexo</label>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('mFileInput').click()">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-          Selecionar arquivo
+
+    <!-- NÍVEL 1: Categoria principal -->
+    <div style="margin-bottom:.75rem">
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem">O que aconteceu?</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem" id="mCatCards">
+        <button type="button" class="mov-cat-btn" data-cat="acumulo" onclick="selectMovCat('acumulo')">
+          <span style="font-size:1.2rem">⭐</span>
+          <span>Acúmulo</span>
         </button>
-        <span id="mFileName" style="font-size:.78rem;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Nenhum arquivo</span>
-        <button type="button" id="mFileClear" onclick="clearAnexo('m')" style="display:none;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:.8rem;padding:0" title="Remover">✕</button>
+        <button type="button" class="mov-cat-btn" data-cat="compra" onclick="selectMovCat('compra')">
+          <span style="font-size:1.2rem">💳</span>
+          <span>Compra</span>
+        </button>
+        <button type="button" class="mov-cat-btn" data-cat="emissao" onclick="selectMovCat('emissao')" id="mCatEmissao">
+          <span style="font-size:1.2rem">✈️</span>
+          <span>Emissão</span>
+        </button>
+        <button type="button" class="mov-cat-btn" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
+          <span style="font-size:1.2rem">🏨</span>
+          <span>Hospedagem</span>
+        </button>
+        <button type="button" class="mov-cat-btn" data-cat="saida" onclick="selectMovCat('saida')">
+          <span style="font-size:1.2rem">📤</span>
+          <span>Saída</span>
+        </button>
       </div>
-      <input type="file" id="mFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleAnexoFile(this,'m')">
-      <input type="hidden" id="mLink">
     </div>
+
+    <!-- NÍVEL 2: Subtipo (chips) -->
+    <div id="mSubtypeRow" class="hidden" style="margin-bottom:.75rem">
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem">Qual tipo?</div>
+      <div id="mSubtypeChips" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
+    </div>
+
+    <!-- Campo oculto que armazena o tipo real para saveMovement() -->
+    <select id="mType" style="display:none" onchange="onMovTypeChange()">
+      <option value="acumulo_simples">Acúmulo orgânico</option>
+      <option value="ajuste_entrada">Ajuste de entrada</option>
+      <option value="ajuste_saida">Ajuste de saída</option>
+      <option value="bonus">Bônus</option>
+      <option value="bonus_transferencia">Bônus de transferência</option>
+      <option value="cashback">Cashback</option>
+      <option value="compra">Compra de pontos</option>
+      <option value="compra_bonificada">Compra bonificada</option>
+      <option value="emissao_passagem">Emissão de passagem</option>
+      <option value="expiracao">Expiração</option>
+      <option value="hospedagem">Hospedagem</option>
+      <option value="resgate">Resgate</option>
+    </select>
+
+    <!-- NÍVEL 3: Campos dinâmicos por tipo -->
+    <div id="mFieldsArea" class="hidden">
+
+      <!-- Campos base: pontos + valor (aparecem para a maioria) -->
+      <div id="mBasePtsRow">
+        <div class="frow">
+          <div class="fg" style="flex:2">
+            <label id="mPointsLabel">Pontos *</label>
+            <input class="fi fi-pts" id="mPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcResgate()">
+            <div style="display:flex;gap:4px;margin-top:5px">
+              <button type="button" onclick="addQuickPts(10000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+10k</button>
+              <button type="button" onclick="addQuickPts(25000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+25k</button>
+              <button type="button" onclick="addQuickPts(50000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+50k</button>
+              <button type="button" onclick="addQuickPts(100000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+100k</button>
+            </div>
+          </div>
+          <div class="fg hidden" id="mValueGroup" style="flex:1">
+            <label id="mValueLabel">Valor (R$)</label>
+            <input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)">
+          </div>
+        </div>
+        <div id="mResgateBox" class="hidden" style="margin-top:.4rem">
+          <div class="cost-info" id="mResgateCost">—</div>
+        </div>
+      </div>
+
+      <!-- Campos exclusivos: Emissão de passagem -->
+      <div id="mEmissaoBox" class="hidden">
+        <!-- Própria / Venda -->
+        <div style="display:flex;gap:6px;margin-bottom:.6rem" id="mBenefToggle">
+          <button type="button" id="mBenefPropria" onclick="setEmBenef('m','propria')" style="flex:1;padding:.35rem .6rem;font-size:.8rem;border-radius:8px;border:2px solid var(--gold);background:var(--gold);color:#000;font-weight:700;cursor:pointer">✈ Uso próprio</button>
+          <button type="button" id="mBenefVenda" onclick="setEmBenef('m','terceiro')" style="flex:1;padding:.35rem .6rem;font-size:.8rem;border-radius:8px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);font-weight:600;cursor:pointer">💰 Venda / Terceiro</button>
+        </div>
+        <!-- Cia + Data do voo -->
+        <div class="frow" id="mCiaDataRowInline" style="margin-bottom:.4rem">
+          <div class="fg">
+            <label style="font-variant:normal;text-transform:none">Cia aérea</label>
+            <input class="fi" id="mEmCiaTop" type="text" placeholder="LATAM, Gol, Azul…">
+          </div>
+          <div class="fg">
+            <label style="font-variant:normal;text-transform:none">Data do voo</label>
+            <input class="fi" id="mEmDataVooTop" type="text" placeholder="dd/mm/aaaa" autocomplete="off">
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <label id="mEmCpmLabel">CPM do programa</label>
+            <input class="fi" id="mEmCpm" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
+          </div>
+          <div class="fg">
+            <label>Milhas usadas *</label>
+            <input class="fi fi-pts" id="mEmMilhas" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcEmissao('m')">
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <label>Trecho</label>
+            <input class="fi" id="mEmTrecho" type="text" placeholder="GRU→JFK" style="text-transform:uppercase" oninput="iataAutoArrow(this)" onkeydown="iataKeydown(this,event)">
+          </div>
+          <div class="fg">
+            <label>Cabine</label>
+            <select class="fs" id="mEmCabine">
+              <option value="">—</option>
+              <option value="Econômica">Econômica</option>
+              <option value="Premium Economy">Premium Economy</option>
+              <option value="Executiva">Executiva</option>
+              <option value="Primeira Classe">Primeira Classe</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <label>Taxas (R$)</label>
+            <input class="fi fi-money" id="mEmTaxas" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('m')">
+          </div>
+          <div class="fg">
+            <label id="mEmMercadoLabel">Preço de mercado (R$)</label>
+            <input class="fi fi-money" id="mEmMercado" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcEmissao('m')">
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg">
+            <label>Custo da emissão (R$)</label>
+            <input class="fi" id="mEmCusto" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
+          </div>
+          <div class="fg">
+            <label>Resultado líquido (R$)</label>
+            <input class="fi" id="mEmResultado" type="text" readonly placeholder="—" style="font-weight:600;color:#fff">
+          </div>
+        </div>
+        <input type="hidden" id="mEmBenef" value="propria">
+        <input type="hidden" id="mEmCia" value="">
+        <input type="hidden" id="mEmDataVoo" value="">
+      </div>
+
+      <!-- Campos exclusivos: Hospedagem -->
+      <div id="mHospedagemBox" class="hidden">
+        <div class="frow">
+          <div class="fg"><label>Hotel / Propriedade</label><input class="fi" id="mHotel" type="text" placeholder="Nome do hotel…"></div>
+          <div class="fg"><label>Destino</label><input class="fi" id="mHospDestino" type="text" placeholder="Cidade, País…"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Check-in</label><input class="fi" id="mHospCheckin" type="date"></div>
+          <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="date"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Noites</label><input class="fi fi-pts" id="mHospNoites" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
+          <div class="fg"><label>Quartos</label><input class="fi fi-pts" id="mHospQuartos" type="text" inputmode="numeric" placeholder="1" oninput="maskPts(this)"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('m')"></div>
+          <div class="fg"><label>Valor da hospedagem (R$)</label><input class="fi fi-money" id="mHospValor" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcHospedagem('m')"></div>
+        </div>
+        <div class="frow" style="align-items:flex-end">
+          <div class="fg">
+            <label id="mHospCppLabel" style="font-size:.74rem;color:var(--text-muted)">CPP do programa</label>
+            <input class="fi" id="mHospCpp" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
+          </div>
+          <div class="fg">
+            <label style="font-size:.74rem;color:var(--text-muted)">Custo dos pontos (R$)</label>
+            <input class="fi" id="mHospCusto" readonly style="opacity:.7;cursor:default" placeholder="—" value="">
+          </div>
+          <div class="fg">
+            <label style="font-size:.74rem;color:var(--text-muted)">Resultado líquido (R$)</label>
+            <input class="fi" id="mHospResultado" readonly style="font-weight:700;cursor:default" placeholder="—" value="">
+          </div>
+        </div>
+      </div>
+
+      <!-- Observações + Anexo (sempre visíveis quando campos estão abertos) -->
+      <div class="fg" style="margin-top:.5rem"><label>Observações</label><textarea class="fta" id="mObs" placeholder="Detalhes sobre este movimento…" style="min-height:56px"></textarea></div>
+      <div class="fg">
+        <label>Anexo</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('mFileInput').click()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            Selecionar arquivo
+          </button>
+          <span id="mFileName" style="font-size:.78rem;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Nenhum arquivo</span>
+          <button type="button" id="mFileClear" onclick="clearAnexo('m')" style="display:none;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:.8rem;padding:0" title="Remover">✕</button>
+        </div>
+        <input type="file" id="mFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleAnexoFile(this,'m')">
+        <input type="hidden" id="mLink">
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('modalMovement')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveMovement()">Registrar</button>
+      <button class="btn btn-primary" id="mSaveBtn" onclick="saveMovement()" style="display:none">Registrar</button>
     </div>
   </div>
 </div>
@@ -3956,11 +4015,17 @@ function checkVencimentosBadge(){
 
 function openAddMovement(){
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
-  // Mostrar/ocultar opção Emissão de passagem (só para aéreas)
-  const optEmissao = document.querySelector('#mType option[value="emissao_passagem"]');
-  if(optEmissao) optEmissao.style.display = isAerea ? '' : 'none';
+  // Mostrar/ocultar card Emissão (só para aéreas)
+  const catEmissao = document.getElementById('mCatEmissao');
+  if(catEmissao) catEmissao.style.display = isAerea ? '' : 'none';
   const optEmissaoEm = document.querySelector('#emType option[value="emissao_passagem"]');
   if(optEmissaoEm) optEmissaoEm.style.display = isAerea ? '' : 'none';
+  // Reset cascata
+  document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mSubtypeRow').classList.add('hidden');
+  document.getElementById('mSubtypeChips').innerHTML='';
+  document.getElementById('mFieldsArea').classList.add('hidden');
+  document.getElementById('mSaveBtn').style.display='none';
   document.getElementById('mType').value='acumulo_simples';
   document.getElementById('mDate').value=today();
   document.getElementById('mPoints').value='';
@@ -3995,15 +4060,69 @@ function setEmBenef(prefix, val){
   const mktLabel = document.getElementById(mktLabelId);
   if(mktLabel) mktLabel.textContent = val==='terceiro' ? 'Preço de venda' : 'Preço de mercado';
 }
+// Mapa de categorias → subtipos
+const MOV_CATS = {
+  acumulo: [
+    {v:'acumulo_simples', l:'Orgânico'},
+    {v:'bonus',          l:'Bônus'},
+    {v:'bonus_transferencia', l:'Bônus de transf.'},
+    {v:'cashback',       l:'Cashback'},
+    {v:'ajuste_entrada', l:'Ajuste de entrada'},
+  ],
+  compra: [
+    {v:'compra',          l:'Compra direta'},
+    {v:'compra_bonificada',l:'Compra bonificada'},
+  ],
+  emissao: [
+    {v:'emissao_passagem', l:'Emissão de passagem'},
+  ],
+  hospedagem: [
+    {v:'hospedagem', l:'Hospedagem'},
+  ],
+  saida: [
+    {v:'resgate',      l:'Resgate'},
+    {v:'expiracao',    l:'Expiração'},
+    {v:'ajuste_saida', l:'Ajuste de saída'},
+  ],
+};
+
+function selectMovCat(cat){
+  // Atualiza estado visual dos cards
+  document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
+  // Monta chips de subtipo
+  const subs = MOV_CATS[cat]||[];
+  const chipsEl = document.getElementById('mSubtypeChips');
+  const subtypeRow = document.getElementById('mSubtypeRow');
+  chipsEl.innerHTML = '';
+  subs.forEach((s,i)=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='mov-subchip'+(i===0?' active':'');
+    btn.textContent=s.l;
+    btn.dataset.val=s.v;
+    btn.onclick=()=>selectMovSubtype(s.v, chipsEl);
+    chipsEl.appendChild(btn);
+  });
+  subtypeRow.classList.remove('hidden');
+  // Auto-seleciona o primeiro subtipo
+  selectMovSubtype(subs[0].v, chipsEl);
+}
+
+function selectMovSubtype(val, chipsEl){
+  if(chipsEl) chipsEl.querySelectorAll('.mov-subchip').forEach(b=>b.classList.toggle('active', b.dataset.val===val));
+  const sel = document.getElementById('mType');
+  sel.value = val;
+  onMovTypeChange();
+  // Mostra área de campos e botão Registrar
+  document.getElementById('mFieldsArea').classList.remove('hidden');
+  document.getElementById('mSaveBtn').style.display='';
+}
+
 function onMovTypeChange(){
   const t=document.getElementById('mType').value;
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   const isEmissao = t==='emissao_passagem';
   const isHosp = t==='hospedagem';
-  const benefToggle = document.getElementById('mBenefToggle');
-  if(benefToggle){ benefToggle.style.display = isEmissao ? 'flex' : 'none'; }
-  const ciaInline = document.getElementById('mCiaDataRowInline');
-  if(ciaInline){ ciaInline.classList.toggle('hidden', !isEmissao); }
   if(!isEmissao){ document.getElementById('mEmBenef').value='propria'; setEmBenef('m','propria'); }
   const hasVal = MOV_HAS_VALUE.has(t);
   document.getElementById('mValueGroup').classList.toggle('hidden',!hasVal);
@@ -4011,12 +4130,9 @@ function onMovTypeChange(){
   document.getElementById('mResgateBox').classList.toggle('hidden',t!=='resgate'&&t!=='expiracao'&&t!=='ajuste_saida');
   document.getElementById('mEmissaoBox').classList.toggle('hidden',!isEmissao);
   document.getElementById('mHospedagemBox').classList.toggle('hidden',!isHosp);
-  // Label Pontos/Milhas e visibilidade do campo pontos
+  document.getElementById('mBasePtsRow').style.display = (isEmissao||isHosp) ? 'none' : '';
   const lbl=document.getElementById('mPointsLabel');
   if(lbl) lbl.textContent = isAerea ? 'Milhas *' : 'Pontos *';
-  // No modo emissão ou hospedagem, pontos vêm dos campos específicos
-  const ptsRow = document.getElementById('mPoints')?.closest('.frow');
-  if(ptsRow) ptsRow.style.display = (isEmissao||isHosp) ? 'none' : '';
   if(isEmissao){
     const s=computeStats(selProg);
     const prog=db.programs.find(x=>x.id===selProg);
