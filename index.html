@@ -6773,7 +6773,29 @@ function cRenderExtrato(){
   cAtualizarFiltroSelect();
   const tbody=document.getElementById('cExtratoBody');
   const kpiArea=document.getElementById('cKpiArea');
-  const list=cFilterPlano?cMovimentos.filter(m=>m.planoId===cFilterPlano):cMovimentos;
+
+  // Movimentos do Clube (cMovimentos) + movimentos gerais de assinatura sem vínculo a plano do Clube
+  const cMovIds=new Set(cMovimentos.map(m=>m._dbMovId).filter(Boolean));
+  const assinaturasGerais=(db&&db.movements||[]).filter(m=>m.type==='assinatura'&&!cMovIds.has(m.id));
+  // Converter movimentos gerais para formato do Clube (readonly)
+  const assinaturasConvertidas=assinaturasGerais.map(m=>{
+    const prog=db.programs&&db.programs.find(x=>x.id===m.programId);
+    return {
+      id:'_dbmov_'+m.id,
+      _dbMovId:m.id,
+      _fromDb:true,
+      planoId:null,
+      date:m.date||'',
+      pts:m.points||0,
+      status:'confirmado',
+      mes:m.month||null,
+      total:null,
+      _progName:prog?prog.name:(m.program||m.programId||''),
+    };
+  });
+  const listBase=cFilterPlano?cMovimentos.filter(m=>m.planoId===cFilterPlano):
+    [...cMovimentos,...(cFilterPlano?[]:assinaturasConvertidas)];
+  const list=listBase;
   if(!list.length){
     tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem 0;font-size:.82rem">Nenhum movimento.</td></tr>';
     document.getElementById('cExtratoResumo').textContent='';
@@ -6805,11 +6827,17 @@ function cRenderExtrato(){
   // Agrupar por programa + ano, ordenado do mais recente para o mais antigo
   const grupos = {};
   [...list].sort((a,b)=>b.date.localeCompare(a.date)).forEach(m=>{
-    const plano=cPlanos.find(p=>p.id===m.planoId)||{nome:'?'};
-    const progName=plano.programaId?(db.programs.find(x=>x.id===plano.programaId)?.name||plano.programa||plano.nome):plano.programa||plano.nome;
-    const ano=m.date.slice(0,4);
+    let progName;
+    if(m._fromDb){
+      progName=m._progName||'Assinatura';
+    } else {
+      const plano=cPlanos.find(p=>p.id===m.planoId)||{nome:'?'};
+      progName=plano.programaId?(db.programs.find(x=>x.id===plano.programaId)?.name||plano.programa||plano.nome):plano.programa||plano.nome;
+    }
+    const ano=m.date?m.date.slice(0,4):'—';
     const key=`${progName}__${ano}`;
     if(!grupos[key]) grupos[key]={progName,ano,movs:[]};
+    const plano=cPlanos.find(p=>p.id===m.planoId)||{nome:''};
     grupos[key].movs.push({m,plano});
   });
 
@@ -6826,15 +6854,20 @@ function cRenderExtrato(){
         :isRev?`<span class="badge" style="background:rgba(160,124,236,.18);color:var(--purple);border:1px solid rgba(160,124,236,.4)">⚠ Revisão</span>`
         :`<span class="badge badge-pendente">Pendente</span>`;
       const sub=m.total?`${m.mes}/${m.total}`:m.mes?`${m.mes}`:`—`;
+      // Movimentos _fromDb: somente leitura, sem ações de confirmar/cancelar
+      const isReadonly=!!m._fromDb;
       const acaoConfirm=`<button class="btn-icon" style="border-color:var(--green);color:var(--green)" onclick="cConfirmar('${m.id}')" title="Confirmar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg></button>`;
       const acaoCancelar=`<button class="btn-icon" style="border-color:var(--red);color:var(--red)" onclick="cCancelarMov('${m.id}')" title="Cancelar"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
-      const acao=(isPend||isRev)?`<div style="display:flex;gap:3px;justify-content:flex-end">${acaoConfirm}${acaoCancelar}</div>`:'';
-      const rowBg=isRev?'background:rgba(160,124,236,.05)':'';
-      const rowClick=(isOk||isCan)?`onclick="cReverterMov('${m.id}')" style="cursor:pointer;${rowBg}" title="Clique para reverter para pendente"`:`style="${rowBg}"`;
+      const dbTag=isReadonly?`<span style="font-size:.6rem;color:var(--text-dim);border:1px solid var(--border);border-radius:3px;padding:1px 4px">Geral</span>`:'';
+      const acao=isReadonly?'':((isPend||isRev)?`<div style="display:flex;gap:3px;justify-content:flex-end">${acaoConfirm}${acaoCancelar}</div>`:'');
+      const rowBg=isRev?'background:rgba(160,124,236,.05)':(isReadonly?'background:rgba(255,255,255,.01)':'');
+      const rowClick=(!isReadonly&&(isOk||isCan))?`onclick="cReverterMov('${m.id}')" style="cursor:pointer;${rowBg}" title="Clique para reverter para pendente"`:`style="${rowBg}"`;
+      const nomePlanoCell=isReadonly?`<div style="font-size:.72rem;color:var(--text-dim)">Assinatura</div>`:
+        `<div style="font-size:.72rem;color:var(--text-dim)">${(plano.programaId||plano.programa)?plano.nome:''}</div>`;
       return `<tr class="cg-row ${gId}-row ${isPend?'pending':''} ${isCan?'canceled':''}" ${rowClick}>
         <td style="font-size:.75rem;font-weight:700;color:var(--text-dim);white-space:nowrap;text-align:center">${sub}</td>
-        <td style="font-size:.75rem;white-space:nowrap">${m.date.split('-').reverse().join('/')}</td>
-        <td><div style="font-size:.72rem;color:var(--text-dim)">${(plano.programaId||plano.programa)?plano.nome:''}</div></td>
+        <td style="font-size:.75rem;white-space:nowrap">${m.date?(m.date.split('-').reverse().join('/')):'—'}</td>
+        <td>${nomePlanoCell}${dbTag}</td>
         <td style="color:${isOk?'var(--green)':isCan?'var(--text-muted)':isRev?'var(--purple)':'rgba(224,176,58,.8)'};font-weight:700;font-size:.85rem">${isCan?'—':'+'+fmtNum(m.pts)}</td>
         <td>${badge}</td>
         <td style="text-align:right;white-space:nowrap;width:56px;padding:0.5rem 2px 0.5rem 0">${acao}</td>
@@ -7154,6 +7187,41 @@ window.showPage=function(page, el){
   if(page==='clube'){ cPopularSelectPrograma(); cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); }
 };
 
+// ─── Vencimentos helpers ───────────────────────────────────────────────────
+function _vencGetLotes(p){
+  // Migração backward-compat: se só tem p.expiry (string), converte para array
+  if(!p.expiries){
+    if(p.expiry) return [{id:'legacy',pts:0,date:p.expiry}];
+    return [];
+  }
+  return p.expiries;
+}
+function _vencProximaData(lotes){
+  const futuras=lotes.filter(l=>l.date);
+  if(!futuras.length) return null;
+  return futuras.map(l=>l.date).sort()[0];
+}
+function _vencDiasBadge(date){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const exp=new Date(date+'T00:00:00');
+  const dias=Math.round((exp-today)/(1000*60*60*24));
+  let badge='',borderColor='var(--border)',diasLabel='';
+  if(dias<0){
+    badge=`<span style="background:var(--surface3);color:var(--text-muted);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">Expirado</span>`;
+    borderColor='var(--border)'; diasLabel='Expirado';
+  } else if(dias<=30){
+    badge=`<span style="background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">⚠ ${dias}d</span>`;
+    borderColor='var(--red)'; diasLabel=`${dias} dias`;
+  } else if(dias<=90){
+    badge=`<span style="background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">${dias}d</span>`;
+    borderColor='var(--gold)'; diasLabel=`${dias} dias`;
+  } else {
+    badge=`<span style="background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">${dias}d</span>`;
+    borderColor='var(--green)'; diasLabel=`${dias} dias`;
+  }
+  return {badge,borderColor,diasLabel,dias};
+}
+
 function renderVencimentos(){
   const today=new Date(); today.setHours(0,0,0,0);
   const progs=db.programs||[];
@@ -7166,11 +7234,13 @@ function renderVencimentos(){
     else if(typeof MOV_DEBIT!=='undefined'&&MOV_DEBIT.has(m.type)) saldos[m.programId]-=m.points||0;
   });
 
-  // KPIs
+  // KPIs — baseado na data de lote mais próxima de cada programa
   let vencendo30=0, vencendo90=0, semVencimento=0;
   progs.forEach(p=>{
-    if(!p.expiry){ semVencimento++; return; }
-    const exp=new Date(p.expiry+'T00:00:00');
+    const lotes=_vencGetLotes(p);
+    const proxData=_vencProximaData(lotes);
+    if(!proxData){ semVencimento++; return; }
+    const exp=new Date(proxData+'T00:00:00');
     const dias=Math.round((exp-today)/(1000*60*60*24));
     if(dias<=30) vencendo30++;
     else if(dias<=90) vencendo90++;
@@ -7199,60 +7269,148 @@ function renderVencimentos(){
   if(progs.length===0){ list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem">Nenhum programa cadastrado.</div>'; return; }
 
   const sorted=[...progs].sort((a,b)=>{
-    if(!a.expiry&&!b.expiry) return a.name.localeCompare(b.name);
-    if(!a.expiry) return 1;
-    if(!b.expiry) return -1;
-    return a.expiry.localeCompare(b.expiry);
+    const da=_vencProximaData(_vencGetLotes(a));
+    const db2=_vencProximaData(_vencGetLotes(b));
+    if(!da&&!db2) return a.name.localeCompare(b.name);
+    if(!da) return 1; if(!db2) return -1;
+    return da.localeCompare(db2);
   });
 
   list.innerHTML=sorted.map(p=>{
+    const lotes=_vencGetLotes(p);
     const saldo=(saldos[p.id]||0);
     const saldoFmt=saldo.toLocaleString('pt-BR');
-    let badge='', diasLabel='', borderColor='var(--border)';
-    if(p.expiry){
-      const exp=new Date(p.expiry+'T00:00:00');
-      const dias=Math.round((exp-today)/(1000*60*60*24));
-      if(dias<0){
-        badge=`<span style="background:var(--surface3);color:var(--text-muted);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">Expirado</span>`;
-        borderColor='var(--border)'; diasLabel='Expirado';
-      } else if(dias<=30){
-        badge=`<span style="background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">⚠ ${dias}d</span>`;
-        borderColor='var(--red)'; diasLabel=`${dias} dias restantes`;
-      } else if(dias<=90){
-        badge=`<span style="background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">${dias}d</span>`;
-        borderColor='var(--gold)'; diasLabel=`${dias} dias restantes`;
-      } else {
-        badge=`<span style="background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:600">${dias}d</span>`;
-        borderColor='var(--green)'; diasLabel=`${dias} dias restantes`;
-      }
+    const proxData=_vencProximaData(lotes);
+    let mainBadge='',mainBorder='var(--border)',mainDias='';
+    if(proxData){
+      const r=_vencDiasBadge(proxData);
+      mainBadge=r.badge; mainBorder=r.borderColor; mainDias=r.diasLabel;
     }
     const dot=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${p.color||'#7b6fe8'};margin-right:6px;flex-shrink:0"></span>`;
-    return `<div style="background:var(--surface2);border:1px solid ${borderColor};border-radius:var(--radius);padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem">
-      ${dot}
-      <div style="flex:1">
-        <div style="font-size:.88rem;font-weight:600;color:var(--text)">${p.name}</div>
-        <div style="font-size:.73rem;color:var(--text-muted);margin-top:2px">${saldoFmt} pts${diasLabel?' · '+diasLabel:' · Sem vencimento configurado'}</div>
+    const ptsLotes=lotes.reduce((s,l)=>s+(parseInt(l.pts)||0),0);
+    const sumLabel=lotes.length>0?`${lotes.length} lote${lotes.length>1?'s':''}${ptsLotes>0?' · '+ptsLotes.toLocaleString('pt-BR')+' pts':''}`:null;
+
+    // Render dos lotes
+    const lotesHtml=lotes.map(l=>{
+      const lr=l.date?_vencDiasBadge(l.date):{badge:'',borderColor:'var(--border)',diasLabel:''};
+      return `<div style="display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--surface3);border-radius:7px;border:1px solid ${lr.borderColor}">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <input type="number" placeholder="Qtd. pontos" value="${l.pts||''}"
+              min="0" step="1000"
+              style="width:110px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit"
+              onchange="vencLoteAtualizar('${p.id}','${l.id}','pts',this.value)">
+            <input type="date" value="${l.date||''}"
+              style="border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit;cursor:pointer"
+              onchange="vencLoteAtualizar('${p.id}','${l.id}','date',this.value)">
+            ${l.date?lr.badge:''}
+          </div>
+        </div>
+        <button onclick="vencLoteRemover('${p.id}','${l.id}')" title="Remover lote"
+          style="border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:5px;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;line-height:1">×</button>
+      </div>`;
+    }).join('');
+
+    const addBtnId='vencAddBtn_'+p.id;
+    const lotesPanelId='vencLotes_'+p.id;
+    const isOpen=window._vencOpen&&window._vencOpen[p.id];
+
+    return `<div style="background:var(--surface2);border:1px solid ${mainBorder};border-radius:var(--radius);overflow:hidden;margin-bottom:0">
+      <div style="padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer" onclick="vencTogglePrograma('${p.id}')">
+        ${dot}
+        <div style="flex:1">
+          <div style="font-size:.88rem;font-weight:600;color:var(--text)">${p.name}</div>
+          <div style="font-size:.73rem;color:var(--text-muted);margin-top:2px">${saldoFmt} pts${sumLabel?' · '+sumLabel:' · Sem lotes de vencimento'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          ${mainBadge}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" style="transform:rotate(${isOpen?'180deg':'0deg'});transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:.5rem">
-        ${badge}
-        <input type="date" value="${p.expiry||''}"
-          style="border:1px solid var(--border);background:var(--surface3);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:inherit;cursor:pointer"
-          onchange="vencSalvarData('${p.id}',this.value);renderVencimentos()">
+      <div id="${lotesPanelId}" style="display:${isOpen?'block':'none'};border-top:1px solid var(--border);padding:.75rem 1rem;background:var(--surface)">
+        <div style="display:flex;flex-direction:column;gap:.5rem" id="vencLotesInner_${p.id}">
+          ${lotesHtml||'<div style="font-size:.75rem;color:var(--text-muted);text-align:center;padding:.5rem 0">Nenhum lote. Clique em "+ Adicionar lote" para configurar.</div>'}
+        </div>
+        <button id="${addBtnId}" onclick="vencLoteAdicionar('${p.id}')"
+          style="margin-top:.65rem;width:100%;padding:.45rem;border:1px dashed var(--border);background:transparent;color:var(--text-muted);border-radius:7px;cursor:pointer;font-size:.75rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:.3rem">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Adicionar lote
+        </button>
       </div>
     </div>`;
   }).join('');
 }
+window._vencOpen={};
+function vencTogglePrograma(progId){
+  window._vencOpen=window._vencOpen||{};
+  window._vencOpen[progId]=!window._vencOpen[progId];
+  const panel=document.getElementById('vencLotes_'+progId);
+  if(panel){ panel.style.display=window._vencOpen[progId]?'block':'none'; }
+  // rotacionar chevron
+  const header=panel&&panel.previousElementSibling;
+  if(header){
+    const chevron=header.querySelector('svg:last-child');
+    if(chevron) chevron.style.transform=window._vencOpen[progId]?'rotate(180deg)':'rotate(0deg)';
+  }
+}
+window.vencTogglePrograma=vencTogglePrograma;
 
-function vencSalvarData(progId, val){
-  const p=db.programs.find(x=>x.id===progId);
-  if(p){ p.expiry=val||null; saveDB(); }
-  // atualiza badge na nav se houver vencimentos críticos
+function vencLoteAdicionar(progId){
+  const p=db.programs.find(x=>x.id===progId); if(!p) return;
+  if(!p.expiries) p.expiries=_vencGetLotes(p).filter(l=>l.id!=='legacy');
+  const newId='lote_'+Date.now();
+  p.expiries.push({id:newId,pts:0,date:''});
+  if(p.expiry) delete p.expiry; // migrar legacy
+  saveDB(); renderVencimentos();
+  // manter painel aberto
+  window._vencOpen=window._vencOpen||{}; window._vencOpen[progId]=true;
+  const panel=document.getElementById('vencLotes_'+progId);
+  if(panel) panel.style.display='block';
+}
+window.vencLoteAdicionar=vencLoteAdicionar;
+
+function vencLoteAtualizar(progId,loteId,campo,valor){
+  const p=db.programs.find(x=>x.id===progId); if(!p) return;
+  if(!p.expiries) p.expiries=_vencGetLotes(p).filter(l=>l.id!=='legacy');
+  if(p.expiry) delete p.expiry;
+  const lote=p.expiries.find(l=>l.id===loteId);
+  if(!lote) return;
+  if(campo==='pts') lote.pts=parseInt(valor)||0;
+  else if(campo==='date') lote.date=valor||'';
+  saveDB();
+  _vencAtualizarNavBadge();
+}
+window.vencLoteAtualizar=vencLoteAtualizar;
+
+function vencLoteRemover(progId,loteId){
+  const p=db.programs.find(x=>x.id===progId); if(!p) return;
+  if(!p.expiries) p.expiries=_vencGetLotes(p).filter(l=>l.id!=='legacy');
+  if(p.expiry) delete p.expiry;
+  p.expiries=p.expiries.filter(l=>l.id!==loteId);
+  saveDB(); renderVencimentos();
+  window._vencOpen=window._vencOpen||{}; window._vencOpen[progId]=true;
+  const panel=document.getElementById('vencLotes_'+progId);
+  if(panel) panel.style.display='block';
+}
+window.vencLoteRemover=vencLoteRemover;
+
+function _vencAtualizarNavBadge(){
   const today=new Date(); today.setHours(0,0,0,0);
-  const critico=(db.programs||[]).some(p=>p.expiry&&Math.round((new Date(p.expiry+'T00:00:00')-today)/(1000*60*60*24))<=30);
+  const critico=(db.programs||[]).some(p=>{
+    const lotes=_vencGetLotes(p);
+    return lotes.some(l=>l.date&&Math.round((new Date(l.date+'T00:00:00')-today)/(1000*60*60*24))<=30);
+  });
   const icon=document.getElementById('vencTabIcon');
   if(icon) icon.style.color=critico?'var(--red)':'';
   const mIcon=document.getElementById('vencMobileIcon');
   if(mIcon) mIcon.style.color=critico?'var(--red)':'';
+}
+
+function vencSalvarData(progId, val){
+  // legacy — mantido para compatibilidade
+  const p=db.programs.find(x=>x.id===progId);
+  if(p){ p.expiry=val||null; saveDB(); }
+  _vencAtualizarNavBadge();
 }
 
 })();
