@@ -2283,7 +2283,7 @@ function ensureDBDefaults(){
   if(!db.aliancaMap) db.aliancaMap={};
 }
 function _migrateDB(opts={}){
-  // Migração: corrige movimentos de assinatura de clube gravados com type/value errados
+  // Migração: corrige movimentos com types legados e dados de clube incorretos
   // opts.noSave=true quando chamado pelo onSnapshot (evita sobrescrever Firebase com versão antiga)
   if(!db||!db.movements) return;
   // Lê clube data do localStorage (independente do escopo das variáveis)
@@ -2292,6 +2292,8 @@ function _migrateDB(opts={}){
   try{ _cm=JSON.parse(localStorage.getItem('clube_movimentos')||'[]'); }catch(e){}
   let dirty=false;
   db.movements.forEach(mov=>{
+    // Migra tipo legado 'saldo_inicial' para 'ajuste_entrada' (contabiliza no saldo)
+    if(mov.type==='saldo_inicial'){ mov.type='ajuste_entrada'; dirty=true; }
     if(mov._clube && mov.type==='acumulo_simples'){ mov.type='assinatura'; dirty=true; }
     if(mov._clube && mov.type==='assinatura'){
       const cMov=_cm.find(c=>c.id===mov._clube);
