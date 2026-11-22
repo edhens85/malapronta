@@ -3170,10 +3170,9 @@ function renderSummary(){
   }
   const elGHosp=document.getElementById('sumEconomiaHosp');
   if(elGHosp){ elGHosp.textContent=gHasHosp?(gHosp>=0?'R$ '+fmtBRL(gHosp):'- R$ '+fmtBRL(Math.abs(gHosp))):'—'; elGHosp.style.color=gHasHosp?(gHosp>=0?'var(--green)':'var(--red)'):''; }
-  // mostra faixa emissões só se houver emissões ou hospedagens
-  const hasEmissoes = (db.movements||[]).some(m=>(m.type==='emissao_passagem'||m.type==='hospedagem')&&!m.pendente);
+  // faixa de emissões sempre visível
   const esEl=document.getElementById('emissoesSummary');
-  if(esEl) esEl.style.display=(hasEmissoes&&(gHasEco||gHasRes||gHasHosp))?'':'none';
+  if(esEl) esEl.style.display='';
 }
 
 // Cotações de mercado (fonte: Voyagers/mercado - atualizado Nov 2026)
