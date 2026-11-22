@@ -2233,27 +2233,21 @@ async function loadDBFromFirestore(uid){
     const snap = await Promise.race([window._fbGetDoc(uid), timeoutPromise]);
     if(snap.exists() && snap.data().db){
       const remoteDB = snap.data().db;
-      // Compara com localStorage: usa o que tiver movimentos mais recentes (_ts mais alto)
+      // Mescla movimentos do localStorage que não chegaram ao Firebase (save pendente)
       let localDB = null;
       try{ const r=localStorage.getItem('milhas_v3'); if(r) localDB=JSON.parse(r); }catch(e){}
-      let useRemote = true;
+      db = remoteDB;
       if(localDB && localDB.movements && remoteDB.movements){
-        // Encontra o _ts mais alto de cada versão
-        const localMax = localDB.movements.reduce((m,x)=>Math.max(m,x._ts||0),0);
-        const remoteMax = remoteDB.movements.reduce((m,x)=>Math.max(m,x._ts||0),0);
-        // Usa local se tiver movimento mais recente que o remoto (indica save pendente)
-        if(localMax > remoteMax) useRemote = false;
-        // Também usa local se tiver mais movimentos na mesma janela de tempo (dentro de 5s)
-        if(useRemote && localDB.movements.length > remoteDB.movements.length && (localMax - remoteMax) < 5000) useRemote = false;
+        const remoteIds = new Set(remoteDB.movements.map(m=>m.id));
+        const missing = localDB.movements.filter(m=>m.id && !remoteIds.has(m.id));
+        if(missing.length > 0){
+          // Há movimentos locais que não chegaram ao Firebase — adiciona e re-salva
+          db.movements = [...remoteDB.movements, ...missing];
+          setTimeout(()=>{ if(window._fbCurrentUid===uid) saveDB(); }, 500);
+        }
       }
-      db = useRemote ? remoteDB : localDB;
       ensureDBDefaults();
-      // Se usou local (Firebase atrasado), re-envia para o Firebase
-      if(!useRemote){
-        setTimeout(()=>{ if(window._fbCurrentUid===uid) saveDB(); }, 1000);
-      } else {
-        try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
-      }
+      try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
     } else {
       // Documento não existe ainda — começa vazio (não usa localStorage de outro dispositivo)
       db = {programs:[],movements:[],routes:[],airlines:[...CIAS_PRESET],aliancaMap:{}};
