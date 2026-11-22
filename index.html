@@ -4806,13 +4806,13 @@ function renderRelatorios(){
     const obs=[m.obs,det].filter(Boolean).join(' — ');
     const badge=`<span class="b-${m.type}" style="font-size:.6rem;padding:.15rem .4rem;border-radius:4px;font-weight:700;white-space:nowrap">${esc(MOV_LABELS[m.type]||m.type)}</span>`;
     return `<tr style="cursor:pointer" onclick="selectProg('${p.id}');setTimeout(()=>openEditMov('${m.id}'),250)">
-      <td style="white-space:nowrap;color:var(--text-muted);font-size:.75rem">${m.date||'—'}</td>
+      <td style="white-space:nowrap;font-size:.75rem">${fmtDate(m.date)||'—'}</td>
       <td style="white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:5px">${getProgLogo(p,16,4)}<span style="font-size:.78rem">${esc(p.name)}</span></span></td>
       <td>${badge}</td>
       <td style="text-align:right;font-weight:600;color:${ptsColor};white-space:nowrap">${ptsStr}</td>
       <td style="text-align:right;white-space:nowrap">${valStr}</td>
-      <td style="text-align:right;white-space:nowrap;color:var(--text-muted);font-size:.75rem">${cpmStr}</td>
-      <td style="font-size:.75rem;color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(obs)}">${esc(obs)||'—'}</td>
+      <td style="text-align:right;white-space:nowrap;font-size:.75rem">${cpmStr}</td>
+      <td style="font-size:.75rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(obs)}">${esc(obs)||'—'}</td>
       <td><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></td>
     </tr>`;
   }).join('');
