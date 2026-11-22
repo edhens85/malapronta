@@ -222,7 +222,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .nav-tab.active svg{stroke:var(--gold)}
 /* dropdown emissões */
 .nav-dropdown{position:relative}
-.nav-dropdown-menu{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);padding-top:8px;z-index:300;min-width:168px}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;padding-top:8px;z-index:300;min-width:168px}
 .nav-dropdown-menu-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.45);padding:4px;display:flex;flex-direction:column}
 .nav-dropdown:hover .nav-dropdown-menu{display:block}
 .nav-dropdown-item{display:flex;align-items:center;gap:8px;padding:.45rem .75rem;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);background:none;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .12s,color .12s;width:100%;text-align:left}
@@ -787,8 +787,8 @@ body.layout-vertical .page-label{display:none}
     </button>
     <div class="nav-dropdown" id="navDropdownEmissoes">
       <button class="nav-tab" id="navTabEmissoes" onclick="showPage('rotas',null)">
-        <span class="tab-icon" id="navTabEmissoesIcon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg></span>
-        <span class="tab-label">Emissões</span> <span class="nav-dropdown-caret">▾</span>
+        <span class="tab-icon" id="navTabEmissoesIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="9" y1="9" x2="8" y2="9"/></svg></span>
+        <span class="tab-label">Relatórios</span> <span class="nav-dropdown-caret">▾</span>
       </button>
       <div class="nav-dropdown-menu">
         <div class="nav-dropdown-menu-inner">
@@ -797,8 +797,12 @@ body.layout-vertical .page-label{display:none}
             Rotas de Emissão
           </button>
           <button class="nav-dropdown-item" id="ddRelatorio" onclick="showPage('emissoes',null)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Relatório
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg>
+            Emissões
+          </button>
+          <button class="nav-dropdown-item" id="ddMovimentos" onclick="showPage('relatorios',null)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Movimentos
           </button>
         </div>
       </div>
@@ -900,8 +904,8 @@ body.layout-vertical .page-label{display:none}
     Carteira
   </button>
   <button class="mobile-nav-tab" id="mnt-rotas" onclick="showPage('rotas',null);syncMobileNav('rotas')">
-    <span class="mobile-nav-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 4c-2 0-4 1-5.5 2.5L10 10 2.8 8.2c-.5-.1-.9.1-1.1.5L1 10c-.1.5.1 1 .5 1.3L7 14l-2 3-2 1 1 1 1-2 3-2 2.7 5.5c.3.4.8.6 1.3.5l1.3-.7c.4-.2.6-.6.5-1.1z"/></svg></span>
-    Emissões
+    <span class="mobile-nav-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+    Relatórios
   </button>
   <button class="mobile-nav-tab" id="mnt-emissoes" onclick="showPage('emissoes',null);syncMobileNav('emissoes')" style="display:none"></button>
   <button class="mobile-nav-tab" id="mnt-clube" onclick="showPage('clube',this);syncMobileNav('clube')">
@@ -1144,6 +1148,45 @@ body.layout-vertical .page-label{display:none}
         <tbody id="routesTbody"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!--  PAGE: RELATÓRIOS (Movimentos)             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="page" id="pageRelatorios">
+  <div class="routes-page">
+    <div class="routes-header">
+      <div><div class="routes-title">Movimentos</div></div>
+      <div class="routes-controls">
+        <select class="fs" id="relProgFilter" onchange="renderRelatorios()" style="font-size:.78rem;padding:.35rem .7rem;min-width:140px"><option value="">Todos os programas</option></select>
+        <select class="fs" id="relTypeFilter" onchange="renderRelatorios()" style="font-size:.78rem;padding:.35rem .7rem;min-width:130px">
+          <option value="">Todos os tipos</option>
+        </select>
+        <input class="search-routes" id="relSearch" placeholder="Buscar obs, trecho, hotel…" oninput="renderRelatorios()" style="min-width:180px">
+        <button class="btn btn-secondary btn-sm" onclick="exportRelatoriosCSV()">Exportar CSV</button>
+      </div>
+    </div>
+    <div id="relEmpty" class="empty-routes hidden">
+      <svg style="color:var(--gold);opacity:.35" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <div style="font-size:.85rem;color:var(--text-muted)">Nenhum movimento encontrado</div>
+    </div>
+    <div class="routes-tbl-wrap" id="relWrap" style="overflow-x:auto">
+      <table class="routes-tbl" id="relTable" style="table-layout:auto;width:100%">
+        <thead><tr>
+          <th style="white-space:nowrap">Data</th>
+          <th style="white-space:nowrap">Programa</th>
+          <th style="white-space:nowrap">Tipo</th>
+          <th style="white-space:nowrap;text-align:right">Pontos/Milhas</th>
+          <th style="white-space:nowrap;text-align:right">Valor (R$)</th>
+          <th style="white-space:nowrap;text-align:right">CPM/CPP</th>
+          <th style="white-space:nowrap">Obs / Detalhes</th>
+          <th style="white-space:nowrap"></th>
+        </tr></thead>
+        <tbody id="relTbody"></tbody>
+      </table>
+    </div>
+    <div id="relCount" style="font-size:.72rem;color:var(--text-muted);padding:.5rem 1rem .25rem"></div>
   </div>
 </div>
 
@@ -4417,27 +4460,31 @@ function showPage(page, el){
   const emIcon = document.getElementById('navTabEmissoesIcon');
   const ddRotas = document.getElementById('ddRotas');
   const ddRel = document.getElementById('ddRelatorio');
-  if(page==='rotas'||page==='emissoes'){
+  const ddMov = document.getElementById('ddMovimentos');
+  if(page==='rotas'||page==='emissoes'||page==='relatorios'){
     if(emTab){ emTab.classList.add('active'); }
     if(emIcon){ emIcon.style.borderColor='var(--gold)'; emIcon.style.background='var(--surface3)'; }
     if(ddRotas){ ddRotas.classList.toggle('active', page==='rotas'); }
     if(ddRel){ ddRel.classList.toggle('active', page==='emissoes'); }
+    if(ddMov){ ddMov.classList.toggle('active', page==='relatorios'); }
   } else {
     if(emTab){ emTab.classList.remove('active'); }
     if(emIcon){ emIcon.style.borderColor=''; emIcon.style.background=''; }
     if(ddRotas){ ddRotas.classList.remove('active'); }
     if(ddRel){ ddRel.classList.remove('active'); }
+    if(ddMov){ ddMov.classList.remove('active'); }
   }
   syncMobileNav(page);
   if(page==='rotas'){ if(!db.routes) db.routes=[]; renderRotasSaldos(); renderRoutes(); }
   if(page==='emissoes'){ renderEmissoes(); }
+  if(page==='relatorios'){ renderRelatorios(); }
   // close col filter dropdowns on page change
   document.querySelectorAll('.col-filter-dropdown').forEach(d=>d.classList.remove('open'));
 }
 function syncMobileNav(page){
   document.querySelectorAll('.mobile-nav-tab').forEach(t=>t.classList.remove('active'));
   // rotas e emissoes mapeiam para o mesmo botão mobile
-  const mobileKey = page==='emissoes' ? 'rotas' : page;
+  const mobileKey = (page==='emissoes'||page==='relatorios') ? 'rotas' : page;
   const t = document.getElementById('mnt-'+mobileKey);
   if(t) t.classList.add('active');
 }
@@ -4699,6 +4746,101 @@ function openSimulador(){
   simRenderParidades();
   openModal('modalSimul');
 }
+// ═══════════════════════════════════════════════
+//  RELATÓRIOS — todos os movimentos
+// ═══════════════════════════════════════════════
+function renderRelatorios(){
+  // Popular filtro de programas
+  const progSel=document.getElementById('relProgFilter');
+  const typeSel=document.getElementById('relTypeFilter');
+  if(progSel && progSel.options.length<=1){
+    db.programs.forEach(p=>{
+      const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; progSel.appendChild(o);
+    });
+  }
+  if(typeSel && typeSel.options.length<=1){
+    Object.entries(MOV_LABELS).forEach(([k,v])=>{
+      const o=document.createElement('option'); o.value=k; o.textContent=v; typeSel.appendChild(o);
+    });
+  }
+  const progFilter=progSel?progSel.value:'';
+  const typeFilter=typeSel?typeSel.value:'';
+  const q=(document.getElementById('relSearch')?.value||'').toLowerCase().trim();
+  let movs=[...( db.movements||[])];
+  if(progFilter) movs=movs.filter(m=>m.programId===progFilter);
+  if(typeFilter) movs=movs.filter(m=>m.type===typeFilter);
+  if(q) movs=movs.filter(m=>{
+    const p=db.programs.find(x=>x.id===m.programId)||{name:''};
+    const obs=(m.obs||'').toLowerCase();
+    const trecho=(m.emTrecho||'').toLowerCase();
+    const hotel=(m.hospHotel||'').toLowerCase();
+    const dest=(m.hospDestino||'').toLowerCase();
+    const type=(MOV_LABELS[m.type]||m.type).toLowerCase();
+    return p.name.toLowerCase().includes(q)||obs.includes(q)||trecho.includes(q)||hotel.includes(q)||dest.includes(q)||type.includes(q)||(m.date||'').includes(q);
+  });
+  movs.sort((a,b)=>(a.date<b.date?1:-1));
+  const tbody=document.getElementById('relTbody');
+  const empty=document.getElementById('relEmpty');
+  const wrap=document.getElementById('relWrap');
+  const count=document.getElementById('relCount');
+  if(!tbody) return;
+  if(!movs.length){
+    empty.classList.remove('hidden'); wrap.style.display='none';
+    if(count) count.textContent='';
+    return;
+  }
+  empty.classList.add('hidden'); wrap.style.display='';
+  if(count) count.textContent=`${movs.length} movimento${movs.length!==1?'s':''}`;
+  const isDebit=t=>MOV_DEBIT.has(t);
+  tbody.innerHTML=movs.map(m=>{
+    const p=db.programs.find(x=>x.id===m.programId)||{name:'?',type:'outro'};
+    const pts=m.points||0;
+    const sinal=isDebit(m.type)?-1:1;
+    const ptsStr=(sinal<0?'− ':'+ ')+fmt(Math.abs(pts));
+    const ptsColor=sinal<0?'var(--red)':'var(--green)';
+    const cpm=m.type==='emissao_passagem'?(m.emCpm||0):(m.resgateCost&&pts?(m.resgateCost/(pts/1000)):0);
+    const cpmStr=cpm>0?'R$ '+fmtBRL(cpm):'—';
+    const valStr=m.value?'R$ '+fmtBRL(m.value):(m.hospValor?'R$ '+fmtBRL(m.hospValor):'—');
+    // detalhes extras
+    let det='';
+    if(m.type==='emissao_passagem'){ det=[m.emCia,m.emTrecho,m.emCabine].filter(Boolean).join(' · '); }
+    else if(m.type==='hospedagem'){ det=[m.hospHotel,m.hospDestino].filter(Boolean).join(' · '); }
+    const obs=[m.obs,det].filter(Boolean).join(' — ');
+    const badge=`<span class="b-${m.type}" style="font-size:.6rem;padding:.15rem .4rem;border-radius:4px;font-weight:700;white-space:nowrap">${esc(MOV_LABELS[m.type]||m.type)}</span>`;
+    return `<tr style="cursor:pointer" onclick="selectProg('${p.id}');setTimeout(()=>openEditMov('${m.id}'),250)">
+      <td style="white-space:nowrap;color:var(--text-muted);font-size:.75rem">${m.date||'—'}</td>
+      <td style="white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:5px">${getProgLogo(p,16,4)}<span style="font-size:.78rem">${esc(p.name)}</span></span></td>
+      <td>${badge}</td>
+      <td style="text-align:right;font-weight:600;color:${ptsColor};white-space:nowrap">${ptsStr}</td>
+      <td style="text-align:right;white-space:nowrap">${valStr}</td>
+      <td style="text-align:right;white-space:nowrap;color:var(--text-muted);font-size:.75rem">${cpmStr}</td>
+      <td style="font-size:.75rem;color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(obs)}">${esc(obs)||'—'}</td>
+      <td><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted)"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></td>
+    </tr>`;
+  }).join('');
+}
+function exportRelatoriosCSV(){
+  const progFilter=document.getElementById('relProgFilter')?.value||'';
+  const typeFilter=document.getElementById('relTypeFilter')?.value||'';
+  const q=(document.getElementById('relSearch')?.value||'').toLowerCase().trim();
+  let movs=[...(db.movements||[])];
+  if(progFilter) movs=movs.filter(m=>m.programId===progFilter);
+  if(typeFilter) movs=movs.filter(m=>m.type===typeFilter);
+  if(q) movs=movs.filter(m=>{
+    const p=db.programs.find(x=>x.id===m.programId)||{name:''};
+    return p.name.toLowerCase().includes(q)||(m.obs||'').toLowerCase().includes(q)||(m.date||'').includes(q);
+  });
+  movs.sort((a,b)=>(a.date<b.date?1:-1));
+  const header=['Data','Programa','Tipo','Pontos/Milhas','Valor R$','Obs'];
+  const rows=movs.map(m=>{
+    const p=db.programs.find(x=>x.id===m.programId)||{name:'?'};
+    return [m.date||'',p.name,MOV_LABELS[m.type]||m.type,m.points||0,m.value||m.hospValor||'',(m.obs||'').replace(/"/g,'""')];
+  });
+  const csv=[header,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='movimentos_'+today()+'.csv'; a.click();
+}
+
 function simCalc(){
   const fromId=document.getElementById('simFrom').value;
   const toId=document.getElementById('simTo').value;
