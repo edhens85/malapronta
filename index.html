@@ -3293,9 +3293,9 @@ function renderMovTable(){
       ${isEmissaoRow?(()=>{
         const parts=[];
         if(m.emCia) parts.push(`<span style="font-weight:600;color:var(--text)">${esc(m.emCia)}</span>`);
-        if(m.emTrecho) parts.push(`<span style="color:var(--text-dim)">${esc(m.emTrecho)}</span>`);
+        if(m.emTrecho) parts.push(`<span style="color:var(--text)">${esc(m.emTrecho)}</span>`);
         if(anexoLink) parts.push(anexoLink);
-        return parts.length?`<span style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:.78rem">${parts.join('<span style="color:var(--border2);padding:0 1px">|</span>')}</span>`:'';
+        return parts.length?`<span style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:.78rem">${parts.join('<span style="color:var(--text-muted);padding:0 1px">|</span>')}</span>`:'';
       })():isHospRow?(
         (m.hospHotel?`<span class="td-obs" style="max-width:none;font-weight:600;color:var(--text)">${esc(m.hospHotel)}</span>`:'')
         +(m.hospDestino?`<span class="td-obs" style="max-width:none;color:var(--text-dim)">${esc(m.hospDestino)}</span>`:'')
