@@ -989,6 +989,13 @@ body.layout-vertical .page-label{display:none}
 
   <!-- DASHBOARD: cards de todos os programas -->
   <div id="dashView" class="dash-wrap">
+    <!-- Botão rápido de registro -->
+    <div id="dashQuickReg" style="display:none;margin-bottom:.75rem;text-align:right">
+      <button class="btn btn-primary" onclick="openAddMovementGlobal()" style="font-size:.82rem;padding:.4rem .9rem">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Registrar movimento
+      </button>
+    </div>
     <div id="dashEmpty" class="empty" style="display:none">
       <svg class="empty-icon" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       <div class="empty-title">Nenhum programa cadastrado</div>
@@ -1538,9 +1545,14 @@ body.layout-vertical .page-label{display:none}
 <!-- Add Movement -->
 <div class="overlay hidden" id="modalMovement" onkeydown="if(event.key==='Enter'&&event.target.tagName!=='TEXTAREA')saveMovement()">
   <div class="modal" style="max-width:520px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
       <div class="modal-title" style="margin:0">Registrar movimento</div>
       <input class="fi" id="mDate" type="date" style="width:140px;font-size:.85rem;padding:.3rem .5rem">
+    </div>
+    <!-- Seletor de programa -->
+    <div style="margin-bottom:.85rem">
+      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem">Programa</div>
+      <div id="mProgChips" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
     </div>
 
     <!-- NÍVEL 1: Categoria principal -->
@@ -1600,7 +1612,7 @@ body.layout-vertical .page-label{display:none}
         <div class="frow">
           <div class="fg" style="flex:2">
             <label id="mPointsLabel">Pontos *</label>
-            <input class="fi fi-pts" id="mPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcResgate()">
+            <input class="fi fi-pts" id="mPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcResgate();calcCompraBonus()">
             <div style="display:flex;gap:4px;margin-top:5px">
               <button type="button" onclick="addQuickPts(10000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+10k</button>
               <button type="button" onclick="addQuickPts(25000)" style="flex:1;padding:3px 0;font-size:.72rem;background:var(--surface3);border:1px solid var(--border);border-radius:5px;color:var(--text-muted);cursor:pointer">+25k</button>
@@ -1610,7 +1622,27 @@ body.layout-vertical .page-label{display:none}
           </div>
           <div class="fg hidden" id="mValueGroup" style="flex:1">
             <label id="mValueLabel">Valor (R$)</label>
-            <input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)">
+            <input class="fi fi-money" id="mValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this);calcCompraBonus()">
+          </div>
+        </div>
+        <!-- Bloco bônus: só visível em Compra -->
+        <div id="mBonusBox" style="display:none;margin-top:.5rem">
+          <div class="frow" style="align-items:flex-end">
+            <div class="fg" style="flex:1">
+              <label>Bônus (%)</label>
+              <input class="fi" id="mBonusPct" type="text" inputmode="numeric" placeholder="0" oninput="this.value=this.value.replace(/[^0-9]/g,'');calcCompraBonus()">
+            </div>
+            <div class="fg" style="flex:1">
+              <label>Pts bônus</label>
+              <input class="fi fi-pts" id="mBonusPts" type="text" readonly style="opacity:.7;background:var(--surface3)" placeholder="—">
+            </div>
+            <div class="fg" style="flex:1.3">
+              <label>Total recebido</label>
+              <input class="fi fi-pts" id="mBonusTotal" type="text" readonly style="font-weight:700;background:var(--surface3)" placeholder="—">
+            </div>
+          </div>
+          <div id="mCompraCppBox" style="margin-top:.35rem;padding:.5rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:.78rem;color:var(--text-muted);display:none">
+            <span id="mCompraCppTxt"></span>
           </div>
         </div>
         <div id="mResgateBox" class="hidden" style="margin-top:.4rem">
@@ -2946,10 +2978,14 @@ function renderDashSearch(){
 function renderDashboard(){
   const sections = document.getElementById('dashSections');
   const empty = document.getElementById('dashEmpty');
+  const qr = document.getElementById('dashQuickReg');
   if(!db.programs.length){
-    empty.style.display='flex'; sections.innerHTML=''; return;
+    empty.style.display='flex'; sections.innerHTML='';
+    if(qr) qr.style.display='none';
+    return;
   }
   empty.style.display='none';
+  if(qr) qr.style.display='';
   const typeOrder = {bancario:0,outro:1,aerea:2,hotel:3};
   // Usa ordem customizada salva, senão ordena por tipo
   const customOrder = db.programOrder && db.programOrder.length ? db.programOrder : null;
@@ -4013,7 +4049,17 @@ function checkVencimentosBadge(){
   if(mIcon) mIcon.style.color=critico?'var(--red)':'';
 }
 
+function openAddMovementGlobal(){
+  // Abre modal sem mudar selProg — o usuário escolhe o programa dentro do modal
+  _openMovementModal(selProg || (db.programs[0]?.id||null));
+}
+
 function openAddMovement(){
+  _openMovementModal(selProg);
+}
+
+function _openMovementModal(targetProgId){
+  if(targetProgId) selProg = targetProgId;
   const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
   // Mostrar/ocultar card Emissão (só para aéreas)
   const catEmissao = document.getElementById('mCatEmissao');
@@ -4044,9 +4090,45 @@ function openAddMovement(){
   setEmBenef('m','propria');
   const resEl=document.getElementById('mEmResultado'); if(resEl){resEl.value='';resEl.style.background='';}
   ['mHotel','mHospDestino','mHospCheckin','mHospCheckout','mHospNoites','mHospQuartos','mHospPontos','mHospValor','mHospCpp','mHospCusto','mHospResultado'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.background='';el.style.color='';}});
+  // Reset bônus
+  const bonusPct=document.getElementById('mBonusPct'); if(bonusPct) bonusPct.value='';
+  const bonusPts=document.getElementById('mBonusPts'); if(bonusPts) bonusPts.value='';
+  const bonusTotal=document.getElementById('mBonusTotal'); if(bonusTotal) bonusTotal.value='';
+  const cppBox=document.getElementById('mCompraCppBox'); if(cppBox) cppBox.style.display='none';
+  const bonusBox=document.getElementById('mBonusBox'); if(bonusBox) bonusBox.style.display='none';
   setAnexoUI('m','','');
+  // Renderiza chips de programa
+  _renderModalProgChips();
   onMovTypeChange();
   openModal('modalMovement');
+}
+
+function _renderModalProgChips(){
+  const el = document.getElementById('mProgChips');
+  if(!el) return;
+  el.innerHTML = '';
+  (db.programs||[]).forEach(p=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='mov-subchip'+(p.id===selProg?' active':'');
+    btn.textContent = p.name;
+    btn.style.borderColor = p.id===selProg ? (p.color||'var(--accent)') : '';
+    btn.style.color = p.id===selProg ? (p.color||'var(--accent)') : '';
+    btn.onclick=()=>{
+      selProg=p.id;
+      _renderModalProgChips();
+      // Recalcula campos dependentes do programa
+      onMovTypeChange();
+      // Atualiza card emissão (só aéreas)
+      const isAerea = p.type==='aerea';
+      const catEmissao = document.getElementById('mCatEmissao');
+      if(catEmissao) catEmissao.style.display = isAerea ? '' : 'none';
+    };
+    el.appendChild(btn);
+  });
+  // Exibe/oculta botão rápido na dashboard
+  const qr = document.getElementById('dashQuickReg');
+  if(qr) qr.style.display = db.programs.length ? '' : 'none';
 }
 function setEmBenef(prefix, val){
   const hiddenEl = document.getElementById((prefix==='m'?'mEmBenef':'emEmBenef'));
@@ -4069,10 +4151,7 @@ const MOV_CATS = {
     {v:'cashback',       l:'Cashback'},
     {v:'ajuste_entrada', l:'Ajuste de entrada'},
   ],
-  compra: [
-    {v:'compra',          l:'Compra direta'},
-    {v:'compra_bonificada',l:'Compra bonificada'},
-  ],
+  compra: null, // vai direto para campos, sem subtipo
   emissao: [
     {v:'emissao_passagem', l:'Emissão de passagem'},
   ],
@@ -4087,12 +4166,27 @@ const MOV_CATS = {
 };
 
 function selectMovCat(cat){
-  // Atualiza estado visual dos cards
   document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
-  // Monta chips de subtipo
-  const subs = MOV_CATS[cat]||[];
+  const subs = MOV_CATS[cat];
   const chipsEl = document.getElementById('mSubtypeChips');
   const subtypeRow = document.getElementById('mSubtypeRow');
+  // Categorias sem subtipo (compra, emissão, hospedagem) vão direto para campos
+  if(!subs || subs.length <= 1){
+    subtypeRow.classList.add('hidden');
+    chipsEl.innerHTML='';
+    const typeVal = (!subs) ? 'compra' : subs[0].v;
+    document.getElementById('mType').value = typeVal;
+    onMovTypeChange();
+    document.getElementById('mFieldsArea').classList.remove('hidden');
+    document.getElementById('mSaveBtn').style.display='';
+    // Mostra/oculta campo bônus só para compra
+    const bonusBox = document.getElementById('mBonusBox');
+    if(bonusBox) bonusBox.style.display = (cat==='compra') ? '' : 'none';
+    return;
+  }
+  // Oculta campo bônus para outros tipos
+  const bonusBox = document.getElementById('mBonusBox');
+  if(bonusBox) bonusBox.style.display = 'none';
   chipsEl.innerHTML = '';
   subs.forEach((s,i)=>{
     const btn = document.createElement('button');
@@ -4104,7 +4198,6 @@ function selectMovCat(cat){
     chipsEl.appendChild(btn);
   });
   subtypeRow.classList.remove('hidden');
-  // Auto-seleciona o primeiro subtipo
   selectMovSubtype(subs[0].v, chipsEl);
 }
 
@@ -4178,6 +4271,35 @@ function calcHospedagem(prefix){
     custoEl.value=''; resEl.value=''; resEl.style.background=''; resEl.style.color='';
   }
 }
+function calcCompraBonus(){
+  const bonusBox = document.getElementById('mBonusBox');
+  if(!bonusBox || bonusBox.style.display==='none') return;
+  const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
+  const unit = isAerea ? 'milhas' : 'pts';
+  const pts = parsePts(document.getElementById('mPoints'))||0;
+  const pct = parseInt(document.getElementById('mBonusPct').value||'0')||0;
+  const bonus = Math.round(pts * pct / 100);
+  const total = pts + bonus;
+  document.getElementById('mBonusPts').value = bonus>0 ? fmt(bonus) : '';
+  document.getElementById('mBonusTotal').value = total>0 ? fmt(total) : '';
+  // Define tipo: compra ou compra_bonificada
+  const sel = document.getElementById('mType');
+  sel.value = pct>0 ? 'compra_bonificada' : 'compra';
+  // CPP / CPM
+  const val = parseMoney(document.getElementById('mValue'))||0;
+  const cppBox = document.getElementById('mCompraCppBox');
+  const cppTxt = document.getElementById('mCompraCppTxt');
+  if(cppBox && cppTxt){
+    if(val>0 && total>0){
+      const cpp = val/(total/1000);
+      const label = isAerea ? 'CPM' : 'CPP';
+      cppTxt.textContent = `${label}: R$ ${fmtBRL(cpp)}/milheiro  •  Total: ${fmt(total)} ${unit}  •  Valor: R$ ${fmtBRL(val)}`;
+      cppBox.style.display='';
+    } else {
+      cppBox.style.display='none';
+    }
+  }
+}
 function calcResgate(){
   const t=document.getElementById('mType').value;
   const pts=parsePts(document.getElementById('mPoints'))||0;
@@ -4221,11 +4343,15 @@ function saveMovement(){
   const isHosp = type==='hospedagem';
   // Para emissão de passagem, pontos = milhas usadas (do campo específico)
   // Para hospedagem, pontos = campo mHospPontos
+  // Para compra com bônus, usa o total (base + bônus)
+  const isCompra = (type==='compra'||type==='compra_bonificada');
   const pts = isEmissao
     ? (parsePts(document.getElementById('mEmMilhas'))||0)
     : isHosp
       ? (parsePts(document.getElementById('mHospPontos'))||0)
-      : parsePts(document.getElementById('mPoints'));
+      : isCompra && (parseInt(document.getElementById('mBonusPct')?.value||'0')||0)>0
+        ? (parsePts(document.getElementById('mBonusTotal'))||parsePts(document.getElementById('mPoints')))
+        : parsePts(document.getElementById('mPoints'));
   const val=parseMoney(document.getElementById('mValue'));
   const obs=document.getElementById('mObs').value.trim();
   const link=document.getElementById('mLink').value.trim();
