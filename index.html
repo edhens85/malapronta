@@ -2278,14 +2278,20 @@ function saveDB(){
     _lastSaveTs = Date.now();
     _setSyncStatus('pending');
     clearTimeout(_saveTimer);
-    // Salva imediatamente no Firebase (sem setTimeout — garante que o save ocorre antes de qualquer reload)
+    const _saveUid = window._fbCurrentUid;
+    const _saveSnap = JSON.stringify(db); // snapshot do db neste momento
     (async ()=>{
       try{
-        await window._fbSetDoc(window._fbCurrentUid, { db });
+        await window._fbSetDoc(_saveUid, { db: JSON.parse(_saveSnap) });
         _pendingSave = false; window._pendingSave = false;
         _lastSaveTs = Date.now();
         _setSyncStatus('ok');
-      }catch(e){ console.error('Firestore save error', e); _setSyncStatus('offline'); }
+      }catch(e){
+        console.error('Firestore save error', e.code, e.message);
+        _setSyncStatus('offline');
+        // Agenda retry em 3s
+        _saveTimer = setTimeout(()=>saveDB(), 3000);
+      }
     })();
   }
 }
@@ -4141,16 +4147,8 @@ function saveMovement(){
     mov.emBenef=document.getElementById('mEmBenef').value||'propria';
   }
   db.movements.push(mov);
-  // Salva localmente imediato
-  try{ localStorage.setItem('milhas_v3', JSON.stringify(db)); }catch(e){}
+  saveDB();
   closeModal('modalMovement'); render();
-  // Salva no Firebase e aguarda confirmação
-  if(window._fbCurrentUid){
-    _pendingSave=true; window._pendingSave=true; _lastSaveTs=Date.now(); _setSyncStatus('pending');
-    window._fbSetDoc(window._fbCurrentUid,{db}).then(()=>{
-      _pendingSave=false; window._pendingSave=false; _lastSaveTs=Date.now(); _setSyncStatus('ok');
-    }).catch(e=>{ console.error('save error',e); _setSyncStatus('offline'); });
-  }
 }
 function deleteMovDirect(id){
   const btn = document.getElementById('confirmDeleteBtn');
