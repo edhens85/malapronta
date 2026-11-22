@@ -2959,34 +2959,43 @@ function initCardDrag(){
   const grid = document.querySelector('.dash-grid');
   if(!grid) return;
 
-  // usa HTML5 drag nativo — confiável em desktop e mobile moderno
-  const cards = [...grid.querySelectorAll('.prog-card[data-pid]')];
+  let dragSrc=null, dragSrcId=null;
+
+  function getCards(){ return [...grid.querySelectorAll('.prog-card[data-pid]')]; }
+
+  // Move dragSrc para antes ou depois de target, dependendo da posição relativa
+  function moveLive(target){
+    if(!dragSrc||!target||target===dragSrc) return;
+    const cards=getCards();
+    const fi=cards.indexOf(dragSrc), ti=cards.indexOf(target);
+    if(fi<ti) grid.insertBefore(dragSrc, target.nextSibling);
+    else       grid.insertBefore(dragSrc, target);
+  }
+
+  const cards = getCards();
   cards.forEach(card=>{
     card.setAttribute('draggable','true');
 
     card.addEventListener('dragstart', e=>{
+      dragSrc=card; dragSrcId=card.dataset.pid;
       e.dataTransfer.effectAllowed='move';
       e.dataTransfer.setData('text/plain', card.dataset.pid);
       setTimeout(()=>card.classList.add('card-dragging'),0);
     });
     card.addEventListener('dragend', ()=>{
       card.classList.remove('card-dragging');
-      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
+      dragSrc=null;
+      // salva a nova ordem DOM
+      const order=getCards().map(c=>c.dataset.pid);
+      db.programOrder=order;
+      saveDB();
     });
     card.addEventListener('dragover', e=>{
       e.preventDefault();
       e.dataTransfer.dropEffect='move';
-      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
-      card.classList.add('card-drag-over');
+      moveLive(card);
     });
-    card.addEventListener('dragleave', ()=>card.classList.remove('card-drag-over'));
-    card.addEventListener('drop', e=>{
-      e.preventDefault();
-      card.classList.remove('card-drag-over');
-      const fromId = e.dataTransfer.getData('text/plain');
-      const toId   = card.dataset.pid;
-      if(fromId && toId && fromId!==toId) _swapProgOrder(fromId, toId);
-    });
+    card.addEventListener('drop', e=>{ e.preventDefault(); });
 
     // Touch: longpress 400ms
     let lpTimer=null, lpEl=null, lpId=null, touchMoved=false, tx0=0, ty0=0;
@@ -3004,17 +3013,17 @@ function initCardDrag(){
       if(touchMoved&&!lpEl){ clearTimeout(lpTimer); return; }
       if(!lpEl) return;
       e.preventDefault();
-      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
       const over=document.elementFromPoint(t.clientX,t.clientY)?.closest('.prog-card[data-pid]');
-      if(over&&over!==lpEl) over.classList.add('card-drag-over');
+      if(over&&over!==lpEl) moveLive(over);
     },{passive:false});
     card.addEventListener('touchend', ()=>{
       clearTimeout(lpTimer);
       if(!lpEl){ lpEl=null; lpId=null; return; }
       lpEl.classList.remove('card-dragging');
-      const target=grid.querySelector('.prog-card.card-drag-over');
-      grid.querySelectorAll('.prog-card').forEach(c=>c.classList.remove('card-drag-over'));
-      if(target&&target.dataset.pid&&target.dataset.pid!==lpId) _swapProgOrder(lpId, target.dataset.pid);
+      // salva ordem
+      const order=getCards().map(c=>c.dataset.pid);
+      db.programOrder=order;
+      saveDB();
       lpEl=null; lpId=null;
     });
   });
