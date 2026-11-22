@@ -1404,7 +1404,7 @@ body.layout-vertical .page-label{display:none}
           <div class="fg" style="flex:1.4"><label>Nome do plano</label><input class="fi" id="cNome" type="text" placeholder="ex: Smiles 2.000, TudoAzul Plus"></div>
         </div>
         <div class="frow">
-          <div class="fg"><label>Data início</label><input class="fi" type="date" id="cDate" oninput="cRebuildRows()"></div>
+          <div class="fg"><label>Data início</label><input class="fi" type="text" id="cDate"></div>
           <div class="fg"><label>Fidelidade (meses)</label><input class="fi" id="cFidelidade" type="number" min="0" max="24" placeholder="ex: 12"></div>
         </div>
         <div id="cBoxMensal">
@@ -1579,7 +1579,7 @@ body.layout-vertical .page-label{display:none}
       <div class="fg" style="flex:1.4"><label>Nome do plano</label><input class="fi" id="ceNome" type="text" placeholder="ex: Smiles 2.000"></div>
     </div>
     <div class="frow">
-      <div class="fg"><label>Data início</label><input class="fi" type="date" id="ceDate" oninput="ceRebuildRows()"></div>
+      <div class="fg"><label>Data início</label><input class="fi" type="text" id="ceDate"></div>
       <div class="fg"><label>Fidelidade (meses)</label><input class="fi" id="ceFidelidade" type="number" min="0" max="24" placeholder="ex: 12"></div>
     </div>
     <div id="ceBoxMensal">
@@ -1645,11 +1645,11 @@ body.layout-vertical .page-label{display:none}
       <div class="fg" id="pInitialGroup"><label>Saldo inicial</label><input class="fi fi-pts" id="pInitBal" type="text" inputmode="numeric" placeholder="0" oninput="maskPts(this)"></div>
     </div>
     <div class="frow" id="pInitialExtra">
-      <div class="fg"><label>Data do saldo</label><input class="fi" id="pInitDate" type="date"></div>
+      <div class="fg"><label>Data do saldo</label><input class="fi" id="pInitDate" type="text"></div>
       <div class="fg"><label>Já investido (R$)</label><input class="fi fi-money" id="pInitCost" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"><div class="fhint">Deixe 0 se não souber</div></div>
     </div>
     <div class="frow">
-      <div class="fg"><label>Vencimento das milhas</label><input class="fi" id="pExpiry" type="date"><div class="fhint">Opcional — para alertas de expiração</div></div>
+      <div class="fg"><label>Vencimento das milhas</label><input class="fi" id="pExpiry" type="text"><div class="fhint">Opcional — para alertas de expiração</div></div>
     </div>
     <div class="fg"><label>Cor</label><div class="color-grid" id="colorGrid"></div></div>
     <div class="danger-zone hidden" id="pDanger">
@@ -1870,8 +1870,8 @@ body.layout-vertical .page-label{display:none}
           <div class="fg"><label>Destino</label><input class="fi" id="mHospDestino" type="text" placeholder="Cidade, País…"></div>
         </div>
         <div class="frow">
-          <div class="fg"><label>Check-in</label><input class="fi" id="mHospCheckin" type="date"></div>
-          <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="date"></div>
+          <div class="fg"><label>Check-in</label><input class="fi" id="mHospCheckin" type="text" placeholder="dd/mm/aaaa"></div>
+          <div class="fg"><label>Check-out</label><input class="fi" id="mHospCheckout" type="text" placeholder="dd/mm/aaaa"></div>
         </div>
         <div class="frow">
           <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="mHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('m')"></div>
@@ -1933,7 +1933,7 @@ body.layout-vertical .page-label{display:none}
       </div>
     </div>
     <div class="frow">
-      <div class="fg"><label>Data</label><input class="fi" id="tDate" type="date"></div>
+      <div class="fg"><label>Data</label><input class="fi" id="tDate" type="text" placeholder="dd/mm/aaaa"></div>
       <div class="fg"><label id="tPtsLabel">Pontos enviados</label><input class="fi fi-pts" id="tPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcTransfer()"></div>
     </div>
     <div class="frow">
@@ -2002,7 +2002,7 @@ body.layout-vertical .page-label{display:none}
       <input type="hidden" id="emEmBenef" value="propria">
     </div>
     <div class="frow">
-      <div class="fg"><label>Data *</label><input class="fi" id="emDate" type="date"></div>
+      <div class="fg"><label>Data *</label><input class="fi" id="emDate" type="text" placeholder="dd/mm/aaaa"></div>
       <div class="fg"><label id="emPointsLabel">Pontos *</label><input class="fi fi-pts" id="emPoints" type="text" inputmode="numeric" oninput="maskPts(this)"></div>
     </div>
     <div class="fg hidden" id="emValueGroup"><label id="emValueLabel">Valor</label><input class="fi fi-money" id="emValue" type="text" inputmode="numeric" placeholder="0,00" oninput="maskMoney(this)"></div>
@@ -2061,7 +2061,7 @@ body.layout-vertical .page-label{display:none}
         </div>
         <div class="fg">
           <label style="font-variant:normal;text-transform:none">Data do voo</label>
-          <input class="fi" id="emEmDataVoo" type="date">
+          <input class="fi" id="emEmDataVoo" type="text" placeholder="dd/mm/aaaa">
         </div>
       </div>
       <input type="hidden" id="emEmBenef" value="propria">
@@ -2073,8 +2073,8 @@ body.layout-vertical .page-label{display:none}
         <div class="fg"><label>Destino</label><input class="fi" id="emHospDestino" type="text" placeholder="Cidade, País…"></div>
       </div>
       <div class="frow">
-        <div class="fg"><label>Check-in</label><input class="fi" id="emHospCheckin" type="date"></div>
-        <div class="fg"><label>Check-out</label><input class="fi" id="emHospCheckout" type="date"></div>
+        <div class="fg"><label>Check-in</label><input class="fi" id="emHospCheckin" type="text" placeholder="dd/mm/aaaa"></div>
+        <div class="fg"><label>Check-out</label><input class="fi" id="emHospCheckout" type="text" placeholder="dd/mm/aaaa"></div>
       </div>
       <div class="frow">
         <div class="fg"><label>Pontos usados *</label><input class="fi fi-pts" id="emHospPontos" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcHospedagem('em')"></div>
@@ -5601,48 +5601,73 @@ function fmtBRL(n){ return (n||0).toLocaleString('pt-BR',{minimumFractionDigits:
 function fmtN(n){ return (n||0).toFixed(2).replace('.',','); }
 function fmtDate(s){ if(!s) return '—'; const [y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// ── Utilitário: aplica flatpickr padrão com máscara dd/mm/aaaa ──
+function initDatePicker(el, opts){
+  if(!el || el._fp) return el && el._fp;
+  const fp = flatpickr(el, Object.assign({
+    locale:'pt', dateFormat:'Y-m-d',
+    altInput:true, altFormat:'d/m/Y',
+    disableMobile:true, allowInput:true,
+    appendTo: document.body,
+    position:'auto',
+    parseDate(d,fmt){
+      if(fmt==='d/m/Y'&&/^\d{2}\/\d{2}\/\d{4}$/.test(d)){
+        const [dd,mm,yyyy]=d.split('/');
+        return new Date(+yyyy,+mm-1,+dd);
+      }
+      return new Date(d);
+    },
+    onReady(_,__,fp){
+      fp.calendarContainer.style.zIndex='10000';
+      // Máscara automática dd/mm/aaaa no altInput
+      const altEl = fp.altInput;
+      if(altEl){
+        altEl.addEventListener('input', function(){
+          let v = this.value.replace(/\D/g,'');
+          if(!v){this.value='';return;}
+          let m='';
+          if(v.length<=2) m=v;
+          else if(v.length<=4) m=v.slice(0,2)+'/'+v.slice(2);
+          else m=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);
+          this.value=m;
+          if(/^\d{2}\/\d{2}\/\d{4}$/.test(m)){
+            const [dd,mm,yyyy]=m.split('/');
+            const d=new Date(+yyyy,+mm-1,+dd);
+            if(!isNaN(d.getTime())) fp.setDate(d,false);
+          }
+        });
+      }
+    }
+  }, opts||{}));
+  el._fp = fp;
+  return fp;
+}
+
 function openModal(id){
   document.getElementById(id).classList.remove('hidden');
-  // Inicializa flatpickr nos campos de data do voo
+
   if(id==='modalMovement'){
-    // flatpickr no campo de data principal — appendTo body para nunca cortar
+    // Campo data principal (com ícone de calendário no wrapper)
     const mDateEl = document.getElementById('mDate');
     if(mDateEl && !mDateEl._fp){
-      mDateEl._fp = flatpickr(mDateEl,{
-        locale:'pt', dateFormat:'Y-m-d',
-        altInput:true, altFormat:'d/m/Y',
-        disableMobile:true, allowInput:true,
-        appendTo: document.body,
-        position:'auto',
-        parseDate(d,fmt){
-          // Aceita digitação dd/mm/aaaa além do formato ISO interno
-          if(fmt==='d/m/Y'&&/^\d{2}\/\d{2}\/\d{4}$/.test(d)){
-            const [dd,mm,yyyy]=d.split('/');
-            return new Date(+yyyy,+mm-1,+dd);
-          }
-          return new Date(d);
-        },
+      initDatePicker(mDateEl, {
         onReady(_,__,fp){
           fp.calendarContainer.style.zIndex='10000';
-          // Garante ícone sempre como último filho do wrapper (acima do altInput)
           const wrap=document.getElementById('mDateWrap');
           const icon=document.getElementById('mDateIcon');
           if(wrap&&icon) wrap.appendChild(icon);
-          // Máscara automática dd/mm/aaaa no altInput
-          const altEl = fp.altInput;
+          const altEl=fp.altInput;
           if(altEl){
-            altEl.addEventListener('input', function(e){
-              // Não interferir se veio do calendário (valor já formatado)
-              let v = this.value.replace(/\D/g,'');
-              if(v.length===0){this.value='';return;}
-              let masked='';
-              if(v.length<=2) masked=v;
-              else if(v.length<=4) masked=v.slice(0,2)+'/'+v.slice(2);
-              else masked=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);
-              this.value=masked;
-              // Quando completar dd/mm/aaaa faz parse
-              if(/^\d{2}\/\d{2}\/\d{4}$/.test(masked)){
-                const [dd,mm,yyyy]=masked.split('/');
+            altEl.addEventListener('input', function(){
+              let v=this.value.replace(/\D/g,'');
+              if(!v){this.value='';return;}
+              let m='';
+              if(v.length<=2) m=v;
+              else if(v.length<=4) m=v.slice(0,2)+'/'+v.slice(2);
+              else m=v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4,8);
+              this.value=m;
+              if(/^\d{2}\/\d{2}\/\d{4}$/.test(m)){
+                const [dd,mm,yyyy]=m.split('/');
                 const d=new Date(+yyyy,+mm-1,+dd);
                 if(!isNaN(d.getTime())) fp.setDate(d,false);
               }
@@ -5652,24 +5677,42 @@ function openModal(id){
       });
     }
     if(mDateEl && mDateEl._fp) mDateEl._fp.setDate(today(), true);
-    const dvEl = document.getElementById('mEmDataVooTop');
-    if(dvEl && !dvEl._fp){
-      dvEl._fp = flatpickr(dvEl,{
-        locale:'pt', dateFormat:'Y-m-d', altInput:true, altFormat:'d/m/Y',
-        allowInput:true, disableMobile:true, minDate:null
-      });
-    }
+    // Data voo emissão (Nova Op)
+    initDatePicker(document.getElementById('mEmDataVooTop'));
+    // Check-in / Check-out hospedagem (Nova Op)
+    initDatePicker(document.getElementById('mHospCheckin'));
+    initDatePicker(document.getElementById('mHospCheckout'));
   }
+
   if(id==='modalEditMov'){
+    // Data principal do movimento
+    const emDateEl = document.getElementById('emDate');
+    initDatePicker(emDateEl);
+    if(emDateEl && emDateEl._fp && emDateEl.value) emDateEl._fp.setDate(emDateEl.value, false);
+    // Data voo emissão
     const emDvEl = document.getElementById('emEmDataVoo');
-    if(!emDvEl._fp){
-      emDvEl._fp = flatpickr('#emEmDataVoo',{
-        locale:'pt', dateFormat:'Y-m-d', allowInput:true,
-        disableMobile:true
-      });
-    }
-    // Sincroniza valor já preenchido
-    if(emDvEl.value) emDvEl._fp.setDate(emDvEl.value, false);
+    initDatePicker(emDvEl);
+    if(emDvEl && emDvEl._fp && emDvEl.value) emDvEl._fp.setDate(emDvEl.value, false);
+    // Check-in / Check-out hospedagem
+    const emCiEl = document.getElementById('emHospCheckin');
+    const emCoEl = document.getElementById('emHospCheckout');
+    initDatePicker(emCiEl);
+    initDatePicker(emCoEl);
+    if(emCiEl && emCiEl._fp && emCiEl.value) emCiEl._fp.setDate(emCiEl.value, false);
+    if(emCoEl && emCoEl._fp && emCoEl.value) emCoEl._fp.setDate(emCoEl.value, false);
+  }
+
+  if(id==='modalTransfer'){
+    initDatePicker(document.getElementById('tDate'));
+  }
+
+  if(id==='modalProgram'){
+    const pIdEl = document.getElementById('pInitDate');
+    const pExEl = document.getElementById('pExpiry');
+    initDatePicker(pIdEl);
+    initDatePicker(pExEl);
+    if(pIdEl && pIdEl._fp && pIdEl.value) pIdEl._fp.setDate(pIdEl.value, false);
+    if(pExEl && pExEl._fp && pExEl.value) pExEl._fp.setDate(pExEl.value, false);
   }
 }
 function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
@@ -6320,7 +6363,12 @@ document.addEventListener('DOMContentLoaded', function(){
   clubeShowTab('cadastro');
   cCarregar();
   cRenderPlanos(); cRenderExtrato(); cUpdateBadges();
-  document.getElementById('cDate').value=cHoje();
+  // Inicializa datepickers inline de cartão de crédito
+  const _cDateEl = document.getElementById('cDate');
+  if(_cDateEl) initDatePicker(_cDateEl, {onChange(d){if(d[0]){_cDateEl.value=flatpickr.formatDate(d[0],'Y-m-d');cRebuildRows();}}});
+  if(_cDateEl && _cDateEl._fp) _cDateEl._fp.setDate(cHoje(), true);
+  const _ceDateEl = document.getElementById('ceDate');
+  if(_ceDateEl) initDatePicker(_ceDateEl, {onChange(d){if(d[0]){_ceDateEl.value=flatpickr.formatDate(d[0],'Y-m-d');ceRebuildRows();}}});
   cSelectModal('mensal');
   document.getElementById('cConfirmOverlay').addEventListener('click',function(e){ if(e.target===this) cFecharConfirm(); });
   document.getElementById('cEditOverlay').addEventListener('click',function(e){ if(e.target===this) cFecharEditModal(); });
