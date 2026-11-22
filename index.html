@@ -843,7 +843,7 @@ body.layout-vertical .page-label{display:none}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
       <div class="global-search-wrap" id="globalSearchWrap">
-        <input class="global-search-input" id="globalSearchInput" placeholder="Buscar… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){focusGlobalResult(0);}">
+        <input class="global-search-input" id="globalSearchInput" placeholder="Buscar… (ESC para fechar)" oninput="renderGlobalSearch()" onkeydown="if(event.key==='Escape'){closeGlobalSearch();}else if(event.key==='ArrowDown'){event.preventDefault();focusGlobalResult(0);}else if(event.key==='Enter'){const f=document.querySelector('#globalSearchResults .gsr-item');if(f)f.click();}">
         <div class="global-search-results" id="globalSearchResults"></div>
       </div>
     </div>
