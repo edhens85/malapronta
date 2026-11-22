@@ -1045,15 +1045,11 @@ body.layout-vertical .page-label{display:none}
             <div class="det-stat-mini-val" style="color:var(--gold)" id="detCpm">R$ 0,00</div>
           </div>
         </div>
-        <!-- Botões à direita empilhados -->
-        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <!-- Botão Operação -->
+        <div style="flex-shrink:0">
           <button class="btn" onclick="openAddMovement()" style="border-color:var(--gold);background:var(--gold);color:#000;font-weight:700;white-space:nowrap">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
             Operação
-          </button>
-          <button class="btn btn-secondary" onclick="openTransfer()" style="white-space:nowrap">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            Transferir
           </button>
         </div>
       </div>
@@ -1567,7 +1563,7 @@ body.layout-vertical .page-label{display:none}
     <!-- NÍVEL 1: Categoria — ícones SVG monocromáticos estilo Apple -->
     <div style="margin-bottom:.7rem">
       <div class="mov-section-lbl">O que aconteceu?</div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem" id="mCatCards">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem" id="mCatCards">
 
         <!-- Acúmulo -->
         <button type="button" class="mov-cat-btn" data-cat="acumulo" onclick="selectMovCat('acumulo')">
@@ -1603,6 +1599,12 @@ body.layout-vertical .page-label{display:none}
         <button type="button" class="mov-cat-btn" data-cat="ajuste" onclick="selectMovCat('ajuste')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
           <span>Ajuste</span>
+        </button>
+
+        <!-- Transferir -->
+        <button type="button" class="mov-cat-btn" data-cat="transferir" onclick="selectMovCat('transferir')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <span>Transferir</span>
         </button>
 
       </div>
@@ -1805,7 +1807,7 @@ body.layout-vertical .page-label{display:none}
     <div class="modal-title">Transferir pontos</div>
     <div class="frow">
       <div class="fg"><label>De</label><input class="fi" id="tFrom" readonly style="opacity:.65"></div>
-      <div class="fg"><label>Para *</label><select class="fs" id="tTo" onchange="calcTransfer()"></select></div>
+      <div class="fg"><label>Para</label><select class="fs" id="tTo" onchange="calcTransfer()"></select></div>
     </div>
     <div class="fg">
       <label>Tipo de transferência</label>
@@ -1815,8 +1817,8 @@ body.layout-vertical .page-label{display:none}
       </div>
     </div>
     <div class="frow">
-      <div class="fg"><label>Data *</label><input class="fi" id="tDate" type="date"></div>
-      <div class="fg"><label id="tPtsLabel">Pontos enviados *</label><input class="fi fi-pts" id="tPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcTransfer()"></div>
+      <div class="fg"><label>Data</label><input class="fi" id="tDate" type="date"></div>
+      <div class="fg"><label id="tPtsLabel">Pontos enviados</label><input class="fi fi-pts" id="tPoints" type="text" inputmode="numeric" placeholder="1.000" oninput="maskPts(this);calcTransfer()"></div>
     </div>
     <div class="frow">
       <div class="fg">
@@ -4187,6 +4189,12 @@ const MOV_CATS = {
 };
 
 function selectMovCat(cat){
+  // Transferir: fecha modal de operação e abre diretamente o modal de transferência
+  if(cat==='transferir'){
+    closeModal('modalAddMov');
+    openTransfer();
+    return;
+  }
   document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
   const subs = MOV_CATS[cat];
   const chipsEl = document.getElementById('mSubtypeChips');
