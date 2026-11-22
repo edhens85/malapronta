@@ -6646,6 +6646,15 @@ function promosLike(id, val, e){
   promosRender();
 }
 
+// ── Deletar notícia ───────────────────────────────────────
+window.promosDelete = function(id, e){
+  e.stopPropagation(); e.preventDefault();
+  promosData = promosData.filter(x=>x.id!==id);
+  savePromos();
+  rebuildPromosTags();
+  promosRender();
+};
+
 // ── Filtros ───────────────────────────────────────────────
 window.promosToggleTag = function(el){
   const val     = el.dataset.val;
@@ -6666,24 +6675,25 @@ window.promosToggleTag = function(el){
 function rebuildPromosTags(){
   const container = document.getElementById('promosTagsAll');
   if(!container) return;
-  // Coleta todos os progs e tipos presentes nas notícias
   const progSet  = new Set();
   const tipoSet  = new Set();
   promosData.forEach(it=>{
     it.progs.forEach(p=>progSet.add(p));
     it.tipos.forEach(t=>tipoSet.add(t));
   });
-  // Ordem preferida para programas e tipos
-  const progOrder  = ['Smiles','Latam','Azul','Livelo','Esfera'];
-  const tipoOrder  = ['Bônus','Passagem','Cartão de Crédito','Compra de Milhas','Resgate','Assinatura','Clube'];
-  const sortedProgs = progOrder.filter(p=>progSet.has(p));
-  const sortedTipos = tipoOrder.filter(t=>tipoSet.has(t));
+  const progOrder = ['Smiles','Latam','Azul','Livelo','Esfera','ALL Accor','Multiplus'];
+  const tipoOrder = ['Bônus','Passagem','Cartão de Crédito','Compra de Milhas','Resgate','Assinatura','Clube','Hotel'];
+  const sortedProgs = [...progOrder.filter(p=>progSet.has(p)), ...[...progSet].filter(p=>!progOrder.includes(p))];
+  const sortedTipos = [...tipoOrder.filter(t=>tipoSet.has(t)), ...[...tipoSet].filter(t=>!tipoOrder.includes(t))];
   const activeVal = promosFilter.all;
-  const mk = val=>{
+  const mk = (val, label)=>{
     const isActive = val===activeVal || (val===''&&activeVal==='');
-    return `<span class="promos-tag${isActive?' active':''}" data-filter="all" data-val="${val}" onclick="promosToggleTag(this)">${val||'Todos'}</span>`;
+    return `<span class="promos-tag${isActive?' active':''}" data-filter="all" data-val="${val}" onclick="promosToggleTag(this)">${label||val||'Todos'}</span>`;
   };
-  container.innerHTML = mk('')+sortedProgs.map(mk).join('')+sortedTipos.map(mk).join('');
+  const sep = sortedProgs.length && sortedTipos.length
+    ? `<span style="color:var(--border);font-size:.8rem;padding:0 .1rem">|</span>`
+    : '';
+  container.innerHTML = mk('','Todos') + (sortedProgs.length?`<span style="font-size:.64rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:0 .2rem;align-self:center">Prog</span>`+sortedProgs.map(p=>mk(p)).join(''):'') + sep + (sortedTipos.length?`<span style="font-size:.64rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:0 .2rem;align-self:center">Tipo</span>`+sortedTipos.map(t=>mk(t)).join(''):'');
 }
 
 // ── Render ────────────────────────────────────────────────
@@ -6735,6 +6745,7 @@ window.promosRender = function(){
       <div class="promos-card-actions${hasVote?' has-vote':''}">
         <button class="promos-card-btn${likeActive?' liked':''}" onclick="promosLike('${it.id}',true,event)" title="Relevante para mim" style="${likeActive?'background:rgba(34,197,94,.35)':''}">👍</button>
         <button class="promos-card-btn${dislikeActive?' liked':''}" onclick="promosLike('${it.id}',false,event)" title="Não me interessa" style="${dislikeActive?'background:rgba(239,68,68,.35)':''}">👎</button>
+        <button class="promos-card-btn" onclick="promosDelete('${it.id}',event)" title="Remover esta notícia" style="color:#ef4444">🗑️</button>
       </div>
       <div class="promos-card-body">
         <div class="promos-card-title">${escHtml(it.title)}</div>
