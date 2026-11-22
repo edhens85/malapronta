@@ -375,6 +375,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 .stat-val.gold{color:var(--gold)}
 .stat-val.teal{color:var(--teal)}
 .stat-sub{font-size:.65rem;color:var(--text-muted);margin-top:3px}
+.det-stat-mini{display:flex;flex-direction:column;align-items:flex-start;padding:.35rem .9rem;flex-shrink:0}
+.det-stat-mini-lbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);white-space:nowrap;margin-bottom:2px}
+.det-stat-mini-val{font-size:.92rem;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.det-stat-mini-sep{width:1px;background:var(--border);align-self:stretch;flex-shrink:0;margin:4px 0}
 
 /* Movements */
 .mov-section{padding:0 1.5rem 2rem}
@@ -607,6 +611,9 @@ body.layout-vertical .page-label{display:none}
   .menu-dropdown-inner{max-height:70vh;overflow-y:auto}
   /* user foto menor */
   .user-avatar{width:26px!important;height:26px!important}
+  /* detail-header compact em mobile: empilha stats abaixo */
+  #detailPanel .detail-header{flex-wrap:wrap!important}
+  #detailPanel .detail-header>div:nth-child(2){border-left:none!important;padding-left:0!important;border-top:1px solid var(--border);padding-top:.5rem;width:100%}
 }
 @media(min-width:601px){
   .mobile-nav{display:none!important}
@@ -1007,10 +1014,11 @@ body.layout-vertical .page-label{display:none}
   <div id="detailView" class="detail-view">
     <div class="det-content">
     <div class="detail" id="detailPanel">
-      <div class="detail-header">
-        <div style="display:flex;align-items:center;gap:12px">
+      <div class="detail-header" style="align-items:center;flex-wrap:nowrap;gap:.85rem;padding:1.1rem 1.5rem">
+        <!-- Ícone + nome -->
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           <div id="detIcon"></div>
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display:flex;align-items:center;gap:6px">
             <div>
               <div class="detail-title" id="detName">—</div>
               <div class="detail-sub" id="detSub">—</div>
@@ -1020,31 +1028,33 @@ body.layout-vertical .page-label{display:none}
             </button>
           </div>
         </div>
-        <div class="detail-actions">
-          <button class="btn btn-secondary" onclick="openTransfer()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            Transferir pontos
-          </button>
-          <button class="btn" onclick="openAddMovement()" style="border-color:var(--gold);background:var(--gold);color:#000;font-weight:700">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        <!-- Stats inline compactos -->
+        <div style="display:flex;align-items:center;gap:0;flex:1;min-width:0;border-left:1px solid var(--border);padding-left:.85rem">
+          <div class="det-stat-mini">
+            <div class="det-stat-mini-lbl">Saldo</div>
+            <div class="det-stat-mini-val" id="detBalance">0</div>
+          </div>
+          <div class="det-stat-mini-sep"></div>
+          <div class="det-stat-mini">
+            <div class="det-stat-mini-lbl">Investimento</div>
+            <div class="det-stat-mini-val" style="color:var(--teal)" id="detInvest">R$ 0,00</div>
+          </div>
+          <div class="det-stat-mini-sep"></div>
+          <div class="det-stat-mini">
+            <div class="det-stat-mini-lbl" id="detCpmLabel">CPM</div>
+            <div class="det-stat-mini-val" style="color:var(--gold)" id="detCpm">R$ 0,00</div>
+          </div>
+        </div>
+        <!-- Botões à direita empilhados -->
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button class="btn" onclick="openAddMovement()" style="border-color:var(--gold);background:var(--gold);color:#000;font-weight:700;white-space:nowrap">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
             Operação
           </button>
-        </div>
-      </div>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-label">Saldo atual</div>
-          <div class="stat-val" id="detBalance">0</div>
-          <div class="stat-sub">pontos / milhas</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Investimento líquido</div>
-          <div class="stat-val teal" id="detInvest">R$ 0,00</div>
-          <div class="stat-sub">custo acumulado</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label" id="detCpmLabel">CPM</div>
-          <div class="stat-val gold" id="detCpm">R$ 0,00</div>
+          <button class="btn btn-secondary" onclick="openTransfer()" style="white-space:nowrap">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Transferir
+          </button>
         </div>
       </div>
       <div class="mov-section">
