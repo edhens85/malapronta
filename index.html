@@ -1558,26 +1558,30 @@ body.layout-vertical .page-label{display:none}
     <!-- NÍVEL 1: Categoria principal -->
     <div style="margin-bottom:.75rem">
       <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem">O que aconteceu?</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem" id="mCatCards">
-        <button type="button" class="mov-cat-btn" data-cat="acumulo" onclick="selectMovCat('acumulo')">
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem" id="mCatCards">
+        <button type="button" class="mov-cat-btn" style="flex:1;min-width:70px" data-cat="acumulo" onclick="selectMovCat('acumulo')">
           <span style="font-size:1.2rem">⭐</span>
           <span>Acúmulo</span>
         </button>
-        <button type="button" class="mov-cat-btn" data-cat="compra" onclick="selectMovCat('compra')">
+        <button type="button" class="mov-cat-btn" id="mCatCompra" style="flex:1;min-width:70px" data-cat="compra" onclick="selectMovCat('compra')">
           <span style="font-size:1.2rem">💳</span>
           <span>Compra</span>
         </button>
-        <button type="button" class="mov-cat-btn" data-cat="emissao" onclick="selectMovCat('emissao')" id="mCatEmissao">
+        <button type="button" class="mov-cat-btn" id="mCatEmissao" style="flex:1;min-width:70px" data-cat="emissao" onclick="selectMovCat('emissao')">
           <span style="font-size:1.2rem">✈️</span>
           <span>Emissão</span>
         </button>
-        <button type="button" class="mov-cat-btn" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
+        <button type="button" class="mov-cat-btn" id="mCatHospedagem" style="flex:1;min-width:70px" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
           <span style="font-size:1.2rem">🏨</span>
           <span>Hospedagem</span>
         </button>
-        <button type="button" class="mov-cat-btn" data-cat="saida" onclick="selectMovCat('saida')">
+        <button type="button" class="mov-cat-btn" style="flex:1;min-width:70px" data-cat="saida" onclick="selectMovCat('saida')">
           <span style="font-size:1.2rem">📤</span>
           <span>Saída</span>
+        </button>
+        <button type="button" class="mov-cat-btn" style="flex:1;min-width:70px" data-cat="ajuste" onclick="selectMovCat('ajuste')">
+          <span style="font-size:1.2rem">⚙️</span>
+          <span>Ajuste</span>
         </button>
       </div>
     </div>
@@ -4058,14 +4062,36 @@ function openAddMovement(){
   _openMovementModal(selProg);
 }
 
-function _openMovementModal(targetProgId){
-  if(targetProgId) selProg = targetProgId;
-  const isAerea = (()=>{ const p=db.programs.find(x=>x.id===selProg); return p&&p.type==='aerea'; })();
-  // Mostrar/ocultar card Emissão (só para aéreas)
+function _updateCatsByProgType(){
+  const p = db.programs.find(x=>x.id===selProg);
+  const tipo = p ? p.type : '';
+  const isAerea = tipo==='aerea';
+  const isHotel = tipo==='hotel';
+  // Emissão: só aéreas
   const catEmissao = document.getElementById('mCatEmissao');
   if(catEmissao) catEmissao.style.display = isAerea ? '' : 'none';
-  const optEmissaoEm = document.querySelector('#emType option[value="emissao_passagem"]');
-  if(optEmissaoEm) optEmissaoEm.style.display = isAerea ? '' : 'none';
+  // Hospedagem: só hotel
+  const catHosp = document.getElementById('mCatHospedagem');
+  if(catHosp) catHosp.style.display = isHotel ? '' : 'none';
+  // Compra: só não-aéreas (aéreas não compram milhas diretamente)
+  const catCompra = document.getElementById('mCatCompra');
+  if(catCompra) catCompra.style.display = isAerea ? 'none' : '';
+  // Se a categoria ativa ficou oculta, reseta
+  const activeCat = document.querySelector('.mov-cat-btn.active');
+  if(activeCat){
+    const hidden = activeCat.style.display==='none';
+    if(hidden){
+      document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.remove('active'));
+      document.getElementById('mSubtypeRow').classList.add('hidden');
+      document.getElementById('mFieldsArea').classList.add('hidden');
+      document.getElementById('mSaveBtn').style.display='none';
+    }
+  }
+}
+
+function _openMovementModal(targetProgId){
+  if(targetProgId) selProg = targetProgId;
+  _updateCatsByProgType();
   // Reset cascata
   document.querySelectorAll('.mov-cat-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('mSubtypeRow').classList.add('hidden');
@@ -4117,12 +4143,8 @@ function _renderModalProgChips(){
     btn.onclick=()=>{
       selProg=p.id;
       _renderModalProgChips();
-      // Recalcula campos dependentes do programa
+      _updateCatsByProgType();
       onMovTypeChange();
-      // Atualiza card emissão (só aéreas)
-      const isAerea = p.type==='aerea';
-      const catEmissao = document.getElementById('mCatEmissao');
-      if(catEmissao) catEmissao.style.display = isAerea ? '' : 'none';
     };
     el.appendChild(btn);
   });
@@ -4145,13 +4167,12 @@ function setEmBenef(prefix, val){
 // Mapa de categorias → subtipos
 const MOV_CATS = {
   acumulo: [
-    {v:'acumulo_simples', l:'Orgânico'},
-    {v:'bonus',          l:'Bônus'},
-    {v:'bonus_transferencia', l:'Bônus de transf.'},
-    {v:'cashback',       l:'Cashback'},
-    {v:'ajuste_entrada', l:'Ajuste de entrada'},
+    {v:'acumulo_simples',    l:'Orgânico'},
+    {v:'bonus',              l:'Bônus'},
+    {v:'bonus_transferencia',l:'Bônus de transf.'},
+    {v:'cashback',           l:'Cashback'},
   ],
-  compra: null, // vai direto para campos, sem subtipo
+  compra: null, // vai direto para campos, sem subtipo (só não-aéreas)
   emissao: [
     {v:'emissao_passagem', l:'Emissão de passagem'},
   ],
@@ -4161,7 +4182,10 @@ const MOV_CATS = {
   saida: [
     {v:'resgate',      l:'Resgate'},
     {v:'expiracao',    l:'Expiração'},
-    {v:'ajuste_saida', l:'Ajuste de saída'},
+  ],
+  ajuste: [
+    {v:'ajuste_entrada', l:'Ajuste de entrada'},
+    {v:'ajuste_saida',   l:'Ajuste de saída'},
   ],
 };
 
