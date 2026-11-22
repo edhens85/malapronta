@@ -471,9 +471,14 @@ tr.row-pendente td{opacity:.85}
 
 /* Cost info box */
 .cost-info{background:var(--gold-bg);border:1px solid var(--gold-dim);border-radius:var(--radius-sm);padding:.65rem .9rem;font-size:.75rem;color:var(--gold-text);margin-bottom:.85rem}
-.mov-cat-btn{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.5rem .25rem;font-size:.7rem;font-weight:600;color:var(--text-muted);background:var(--surface2);border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;line-height:1.2;text-align:center}
-.mov-cat-btn:hover{border-color:var(--accent);color:var(--text)}
-.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--text)}
+/* Modal movimento — estética Apple */
+.mov-section-lbl{font-size:.64rem;font-weight:700;letter-spacing:.09em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem}
+.mov-cat-btn{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.55rem .15rem;font-size:.6rem;font-weight:700;letter-spacing:.02em;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:11px;cursor:pointer;transition:all .14s;line-height:1.2;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.06)}
+.mov-cat-btn svg{opacity:.55;transition:opacity .14s}
+.mov-cat-btn:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--border));color:var(--text-dim);box-shadow:0 2px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08)}
+.mov-cat-btn:hover svg{opacity:.8}
+.mov-cat-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--surface2));color:var(--text);box-shadow:0 0 0 1px var(--accent),0 2px 8px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1)}
+.mov-cat-btn.active svg{opacity:1;stroke:var(--accent)}
 .mov-subchip{padding:.28rem .75rem;font-size:.78rem;font-weight:600;border-radius:20px;border:1px solid var(--border);background:var(--surface3);color:var(--text-muted);cursor:pointer;transition:all .15s}
 .mov-subchip:hover{border-color:var(--accent);color:var(--text)}
 .mov-subchip.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--text)}
@@ -634,7 +639,7 @@ body.layout-vertical .page-label{display:none}
 .sync-dot.offline{background:var(--red)}
 /* ═══ CLUBE ═══ */
 .clube-nav-tabs{display:flex;gap:4px}
-.clube-tab{padding:.4rem .9rem;font-size:.78rem;font-weight:600;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;transition:color .15s;margin-bottom:-1px}
+.clube-tab{padding:.38rem .85rem;font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;transition:color .15s;margin-bottom:-1px}
 .clube-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .clube-tab:hover:not(.active){color:var(--text-dim)}
 .plano-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
@@ -820,10 +825,6 @@ body.layout-vertical .page-label{display:none}
       <span class="tab-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
       <span class="tab-label">Clube</span>
     </button>
-    <button class="nav-tab" id="navTabVenc" data-tabid="vencimentos" onclick="showPage('vencimentos',this)">
-      <span class="tab-icon" id="vencTabIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-      <span class="tab-label">Vencimentos</span>
-    </button>
     <button class="nav-tab" id="navTabPromos" data-tabid="promos" onclick="showPage('promos',this)">
       <span class="tab-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l1.5 4.5H18l-3.75 2.73 1.43 4.4L12 11.25l-3.68 2.38 1.43-4.4L6 6.5h4.5z"/><path d="M5 20h14M12 15v5"/></svg></span>
       <span class="tab-label">Promos</span>
@@ -910,10 +911,6 @@ body.layout-vertical .page-label{display:none}
   <button class="mobile-nav-tab" id="mnt-clube" onclick="showPage('clube',this);syncMobileNav('clube')">
     <span class="mobile-nav-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
     Clube
-  </button>
-  <button class="mobile-nav-tab" id="mnt-vencimentos" onclick="showPage('vencimentos',this);syncMobileNav('vencimentos')">
-    <span class="mobile-nav-icon" id="vencMobileIcon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
-    Venc.
   </button>
 </div>
 
@@ -1247,9 +1244,10 @@ body.layout-vertical .page-label{display:none}
 
       <!-- TABS INTERNAS -->
       <div class="clube-nav-tabs" style="display:flex;gap:4px;border-bottom:1px solid var(--border)">
-        <button class="clube-tab active" onclick="clubeShowTab('cadastro')">Registrar</button>
-        <button class="clube-tab" onclick="clubeShowTab('planos')">Assinaturas <span id="cPlanosBadge" style="display:none;background:var(--green);color:#0f1117;border-radius:20px;padding:1px 6px;font-size:.62rem;margin-left:2px"></span></button>
-        <button class="clube-tab" onclick="clubeShowTab('extrato')">Extrato <span id="cExtratoBadge" style="display:none;background:var(--gold);color:#0f1117;border-radius:20px;padding:1px 6px;font-size:.62rem;margin-left:2px"></span></button>
+        <button class="clube-tab active" id="cBtnCadastro" onclick="clubeShowTab('cadastro')">Registrar</button>
+        <button class="clube-tab" id="cBtnPlanos" onclick="clubeShowTab('planos')">Assinaturas <span id="cPlanosBadge" style="display:none;background:var(--green);color:#0f1117;border-radius:20px;padding:1px 6px;font-size:.62rem;margin-left:2px"></span></button>
+        <button class="clube-tab" id="cBtnExtrato" onclick="clubeShowTab('extrato')">Extrato <span id="cExtratoBadge" style="display:none;background:var(--gold);color:#0f1117;border-radius:20px;padding:1px 6px;font-size:.62rem;margin-left:2px"></span></button>
+        <button class="clube-tab" id="cBtnVencimentos" onclick="clubeShowTab('vencimentos')">Vencimentos <span id="cVencBadge" style="display:none;background:var(--red,#ef4444);color:#fff;border-radius:20px;padding:1px 6px;font-size:.62rem;margin-left:2px"></span></button>
       </div>
 
       <!-- CADASTRO -->
@@ -1367,27 +1365,24 @@ body.layout-vertical .page-label{display:none}
         </table>
       </div>
 
+      <!-- VENCIMENTOS (aba dentro de Clube) -->
+      <div class="clube-panel" id="cTabVencimentos" style="display:none;flex-direction:column;gap:1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:.95rem;font-weight:700;color:var(--text)">Vencimento das Milhas</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">Configure a data de expiração de cada programa para receber alertas</div>
+          </div>
+        </div>
+        <div id="vencKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem"></div>
+        <div id="vencList" style="display:flex;flex-direction:column;gap:.6rem"></div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- VENCIMENTOS -->
-<div class="page" id="pageVencimentos">
-  <div style="flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:1.5rem">
-    <div style="width:100%;max-width:600px;display:flex;flex-direction:column;gap:1.5rem">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:1rem;font-weight:700;color:var(--text)">Vencimento das Milhas</div>
-          <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px">Configure a data de expiração de cada programa para receber alertas</div>
-        </div>
-      </div>
-      <!-- KPIs de alerta -->
-      <div id="vencKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem"></div>
-      <!-- Lista de programas com vencimento -->
-      <div id="vencList" style="display:flex;flex-direction:column;gap:.6rem"></div>
-    </div>
-  </div>
-</div>
+<!-- VENCIMENTOS — agora é aba dentro de Clube -->
+<div class="page hidden" id="pageVencimentos"></div>
 
 <!-- ═══════════════════════════════════════ PROMOS ═══════════════════════════════════════ -->
 <div class="page" id="pagePromos">
@@ -1542,52 +1537,68 @@ body.layout-vertical .page-label{display:none}
 
 <!-- Add Movement -->
 <div class="overlay hidden" id="modalMovement" onkeydown="if(event.key==='Enter'&&event.target.tagName!=='TEXTAREA')saveMovement()">
-  <div class="modal" style="max-width:520px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-      <div class="modal-title" style="margin:0">Registrar movimento</div>
-      <input class="fi" id="mDate" type="date" style="width:140px;font-size:.85rem;padding:.3rem .5rem">
-    </div>
-    <!-- Seletor de programa -->
-    <div style="margin-bottom:.85rem">
-      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem">Programa</div>
-      <div id="mProgChips" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
+  <div class="modal" style="max-width:500px;padding:1.1rem 1.1rem .9rem">
+
+    <!-- Cabeçalho: título + data -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem">
+      <div style="font-size:.95rem;font-weight:700;letter-spacing:-.01em;color:var(--text)">Novo movimento</div>
+      <input class="fi" id="mDate" type="date" style="width:138px;font-size:.82rem;padding:.28rem .5rem;background:var(--surface3);border-color:var(--border)">
     </div>
 
-    <!-- NÍVEL 1: Categoria principal -->
-    <div style="margin-bottom:.75rem">
-      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.5rem">O que aconteceu?</div>
-      <div style="display:flex;flex-wrap:wrap;gap:.4rem" id="mCatCards">
-        <button type="button" class="mov-cat-btn" style="flex:1;min-width:70px" data-cat="acumulo" onclick="selectMovCat('acumulo')">
-          <span style="font-size:1.2rem">⭐</span>
+    <!-- Programa -->
+    <div style="margin-bottom:.8rem">
+      <div class="mov-section-lbl">Programa</div>
+      <div id="mProgChips" style="display:flex;flex-wrap:wrap;gap:.3rem"></div>
+    </div>
+
+    <!-- NÍVEL 1: Categoria — ícones SVG monocromáticos estilo Apple -->
+    <div style="margin-bottom:.7rem">
+      <div class="mov-section-lbl">O que aconteceu?</div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem" id="mCatCards">
+
+        <!-- Acúmulo -->
+        <button type="button" class="mov-cat-btn" data-cat="acumulo" onclick="selectMovCat('acumulo')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           <span>Acúmulo</span>
         </button>
-        <button type="button" class="mov-cat-btn" id="mCatCompra" style="flex:1;min-width:70px" data-cat="compra" onclick="selectMovCat('compra')">
-          <span style="font-size:1.2rem">💳</span>
+
+        <!-- Compra -->
+        <button type="button" class="mov-cat-btn" id="mCatCompra" data-cat="compra" onclick="selectMovCat('compra')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           <span>Compra</span>
         </button>
-        <button type="button" class="mov-cat-btn" id="mCatEmissao" style="flex:1;min-width:70px" data-cat="emissao" onclick="selectMovCat('emissao')">
-          <span style="font-size:1.2rem">✈️</span>
+
+        <!-- Emissão -->
+        <button type="button" class="mov-cat-btn" id="mCatEmissao" data-cat="emissao" onclick="selectMovCat('emissao')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           <span>Emissão</span>
         </button>
-        <button type="button" class="mov-cat-btn" id="mCatHospedagem" style="flex:1;min-width:70px" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
-          <span style="font-size:1.2rem">🏨</span>
+
+        <!-- Hospedagem -->
+        <button type="button" class="mov-cat-btn" id="mCatHospedagem" data-cat="hospedagem" onclick="selectMovCat('hospedagem')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>Hospedagem</span>
         </button>
-        <button type="button" class="mov-cat-btn" style="flex:1;min-width:70px" data-cat="saida" onclick="selectMovCat('saida')">
-          <span style="font-size:1.2rem">📤</span>
+
+        <!-- Saída -->
+        <button type="button" class="mov-cat-btn" data-cat="saida" onclick="selectMovCat('saida')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
           <span>Saída</span>
         </button>
-        <button type="button" class="mov-cat-btn" style="flex:1;min-width:70px" data-cat="ajuste" onclick="selectMovCat('ajuste')">
-          <span style="font-size:1.2rem">⚙️</span>
+
+        <!-- Ajuste -->
+        <button type="button" class="mov-cat-btn" data-cat="ajuste" onclick="selectMovCat('ajuste')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
           <span>Ajuste</span>
         </button>
+
       </div>
     </div>
 
     <!-- NÍVEL 2: Subtipo (chips) -->
-    <div id="mSubtypeRow" class="hidden" style="margin-bottom:.75rem">
-      <div style="font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem">Qual tipo?</div>
-      <div id="mSubtypeChips" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
+    <div id="mSubtypeRow" class="hidden" style="margin-bottom:.7rem">
+      <div class="mov-section-lbl">Detalhe</div>
+      <div id="mSubtypeChips" style="display:flex;flex-wrap:wrap;gap:.3rem"></div>
     </div>
 
     <!-- Campo oculto que armazena o tipo real para saveMovement() -->
@@ -4775,6 +4786,8 @@ function saveEditLink(){
 //  PAGES
 // ═══════════════════════════════════════════════
 function showPage(page, el){
+  // Vencimentos agora é aba dentro de Clube
+  if(page==='vencimentos'){ showPage('clube',document.getElementById('navTabClube')); clubeShowTab('vencimentos'); return; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page'+cap(page)).classList.add('active');
@@ -5950,14 +5963,15 @@ function cToast(msg,dur=2500,undoFn=null){
 // ——— Tabs ———
 function clubeShowTab(t){
   document.querySelectorAll('.clube-panel').forEach(el=>{ el.style.display='none'; });
-  document.querySelectorAll('.clube-tab').forEach((el,i)=>{
-    el.classList.toggle('active',['cadastro','planos','extrato'][i]===t);
+  document.querySelectorAll('.clube-tab').forEach(el=>{
+    el.classList.toggle('active', el.id===('cBtn'+t.charAt(0).toUpperCase()+t.slice(1)));
   });
-  const map={cadastro:'cTabCadastro',planos:'cTabPlanos',extrato:'cTabExtrato'};
+  const map={cadastro:'cTabCadastro',planos:'cTabPlanos',extrato:'cTabExtrato',vencimentos:'cTabVencimentos'};
   const panel=document.getElementById(map[t]);
   if(panel) panel.style.display='flex';
   if(t==='planos') cRenderPlanos();
   if(t==='extrato') cRenderExtrato();
+  if(t==='vencimentos') renderVencimentos();
 }
 window.clubeShowTab=clubeShowTab;
 
@@ -6763,12 +6777,11 @@ function cPopularSelectPrograma(){
 }
 window.cPopularSelectPrograma=cPopularSelectPrograma;
 
-// ——— Init showPage para incluir clube e vencimentos ———
+// ——— Init showPage para incluir clube ———
 const _origShowPage=window.showPage;
 window.showPage=function(page, el){
   _origShowPage(page, el);
   if(page==='clube'){ cPopularSelectPrograma(); cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); }
-  if(page==='vencimentos'){ renderVencimentos(); }
 };
 
 function renderVencimentos(){
