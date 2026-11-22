@@ -4370,14 +4370,14 @@ function renderEmissoes(){
     </tr>`;
   }).join('');
   const resColor = totRes>=0 ? '#4ade80' : 'var(--red)';
-  const tile=(label,val,color='var(--text)')=>`
-    <div style="flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.25rem">
-      <div style="font-size:.62rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;line-height:1.3">${label}</div>
-      <div style="font-size:1rem;font-weight:700;color:${color}">${val}</div>
+  const tile=(label,val,color='var(--text)',small=false)=>`
+    <div style="flex:${small?'0 0 auto':'1'};min-width:${small?'0':'110px'};${small?'width:72px;':''}background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:${small?'.5rem .6rem':'.7rem 1rem'};display:flex;flex-direction:column;align-items:center;text-align:center;gap:.2rem">
+      <div style="font-size:${small?'.58rem':'.62rem'};color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;line-height:1.3">${label}</div>
+      <div style="font-size:${small?'.88rem':'1rem'};font-weight:700;color:${color}">${val}</div>
     </div>`;
   document.getElementById('emrTotals').innerHTML=`
     <div style="display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center">
-      ${tile('Emissões', movs.length, 'var(--text)')}
+      ${tile('Emissões', movs.length, 'var(--text)', true)}
       ${tile('Milhas usadas', fmt(totMilhas))}
       ${tile('Custo resgate', 'R$ '+fmtBRL(totCusto))}
       ${tile('Taxas', 'R$ '+fmtBRL(totTaxas))}
