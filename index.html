@@ -4292,7 +4292,7 @@ function calcCompraBonus(){
     if(val>0 && total>0){
       const cpp = val/(total/1000);
       const label = isAerea ? 'CPM' : 'CPP';
-      cppTxt.textContent = `${label}: R$ ${fmtBRL(cpp)}/milheiro  •  Total: ${fmt(total)} ${unit}  •  Valor: R$ ${fmtBRL(val)}`;
+      cppTxt.textContent = `${label}: R$ ${fmtBRL(cpp)}  •  Total: ${fmt(total)} ${unit}  •  Valor: R$ ${fmtBRL(val)}`;
       cppBox.style.display='';
     } else {
       cppBox.style.display='none';
