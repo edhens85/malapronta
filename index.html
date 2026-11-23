@@ -874,45 +874,62 @@ body.sidebar-layout .prog-nav-bar{flex-shrink:0}
  body.sidebar-layout .sum-group{flex:1 1 100%}
  body.sidebar-layout .sum-item{min-width:0}
 }
+</style>
 
-/* Ticker: cada cotação usa a largura natural do próprio texto. */
-body.sidebar-layout .ticker{
-  overflow-x:auto;
-  overflow-y:hidden;
-  overscroll-behavior-x:contain;
-  scrollbar-width:thin;
-  scrollbar-color:var(--border) transparent;
+
+<style id="mala-pronta-theme-and-sidebar-fixes">
+[data-theme="light"]{
+  --bg:#f4f6fa;--surface:#fff;--surface2:#edf1f6;--surface3:#e2e8f0;
+  --border:#c8d1de;--border2:#d7dee8;
+  --gold:#8a5a00;--gold-dim:#704900;--gold-bg:rgba(138,90,0,.11);--gold-text:#704900;
+  --teal:#087f8c;--teal-bg:rgba(8,127,140,.11);--red:#b83232;--red-bg:rgba(184,50,50,.10);
+  --green:#137a48;--green-bg:rgba(19,122,72,.11);--purple:#6652b5;--purple-bg:rgba(102,82,181,.11);
+  --blue:#1769a6;--blue-bg:rgba(23,105,166,.11);
+  --text:#182235;--text-dim:#46556a;--text-muted:#596b80;--text2:#596b80;color-scheme:light;
 }
-body.sidebar-layout .ticker-inner{
-  flex:0 0 auto;
-  width:max-content;
-  min-width:100%;
-  margin:0;
-  overflow:visible;
-  justify-content:center;
-}
-body.sidebar-layout .ticker-item{
-  flex:0 0 auto;
-  width:max-content;
-  min-width:max-content;
-  padding-inline:clamp(8px,.8vw,14px);
-  gap:.45rem;
-  justify-content:flex-start;
-  overflow:visible;
-  white-space:nowrap;
-}
-body.sidebar-layout .ticker-name,
-body.sidebar-layout .ticker-val{
-  flex:0 0 auto;
-  min-width:max-content;
-  max-width:none;
-  overflow:visible;
-  text-overflow:clip;
-  white-space:nowrap;
-}
-@media(max-width:680px){
-  body.sidebar-layout .ticker-item{padding:0 .55rem;gap:.3rem;font-size:.62rem}
-}
+[data-theme="light"] .nav-tab{color:var(--text-dim)}
+[data-theme="light"] .nav-tab.active{color:var(--text);background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 14%,var(--surface2)),color-mix(in srgb,var(--gold) 6%,var(--surface)))}
+[data-theme="light"] .nav-tab svg,[data-theme="light"] .mobile-nav-tab svg{stroke:currentColor}
+[data-theme="light"] .btn-icon,[data-theme="light"] .btn-menu{color:var(--text-dim)}
+[data-theme="light"] .ticker-name,[data-theme="light"] .stat-sub,[data-theme="light"] .mov-cat-btn{color:var(--text-dim)}
+[data-theme="light"] .prog-nav-back{color:var(--text);background:var(--gold-bg);border-color:var(--gold-dim)}
+[data-theme="light"] .pc-name,[data-theme="light"] .pc-saldo-val{color:var(--text)!important}
+[data-theme="light"] .pc-type,[data-theme="light"] .pc-saldo-label{color:var(--text-dim)}
+[data-theme="light"] .pc-cpm-label,[data-theme="light"] .pc-invest-label{color:var(--text-muted)}
+[data-theme="light"] .pc-cpm-block,[data-theme="light"] .pc-invest-block{background:linear-gradient(145deg,var(--surface2),var(--surface));border-color:var(--border);box-shadow:0 1px 3px rgba(20,32,50,.08)}
+[data-theme="light"] .pc-cpm-block::before,[data-theme="light"] .pc-invest-block::before{background:linear-gradient(90deg,transparent,var(--border),transparent)}
+[data-theme="light"] .mov-cat-btn:hover{color:var(--text);background:var(--surface3)}
+[data-theme="light"] .mov-cat-btn.active{color:var(--accent)}
+[data-theme="light"] .mov-cat-btn.active svg{stroke:var(--accent)}
+[data-theme="light"] .sum-group-label{color:#f8fafc}
+[data-theme="light"] .sidebar-item.active{color:var(--gold)}
+[data-theme="light"] .sidebar-item.active svg{stroke:currentColor}
+[data-theme="light"] .sidebar-subitem{color:var(--text-dim)}
+[data-theme="light"] .sidebar-subitem:hover,[data-theme="light"] .sidebar-subitem.active{color:var(--gold)}
+[data-theme="light"] .tbl-wrap td[style*="color:#fff"],[data-theme="light"] .routes-tbl td[style*="color:#fff"]{color:var(--text)!important}
+[data-theme="light"] .mov-desc span[style*="color:#fff"]:not(.badge){color:var(--text)!important}
+[data-theme="light"] .dp-cal,.flatpickr-calendar{box-shadow:0 8px 28px rgba(20,32,50,.18)}
+[data-theme="light"] #cChartSvg text{fill:var(--text-muted)!important}
+[data-theme="light"] #cChartSvg line{stroke:var(--border)!important}
+.sidebar-reports-toggle{position:relative}
+.sidebar-caret{margin-left:auto;flex-shrink:0;transition:transform .16s ease}
+.sidebar-reports-toggle[aria-expanded="false"] .sidebar-caret{transform:rotate(-90deg)}
+.sidebar-submenu{display:flex;flex-direction:column;gap:2px;margin:0 .45rem .4rem 1rem;padding-left:.45rem;border-left:1px solid var(--border);overflow:hidden}
+.sidebar-submenu.collapsed{display:none}
+.sidebar-subitem{display:flex;align-items:center;width:100%;min-height:30px;padding:.35rem .55rem;border:0;border-radius:7px;background:transparent;color:var(--text-dim);font:600 .72rem 'Inter',sans-serif;text-align:left;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s}
+.sidebar-subitem:hover{background:var(--surface2);color:var(--text)}
+.sidebar-subitem.active{background:color-mix(in srgb,var(--gold) 10%,var(--surface2));color:var(--gold);font-weight:700}
+body.sidebar-layout .sidebar-item{gap:.55rem}
+body.sidebar-layout #sidebar:not(:hover) .sidebar-caret,body.sidebar-layout #sidebar:not(:hover) .sidebar-submenu{display:none}
+body.sidebar-layout #sidebar:hover .sidebar-submenu{display:flex}
+body.sidebar-layout #sidebar:not(:hover) .sidebar-subitem span{display:none}
+@media(max-width:680px){body.sidebar-layout .sidebar-submenu{display:none!important}}
+/* Itens do ticker dimensionados pelo conteúdo; rolagem horizontal sem reticências. */
+body.sidebar-layout .ticker{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+body.sidebar-layout .ticker::-webkit-scrollbar{display:none}
+body.sidebar-layout .ticker-inner{width:max-content;min-width:max-content;flex:0 0 auto;overflow:visible}
+body.sidebar-layout .ticker-item{width:max-content;max-width:none;flex:0 0 auto;overflow:visible;justify-content:flex-start;padding:0 clamp(7px,1vw,14px)}
+body.sidebar-layout .ticker-name,body.sidebar-layout .ticker-val{max-width:none;overflow:visible;text-overflow:clip;white-space:nowrap}
 </style>
 
 </head>
@@ -974,10 +991,16 @@ body.sidebar-layout .ticker-val{
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       <span>Carteira</span>
     </button>
-    <button class="sidebar-item" id="sbNavRelatorios" onclick="showPage('rotas',null);sbSetActive('relatorios')">
+    <button class="sidebar-item sidebar-reports-toggle" id="sbNavRelatorios" type="button" aria-expanded="true" aria-controls="sbReportsSubmenu" onclick="toggleSidebarReports()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <span>Relatórios</span>
+      <svg class="sidebar-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
+    <div class="sidebar-submenu" id="sbReportsSubmenu" aria-label="Submenus de relatórios">
+      <button class="sidebar-subitem" data-report-page="rotas" onclick="showPage('rotas',null)"><span>Rotas de Emissão</span></button>
+      <button class="sidebar-subitem" data-report-page="emissoes" onclick="showPage('emissoes',null)"><span>Passagens Emitidas</span></button>
+      <button class="sidebar-subitem" data-report-page="relatorios" onclick="showPage('relatorios',null)"><span>Movimentos</span></button>
+    </div>
     <button class="sidebar-item" id="sbNavClube" onclick="showPage('clube',null);sbSetActive('clube')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       <span>Clube</span>
@@ -5042,7 +5065,7 @@ function showPage(page, el){
   }
   // Sidebar: marcar item ativo
   const sbPage=(page==='rotas'||page==='emissoes'||page==='relatorios')?'relatorios':page;
-  sbSetActive(sbPage);
+  sbSetActive(sbPage,page);
   syncMobileNav(page);
   if(page==='rotas'){ if(!db.routes) db.routes=[]; renderRotasSaldos(); renderRoutes(); }
   if(page==='emissoes'){ renderEmissoes(); }
@@ -5861,12 +5884,25 @@ function toggleSidebarLayout(){
   try{ localStorage.setItem('mp_sidebar', on?'1':'0'); }catch(e){}
   renderSidebarProgs();
 }
-function sbSetActive(page){
+function sbSetActive(page, reportPage){
   document.querySelectorAll('.sidebar-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.sidebar-subitem').forEach(el=>el.classList.remove('active'));
   const map={milhas:'sbNavCarteira',relatorios:'sbNavRelatorios',clube:'sbNavClube',promos:'sbNavPromos'};
-  const id=map[page]||map['milhas'];
-  const el=document.getElementById(id);
+  const el=document.getElementById(map[page]||map['milhas']);
   if(el) el.classList.add('active');
+  if(page==='relatorios'){
+    const selected=reportPage||window._sidebarReportPage||'rotas';
+    window._sidebarReportPage=selected;
+    document.querySelector(`.sidebar-subitem[data-report-page="${selected}"]`)?.classList.add('active');
+    document.getElementById('sbReportsSubmenu')?.classList.remove('collapsed');
+    document.getElementById('sbNavRelatorios')?.setAttribute('aria-expanded','true');
+  }
+}
+function toggleSidebarReports(){
+  const sub=document.getElementById('sbReportsSubmenu'), btn=document.getElementById('sbNavRelatorios');
+  if(!sub||!btn) return;
+  const collapsed=sub.classList.toggle('collapsed');
+  btn.setAttribute('aria-expanded',String(!collapsed));
 }
 function renderSidebarProgs(){
   const el=document.getElementById('sbProgsList');
