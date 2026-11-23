@@ -7089,7 +7089,7 @@ function cCancelarMov(id){
   m.status='cancelado';
   cRemoverMovSistema(id);
   cRenderExtrato(); cUpdateBadges(); cSalvar();
-  cToast('Crédito cancelado.',4000,()=>{ m.status=prev; cCriarMovSistema(m); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); });
+  cToast('Crédito cancelado.',4000,()=>{ m.status=prev; if(prev==='confirmado') cCriarMovSistema(m); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); });
 }
 window.cCancelarMov=cCancelarMov;
 
