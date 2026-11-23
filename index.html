@@ -874,6 +874,45 @@ body.sidebar-layout .prog-nav-bar{flex-shrink:0}
  body.sidebar-layout .sum-group{flex:1 1 100%}
  body.sidebar-layout .sum-item{min-width:0}
 }
+
+/* Ticker: cada cotação usa a largura natural do próprio texto. */
+body.sidebar-layout .ticker{
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+}
+body.sidebar-layout .ticker-inner{
+  flex:0 0 auto;
+  width:max-content;
+  min-width:100%;
+  margin:0;
+  overflow:visible;
+  justify-content:center;
+}
+body.sidebar-layout .ticker-item{
+  flex:0 0 auto;
+  width:max-content;
+  min-width:max-content;
+  padding-inline:clamp(8px,.8vw,14px);
+  gap:.45rem;
+  justify-content:flex-start;
+  overflow:visible;
+  white-space:nowrap;
+}
+body.sidebar-layout .ticker-name,
+body.sidebar-layout .ticker-val{
+  flex:0 0 auto;
+  min-width:max-content;
+  max-width:none;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:nowrap;
+}
+@media(max-width:680px){
+  body.sidebar-layout .ticker-item{padding:0 .55rem;gap:.3rem;font-size:.62rem}
+}
 </style>
 
 </head>
