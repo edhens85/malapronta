@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Milhas">
+<meta name="apple-mobile-web-app-title" content="Mala Pronta">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3800,6 +3800,11 @@ function initNavDrag(container){
   });
 }
 
+function openProgramDetail(id){
+  showPage('milhas', document.getElementById('navTabMilhas'));
+  selectProg(id);
+}
+
 function selectProg(id){
   selProg = id;
   document.getElementById('dashView').style.display='none';
@@ -6478,7 +6483,6 @@ function fmtPts(el){ let v=el.value.replace(/\D/g,''); if(!v){el.value='';return
 function fmtPtsBlur(el){ /* obsoleto — listener global trata */ cCalcCpm(); }
 function parsePts(el){ return parseInt((el?.value||'').replace(/\D/g,''))||0; }
 function parseMoney(el){ return parseFloat((el?.value||'').replace(/\./g,'').replace(',','.'))||0; }
-function fmtBRL(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtNum(n){ return n.toLocaleString('pt-BR'); }
 
 // ——— Toast ———
