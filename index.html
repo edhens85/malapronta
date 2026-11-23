@@ -818,6 +818,98 @@ body.layout-vertical .page-label{display:none}
 .promos-empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-size:.82rem}
 .promos-count{font-size:.7rem;color:var(--text-muted)}
 </style>
+<style id="mp-layout-refinements">
+/* Layout atualizado com cabeçalho compacto e menu lateral recolhível */
+body.sidebar-layout{display:grid!important;grid-template-columns:68px minmax(0,1fr)!important;grid-template-rows:52px 32px minmax(0,1fr)!important;grid-template-areas:"topbar topbar" "ticker ticker" "sidebar main"!important;width:100%;height:100vh;min-height:100vh;overflow:hidden}
+body.sidebar-layout .topbar{grid-area:topbar;height:52px;min-width:0;padding:0 1rem}
+body.sidebar-layout .nav-tabs,body.sidebar-layout .mobile-nav{display:none!important}
+body.sidebar-layout #sidebar{display:flex!important;grid-area:sidebar;align-self:stretch;position:relative;top:auto;width:68px;height:100%;min-height:0;overflow-x:hidden;overflow-y:auto;z-index:250;transition:width .18s ease;background:var(--surface)}
+body.sidebar-layout #sidebar:hover{width:252px;overflow-y:auto;overflow-x:hidden;box-shadow:10px 0 24px rgba(0,0,0,.28)}
+body.sidebar-layout .page{grid-area:main;min-width:0;min-height:0}
+body.sidebar-layout .ticker{grid-area:ticker;min-width:0}
+body.sidebar-layout .prog-nav-bar{grid-area:main;align-self:start;z-index:20}
+#sidebar .sidebar-section{padding:.65rem .45rem .35rem}
+#sidebar .sidebar-section-lbl{display:none;padding:0 .55rem;margin-bottom:.35rem;font-size:.62rem}
+#sidebar:hover .sidebar-section-lbl{display:block}
+#sidebar .sidebar-item{justify-content:flex-start;gap:.8rem;min-height:46px;padding:.65rem .8rem;border-radius:9px;font-size:.8rem;white-space:nowrap;overflow:hidden}
+#sidebar .sidebar-item svg{width:21px;height:21px;opacity:.85}
+#sidebar .sidebar-item span{display:none}
+#sidebar:hover .sidebar-item span{display:inline}
+#sidebar .sidebar-item.active{box-shadow:inset 3px 0 0 var(--gold)}
+#sidebar .sidebar-sep{margin:.45rem .65rem}
+#sidebar .sidebar-op-btn{width:48px;height:46px;padding:0;margin:.65rem .6rem;justify-content:center;flex-shrink:0}
+#sidebar .sidebar-op-btn span{display:none}
+#sidebar:hover .sidebar-op-btn{width:calc(100% - 1.2rem);height:42px;margin:.65rem .6rem;justify-content:flex-start;padding:.55rem .8rem}
+#sidebar:hover .sidebar-op-btn span{display:inline}
+#sidebar .sidebar-reports{position:relative}
+#sidebar .sidebar-submenu{display:none;flex-direction:column;gap:2px;margin:.15rem .35rem .4rem 2.65rem;padding-left:.45rem;border-left:1px solid var(--border)}
+#sidebar .sidebar-reports:hover .sidebar-submenu,#sidebar .sidebar-reports.open .sidebar-submenu{display:flex}
+#sidebar .sidebar-subitem{border:0;background:none;color:var(--text-dim);font:600 .75rem 'Inter',sans-serif;text-align:left;padding:.5rem .6rem;border-radius:7px;cursor:pointer;white-space:nowrap}
+#sidebar .sidebar-subitem:hover,#sidebar .sidebar-subitem.active{color:var(--gold);background:var(--surface2)}
+#sidebar .sidebar-tools{margin-top:auto;padding:.35rem .5rem .7rem;position:relative}
+#sidebar #menuWrap{width:100%}
+#sidebar .btn-menu{width:48px;height:42px;padding:0;justify-content:center}
+#sidebar:hover .btn-menu{width:100%;justify-content:flex-start;padding:.35rem .75rem}
+#sidebar .sidebar-menu-label{display:none}
+#sidebar:hover .sidebar-menu-label{display:inline}
+#sidebar .menu-dropdown{position:absolute;left:100%;right:auto;bottom:0;top:auto;padding:0 0 0 8px;min-width:210px;z-index:500}
+#sidebar .menu-wrap:hover .menu-dropdown{display:none}
+#sidebar .menu-dropdown.open{display:block}
+#sidebar .menu-dropdown-inner{max-height:70vh;overflow:auto}
+body.sidebar-layout .btn-sidebar-toggle{display:none!important}
+#sidebar .sidebar-nav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#sidebar .sidebar-nav-icon svg{width:20px;height:20px}
+#sidebar .sidebar-reports:hover .sidebar-submenu{display:flex}
+/* Campos e números */
+#modalMovement .modal{max-width:620px!important}
+#modalMovement #mCatCards{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:.35rem!important}
+#modalMovement .mov-cat-btn{padding:.48rem .12rem .45rem;gap:.28rem;font-size:.6rem;letter-spacing:0;min-width:0}
+#modalMovement .mov-cat-btn .cat-icon{width:30px;height:30px;border-radius:8px}
+#modalMovement .mov-cat-btn .cat-icon svg{width:17px;height:17px}
+#mDateWrap input{width:150px!important;padding:.35rem .5rem .35rem 2rem!important;text-align:center!important;font-variant-numeric:tabular-nums}
+#mDateIcon{left:.55rem;opacity:.7}
+#mHospedagemBox .frow:first-child,#emHospedagemBox .frow:first-child{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) 64px;gap:.55rem;align-items:end}
+#mHospedagemBox .frow:nth-child(2),#emHospedagemBox .frow:nth-child(2){display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+#mHospNoites,#emHospNoites{min-width:0;text-align:center}
+#mHospedagemBox .fg,#emHospedagemBox .fg{min-width:0}
+#mHospedagemBox .fg label,#emHospedagemBox .fg label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#modalTransfer .modal-actions .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+#tBalanceWarning{font-size:.72rem;color:var(--red);margin-top:-.45rem;margin-bottom:.65rem;font-weight:600}
+/* Linhas de movimentos: uma linha por registro, com rolagem quando necessário */
+#detailPanel .tbl-wrap{overflow-x:auto}
+#detailPanel table{min-width:900px}
+#detailPanel .mov-desc{display:flex;flex-direction:row;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0;white-space:nowrap}
+#detailPanel .mov-desc>div{display:flex!important;flex-direction:row;align-items:center;gap:6px;flex-shrink:0}
+#detailPanel .mov-desc .td-obs{display:inline!important;white-space:nowrap;max-width:none}
+#detailPanel .mov-desc>span{display:inline-flex!important;align-items:center;white-space:nowrap}
+/* Extrato do clube: não corta colunas nem valores */
+#cTabExtrato{min-width:0;overflow-x:auto}
+#cTabExtrato .preview-table{width:100%;min-width:620px;table-layout:auto}
+#cTabExtrato .preview-table th,#cTabExtrato .preview-table td{padding:.45rem .5rem}
+#mpClubFilters{display:flex;flex-direction:column;gap:.5rem;padding:.65rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px}
+.mp-filter-line{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.mp-filter-title{font-size:.64rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;min-width:62px}
+.mp-filter-chip{display:inline-flex;align-items:center;gap:.3rem;font-size:.69rem;color:var(--text-dim);padding:.2rem .45rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer}
+.mp-filter-chip input{accent-color:var(--gold);margin:0}
+.mp-cancel-summary td{padding:.5rem .6rem!important;font-size:.72rem;color:var(--text-dim);background:rgba(224,90,86,.05)}
+@media(max-width:680px){
+ body.sidebar-layout{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:48px 32px minmax(0,1fr)!important;grid-template-areas:"topbar" "ticker" "main"!important}
+ body.sidebar-layout .topbar{height:48px;padding:0 .65rem;gap:.4rem}
+ body.sidebar-layout #sidebar{position:fixed;left:0;top:48px;bottom:0;width:0;height:calc(100dvh - 48px);border:0;overflow:hidden;box-shadow:none;transition:width .18s ease;z-index:800}
+ body.sidebar-layout #sidebar.sb-mobile-open{width:min(270px,82vw);border-right:1px solid var(--border);box-shadow:10px 0 24px rgba(0,0,0,.35)}
+ body.sidebar-layout #sidebar .sidebar-section-lbl,body.sidebar-layout #sidebar .sidebar-item span,body.sidebar-layout #sidebar .sidebar-op-btn span{display:inline}
+ body.sidebar-layout #sidebar .sidebar-op-btn{width:calc(100% - 1.2rem);height:42px;margin:.65rem .6rem;justify-content:flex-start;padding:.55rem .8rem}
+ body.sidebar-layout #sidebar .sidebar-item{width:100%}
+ body.sidebar-layout .btn-sidebar-toggle{display:flex!important;width:32px;height:32px;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:pointer;flex-shrink:0}
+ #modalMovement .modal{max-width:100%!important;padding:1rem!important}
+ #modalMovement #mCatCards{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+ #modalMovement .mov-cat-btn{font-size:.52rem}
+ #detailPanel table{min-width:900px}
+ #cTabExtrato .preview-table{min-width:620px}
+}
+@media(prefers-reduced-motion:reduce){body.sidebar-layout #sidebar{transition:none!important}}
+
+</style>
 </head>
 <body>
 
@@ -1106,7 +1198,6 @@ body.layout-vertical .page-label{display:none}
       <div class="sum-item" id="sumItemEconomia"><div class="sum-label">Economia passagem</div><div class="sum-val" id="sumEconomia">—</div></div>
       <div class="sum-item" id="sumItemVenda"><div class="sum-label">Venda passagem</div><div class="sum-val" id="sumResultadoEm">—</div></div>
       <div class="sum-item" id="sumItemHosp"><div class="sum-label">Economia hospedagem</div><div class="sum-val" id="sumEconomiaHosp">—</div></div>
-      <div class="sum-item" id="sumItemTeste"><div class="sum-label">teste</div><div class="sum-val" id="sumTeste">—</div></div>
     </div>
 
 
@@ -1963,7 +2054,7 @@ body.layout-vertical .page-label{display:none}
     <div class="fg" style="margin-top:.75rem"><label>Observações</label><input class="fi" id="tObs" placeholder="Opcional"></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('modalTransfer')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveTransfer()">Confirmar transferência</button>
+      <button class="btn btn-primary" onclick="saveTransfer()">Confirmar</button>
     </div>
   </div>
 </div>
@@ -5680,6 +5771,8 @@ function openModal(id){
     // Check-in / Check-out hospedagem
     const emCiEl = document.getElementById('emHospCheckin');
     initDatePicker(emCiEl);
+    const emCoEl = document.getElementById('emHospCheckout');
+    initDatePicker(emCoEl);
     if(emCiEl && emCiEl._fp && emCiEl.value) emCiEl._fp.setDate(emCiEl.value, false);
     if(emCoEl && emCoEl._fp && emCoEl.value) emCoEl._fp.setDate(emCoEl.value, false);
   }
@@ -7248,7 +7341,7 @@ function renderVencimentos(){
       else if(dias<=90) pts90+=pts;
     });
   });
-  const fmtKpi=n=>n>=1000000?(n/1000000).toFixed(1).replace('.',',')+'M':n>=1000?(n/1000).toFixed(1).replace('.',',')+'k':n.toLocaleString('pt-BR');
+  const fmtKpi=n=>(Number(n)||0).toLocaleString('pt-BR');
   const kpiStyle=(border)=>`display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--surface2);border:1px solid ${border};border-radius:var(--radius);padding:1rem .5rem;gap:.25rem`;
   const kpis=document.getElementById('vencKpis');
   if(kpis) kpis.innerHTML=`
@@ -8050,6 +8143,80 @@ setInterval(()=>promosRefresh(), 60 * 60 * 1000);
 setTimeout(()=>{ if(!promosData.length || !promosData[0]?.link?.startsWith('http')) promosRefresh(); }, 5000);
 
 })();
+</script>
+<script id="mp-requested-improvements">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const icon=paths=>`<span class="sidebar-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg></span>`;
+function buildSidebar(){
+ const side=$('sidebar'); if(!side||side.dataset.updated==='1') return;
+ const menu=$('menuWrap');
+ side.innerHTML=`<button class="sidebar-op-btn" type="button" title="Nova operação" onclick="openAddMovementGlobal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg><span>Nova operação</span></button>
+ <div class="sidebar-section"><div class="sidebar-section-lbl">Navegação</div>
+ <button class="sidebar-item active" id="sbNavCarteira" onclick="mpNavigate('milhas')" title="Carteira">${icon('<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>')}<span>Carteira</span></button>
+ <div class="sidebar-reports" id="mpReportsBlock"><button class="sidebar-item" id="sbNavRelatorios" onclick="mpToggleReports()" title="Relatórios">${icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>')}<span>Relatórios</span><span class="sidebar-item-badge">⌄</span></button><div class="sidebar-submenu" id="mpReportsSubmenu"><button class="sidebar-subitem" data-page="rotas" onclick="mpNavigate('rotas')">Rotas de emissão</button><button class="sidebar-subitem" data-page="emissoes" onclick="mpNavigate('emissoes')">Passagens emitidas</button><button class="sidebar-subitem" data-page="relatorios" onclick="mpNavigate('relatorios')">Movimentos</button></div></div>
+ <button class="sidebar-item" id="sbNavClube" onclick="mpNavigate('clube')" title="Clube">${icon('<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>')}<span>Clube</span></button>
+ <button class="sidebar-item" id="sbNavPromos" onclick="mpNavigate('promos')" title="Promoções">${icon('<path d="M12 2l1.5 4.5H18l-3.75 2.73 1.43 4.4L12 11.25l-3.68 2.38 1.43-4.4L6 6.5h4.5z"/><path d="M5 20h14M12 15v5"/>')}<span>Promoções</span></button>
+ <button class="sidebar-item" id="sbNavVencimentos" onclick="mpNavigate('vencimentos')" title="Vencimentos">${icon('<rect x="3" y="4" width="18" height="17" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 13v3l2 1"/>')}<span>Vencimentos</span><span class="sidebar-item-badge" id="mpVencBadge" style="display:none"></span></button></div>
+ <div class="sidebar-sep"></div><div class="sidebar-section sidebar-tools"><div class="sidebar-section-lbl">Ferramentas</div><div id="mpSidebarTools"></div></div>`;
+ if(menu){$('mpSidebarTools').appendChild(menu);const b=menu.querySelector('.btn-menu');if(b){b.innerHTML=`${icon('<line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>')}<span class="sidebar-menu-label">Menu</span>`;b.title='Ferramentas';}}
+ document.body.classList.add('sidebar-layout');try{localStorage.setItem('mp_sidebar','1')}catch(e){}
+ const nav=$('navTabs');if(nav)nav.style.display='none';const mobile=document.querySelector('.mobile-nav');if(mobile)mobile.style.display='none';
+ const toggle=$('btnSidebarToggle');if(toggle){toggle.setAttribute('aria-label','Abrir menu lateral');toggle.title='Abrir menu lateral';toggle.onclick=toggleMobileSidebar;toggle.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';}
+ side.dataset.updated='1';
+}
+window.toggleMobileSidebar=function(){$('sidebar')?.classList.toggle('sb-mobile-open')};
+window.mpToggleReports=function(){$('mpReportsBlock')?.classList.toggle('open');if(innerWidth<=680)$('sidebar')?.classList.add('sb-mobile-open')};
+window.mpNavigate=function(page){if(page==='vencimentos'){window.showPage?.('clube',null);setTimeout(()=>window.clubeShowTab?.('vencimentos'),80)}else window.showPage?.(page,null);if(innerWidth<=680)$('sidebar')?.classList.remove('sb-mobile-open')};
+function setSidebarActive(page){document.querySelectorAll('#sidebar .sidebar-item').forEach(x=>x.classList.remove('active'));const key=page==='rotas'||page==='emissoes'||page==='relatorios'?'relatorios':page;const id={milhas:'sbNavCarteira',relatorios:'sbNavRelatorios',clube:'sbNavClube',promos:'sbNavPromos',vencimentos:'sbNavVencimentos'}[key]||'sbNavCarteira';$(id)?.classList.add('active');document.querySelectorAll('#mpReportsSubmenu .sidebar-subitem').forEach(x=>x.classList.toggle('active',x.dataset.page===page));if(key==='relatorios')$('mpReportsBlock')?.classList.add('open')}
+const oldShow=window.showPage;if(oldShow)window.showPage=function(page,el){oldShow(page,el);setSidebarActive(page);if(innerWidth<=680)$('sidebar')?.classList.remove('sb-mobile-open')};
+const origSet=window.sbSetActive;window.sbSetActive=function(page){if(origSet)origSet(page);setSidebarActive(page)};
+window.renderSidebarProgs=function(){};
+function removeStars(){document.querySelectorAll('#modalEditMov label,#modalMovement label').forEach(l=>{l.textContent=l.textContent.replace(/\s*\*\s*$/,'')})}
+function groupEditTypes(){const sel=$('emType');if(!sel||sel.dataset.grouped==='1')return;const current=sel.value;const options=[...sel.options].map(o=>({value:o.value,label:o.textContent.trim()}));const lookup=new Map(options.map(o=>[o.value,o.label]));const groups=[['Compra',[['compra','Compra simples'],['compra_bonificada','Compra bonificada']]],['Transferência',[['transferencia_enviada','Enviada'],['transferencia_recebida','Recebida']]],['Ajuste',[['ajuste_entrada','Entrada'],['ajuste_saida','Saída']]]];const used=new Set(groups.flatMap(g=>g[1].map(x=>x[0])));groups.push(['Outros',options.filter(o=>!used.has(o.value)).map(o=>[o.value,o.label])]);sel.innerHTML='';groups.forEach(([label,items])=>{const og=document.createElement('optgroup');og.label=label;items.forEach(([v,l])=>{const op=document.createElement('option');op.value=v;op.textContent=l||lookup.get(v)||v;og.appendChild(op)});if(og.children.length)sel.appendChild(og)});sel.value=current;sel.dataset.grouped='1'}
+const oldEdit=window.openEditMov;if(oldEdit)window.openEditMov=function(id){oldEdit(id);groupEditTypes();removeStars()};
+window.today=function(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+/* Transferência: não ultrapassar o saldo e apagar os dois lados como uma operação */
+function transferAvailable(){try{return Math.max(0,Number(window.computeStats(selProg)?.balance)||0)}catch(e){return 0}}
+function transferWarn(){const input=$('tPoints'),modal=$('modalTransfer');if(!input||!modal)return;let note=$('mpTransferWarning');if(!note){note=document.createElement('div');note.id='mpTransferWarning';input.closest('.fg')?.appendChild(note)}const amount=Number(window.parsePts(input))||0,available=transferAvailable(),invalid=amount>available;note.textContent=invalid?`Saldo disponível na origem: ${available.toLocaleString('pt-BR')}. Reduza a quantidade para confirmar.`:'';note.style.display=invalid?'block':'none';const button=modal.querySelector('.modal-actions .btn-primary');if(button){button.disabled=invalid;button.title=invalid?'A transferência excede o saldo disponível':''}}
+const oldCalc=window.calcTransfer;if(oldCalc)window.calcTransfer=function(){oldCalc();transferWarn()};
+const oldOpenTransfer=window.openTransfer;if(oldOpenTransfer)window.openTransfer=function(){oldOpenTransfer();transferWarn()};
+document.addEventListener('input',e=>{if(e.target?.id==='tPoints')setTimeout(transferWarn,0)},true);
+function transferRoot(m){if(!m)return null;let root=m._transferLinkId||m.transferGroupId||m.linkedSrcMovId;if(root)return db.movements.find(x=>x.id===root)||null;if(m.type==='transferencia_enviada')return m;if(m.type==='transferencia_recebida'||m.type==='bonus_transferencia'){const srcs=db.movements.filter(x=>x.type==='transferencia_enviada'&&x.programId===m.fromProgramId&&x.date===m.date&&(m.type==='bonus_transferencia'||x.toProgramId===m.programId));return srcs.length===1?srcs[0]:null}return null}
+function deleteMovementGroup(id){const m=db.movements.find(x=>x.id===id);if(!m)return;const root=transferRoot(m);let ids=new Set([id]);if(root){ids.add(root.id);db.movements.forEach(x=>{if(x.id===root.id||x._transferLinkId===root.id||x.transferGroupId===root.id||x.linkedSrcMovId===root.id)ids.add(x.id)});if(root.toProgramId){const bonuses=db.movements.filter(x=>x.type==='bonus_transferencia'&&x.fromProgramId===root.programId&&x.programId===root.toProgramId&&x.date===root.date);if(bonuses.length===1)ids.add(bonuses[0].id)}}db.movements=db.movements.filter(x=>!ids.has(x.id));saveDB();render()}
+const oldDeleteDirect=window.deleteMovDirect;window.deleteMovDirect=function(id,trigger){const pop=$('deletePopover'),button=$('deletePopoverConfirm');if(!pop||!button){oldDeleteDirect?.(id,trigger);return}button.onclick=()=>{deleteMovementGroup(id);window.closeDeletePopover?.()};if(trigger){const r=trigger.getBoundingClientRect();let left=r.right+6;if(left+168>innerWidth-8)left=r.left-174;pop.style.left=left+'px';pop.style.top=Math.max(8,Math.min(innerHeight-90,r.top-4))+'px'}pop.style.display='block';setTimeout(()=>document.addEventListener('mousedown',window._popOutside,{once:true}),10)};
+window.deleteMovement=function(){if(!confirm('Excluir este movimento?'))return;deleteMovementGroup(editMovId);window.closeModal?.('modalEditMov')};
+const oldSaveTransfer=window.saveTransfer;if(oldSaveTransfer)window.saveTransfer=function(){const amount=Number(window.parsePts($('tPoints')))||0,available=transferAvailable();if(amount>available){transferWarn();alert(`Saldo insuficiente. Há ${available.toLocaleString('pt-BR')} disponíveis na origem.`);return}const before=new Set(db.movements.map(m=>m.id));oldSaveTransfer();const added=db.movements.filter(m=>!before.has(m.id));const src=added.find(m=>m.type==='transferencia_enviada'&&m.programId===selProg);if(src){src._transferLinkId=src.id;src.transferGroupId=src.id;const related=added.filter(m=>m.id!==src.id&&(m.linkedSrcMovId===src.id||(m.fromProgramId===src.programId&&m.date===src.date&&(m.type==='transferencia_recebida'||m.type==='bonus_transferencia'))));related.forEach(m=>{m._transferLinkId=src.id;m.transferGroupId=src.id;if(m.type==='transferencia_recebida')m.linkedSrcMovId=src.id});saveDB();render()}};
+/* Vencimentos por lote: confirmação explícita, datas seguras e alertas reais */
+function localISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+const oldAddLot=window.vencLoteAdicionar;window.vencLoteAdicionar=function(progId){const p=db.programs.find(x=>x.id===progId);if(!p)return;if(!p.expiries)p.expiries=window._vencGetLotes(p).filter(l=>l.id!=='legacy');const id='lote_'+Date.now();p.expiries.push({id,pts:0,date:'',confirmed:false});if(p.expiry)delete p.expiry;saveDB();window._vencOpen=window._vencOpen||{};window._vencOpen[progId]=true;window.renderVencimentos();const panel=$('vencLotes_'+progId);if(panel)panel.style.display='block';setTimeout(()=>{window.vencInitDatepickers?.();addLotConfirmButtons()},60)};
+window.mpConfirmLot=function(pid,lid){const p=db.programs.find(x=>x.id===pid),lot=p?.expiries?.find(x=>x.id===lid);if(!lot)return;const pts=parseInt(lot.pts)||0;if(pts<=0||!lot.date){alert('Informe a quantidade e a data de vencimento antes de confirmar o lote.');return}const balance=Math.max(0,Number(window.computeStats(pid)?.balance)||0),otherConfirmed=(p.expiries||[]).filter(x=>x.id!==lid&&x.confirmed!==false).reduce((s,x)=>s+(parseInt(x.pts)||0),0);if(balance>0&&otherConfirmed+pts>balance){alert(`A soma dos lotes confirmados não pode ultrapassar o saldo de ${balance.toLocaleString('pt-BR')}.`);return}lot.confirmed=true;saveDB();window._vencOpen=window._vencOpen||{};window._vencOpen[pid]=true;window.renderVencimentos();window._vencOpen[pid]=true;const panel=$('vencLotes_'+pid);if(panel)panel.style.display='block';setTimeout(()=>window.vencInitDatepickers?.(),50);window.updateAlertsBadge?.()};
+function addLotConfirmButtons(){document.querySelectorAll('.venc-date-input').forEach(d=>{const p=db.programs.find(x=>x.id===d.dataset.pid),lot=p?.expiries?.find(x=>x.id===d.dataset.lid);if(!lot||lot.confirmed!==false)return;const row=d.parentElement;if(row.querySelector('.mp-confirm-lot'))return;const b=document.createElement('button');b.className='mp-confirm-lot';b.type='button';b.textContent='✓';b.title='Confirmar lote';b.setAttribute('aria-label','Confirmar lote');b.style.cssText='width:28px;height:28px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);border-radius:6px;font-size:1rem;font-weight:800;cursor:pointer;flex-shrink:0';b.onclick=e=>{e.stopPropagation();window.mpConfirmLot(p.id,lot.id)};row.appendChild(b)})}
+const oldRenderV=window.renderVencimentos;if(oldRenderV)window.renderVencimentos=function(){oldRenderV();addLotConfirmButtons();formatExpiryKpis()};
+const oldUpdateLot=window.vencLoteAtualizar;if(oldUpdateLot)window.vencLoteAtualizar=function(pid,lid,field,value){oldUpdateLot(pid,lid,field,value);const p=db.programs.find(x=>x.id===pid),lot=p?.expiries?.find(x=>x.id===lid);if(lot&&lot.confirmed===false)addLotConfirmButtons()};
+function effectiveLots(p){let arr=(p.expiries||[]).filter(l=>l.date&&l.confirmed!==false);if(!arr.length&&p.expiry)arr=[{date:p.expiry,pts:Math.max(0,Number(window.computeStats(p.id)?.balance)||0)}];return arr}
+window.getAlerts=function(){const today=new Date();today.setHours(0,0,0,0);const alerts=[];(db.programs||[]).forEach(p=>{let left=Math.max(0,Number(window.computeStats(p.id)?.balance)||0);effectiveLots(p).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(l=>{if(left<=0)return;const pts=Math.min(left,Math.max(0,parseInt(l.pts)||left));if(!pts)return;left-=pts;const exp=new Date(l.date+'T00:00:00');if(Number.isNaN(exp.getTime()))return;const diff=Math.round((exp-today)/86400000);if(diff<=90)alerts.push({prog:p,diff,exp,saldo:pts,expiryStr:l.date,loteId:l.id})})});return alerts.sort((a,b)=>a.diff-b.diff)};
+const oldUpdateAlerts=window.updateAlertsBadge;if(oldUpdateAlerts)window.updateAlertsBadge=function(){oldUpdateAlerts();const n=window.getAlerts().length,b=$('mpVencBadge');if(b){b.textContent=n>9?'9+':String(n);b.style.display=n?'inline-block':'none'}};
+function expirySummary(p){const today=new Date();today.setHours(0,0,0,0);const dates=effectiveLots(p).map(l=>l.date).filter(Boolean).sort();if(!dates.length)return 'Sem data';const d=new Date(dates[0]+'T00:00:00'),days=Math.round((d-today)/86400000);if(days<0)return 'Vencido';if(days<=30)return 'Vence em 30 dias';if(days<=90)return 'Vence em 90 dias';return 'Vence em mais de 90 dias'}
+function formatExpiryKpis(){const box=$('vencKpis');if(!box)return;const today=new Date();today.setHours(0,0,0,0);let p30=0,p90=0,noDate=0;for(const p of db.programs||[]){let left=Math.max(0,Number(window.computeStats(p.id)?.balance)||0);const lots=effectiveLots(p).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));if(!lots.length){noDate+=left;continue}for(const lot of lots){if(left<=0)break;const pts=Math.min(left,Math.max(0,parseInt(lot.pts)||left));left-=pts;const d=new Date(lot.date+'T00:00:00'),days=Math.round((d-today)/86400000);if(days<=30)p30+=pts;else if(days<=90&&days>30)p90+=pts}if(left>0)noDate+=left}const vals=[p30,p90,noDate];[...box.querySelectorAll(':scope > div')].forEach((card,i)=>{const title=card.children[0],value=card.children[1];if(title)title.textContent=['Vencem em 30 dias','Vencem em 90 dias','Sem data'][i]||title.textContent;if(value)value.textContent=(vals[i]||0).toLocaleString('pt-BR')});document.querySelectorAll('#vencList>div').forEach((card,i)=>{const programs=[...(db.programs||[])].sort((a,b)=>{const da=window._vencProximaData(window._vencGetLotes(a)),dbb=window._vencProximaData(window._vencGetLotes(b));return !da&&!dbb?a.name.localeCompare(b.name):!da?1:!dbb?-1:da.localeCompare(dbb)}),p=programs[i];if(!p)return;const row=card.firstElementChild,area=row?.children[1];if(!area)return;let tag=area.querySelector('.mp-expiry-status');if(!tag){tag=document.createElement('div');tag.className='mp-expiry-status';tag.style.cssText='font-size:.67rem;color:var(--gold);margin-top:3px;font-weight:700';area.appendChild(tag)}tag.textContent=expirySummary(p)})}
+
+window.vencInitDatepickers=function(){document.querySelectorAll('.venc-date-input').forEach(el=>{if(el._fp)return;el._fp=flatpickr(el,{locale:'pt',dateFormat:'d/m/Y',allowInput:false,disableMobile:true,appendTo:document.body,position:'auto',defaultDate:el.dataset.isodate||null,onChange(sel){if(sel[0]){const iso=localISO(sel[0]);el.dataset.isodate=iso;window.vencLoteAtualizar(el.dataset.pid,el.dataset.lid,'date',iso);addLotConfirmButtons()}}})})};
+window._vencDiasBadge=function(date){const today=new Date();today.setHours(0,0,0,0);const exp=new Date(date+'T00:00:00');const dias=Math.round((exp-today)/86400000);let label,borderColor;if(dias<0){label='Vencido';borderColor='var(--border)'}else if(dias<=30){label='Vence em 30 dias';borderColor='var(--red)'}else if(dias<=90){label='Vence em 90 dias';borderColor='var(--gold)'}else{label='Vence em mais de 90 dias';borderColor='var(--green)'}const color=dias<0?'var(--text-muted)':dias<=30?'var(--red)':dias<=90?'var(--gold)':'var(--green)';return{badge:`<span style="background:color-mix(in srgb,${color} 15%,transparent);color:${color};border-radius:20px;padding:2px 8px;font-size:.68rem;font-weight:700">${label}</span>`,borderColor,diasLabel:label,dias}};
+
+function patchExpiries(){const icon=$('vencTabIcon');if(icon)icon.style.color='';}
+/* Reformat, arrange and filter the club extract */
+function addClubFilters(){const tbody=$('cExtratoBody'),kpi=$('cKpiArea');if(!tbody||!kpi)return;let box=$('mpClubFilters');if(!box){box=document.createElement('div');box.id='mpClubFilters';kpi.parentNode.insertBefore(box,kpi)}const headers=[...tbody.querySelectorAll('tr.cg-header')];const years=[...new Set(headers.map(h=>(h.querySelector('td')?.textContent||'').match(/\b(?:20\d{2}|—)\b/)?.[0]||'—'))].sort((a,b)=>b.localeCompare(a));const programs=[...new Set(headers.map(h=>{let t=(h.querySelector('td')?.textContent||'').replace(/[▸▾]/g,'').trim();const y=t.match(/\b(?:20\d{2}|—)\b/);return y?t.replace(y[0],'').replace(/\d+\s*pend\.?/i,'').trim():t.replace(/\d+\s*pend\.?/i,'').trim()}))].filter(Boolean).sort((a,b)=>a.localeCompare(b));const mk=(group,items)=>`<div class="mp-filter-line"><span class="mp-filter-title">${group}</span>${items.map((v,i)=>`<label class="mp-filter-chip"><input type="checkbox" data-filter="${group}" value="${v.replace(/"/g,'&quot;')}" checked>${v}</label>`).join('')}</div>`;box.innerHTML=(years.length?mk('Ano',years):'')+(programs.length?mk('Programa',programs):'');box.onchange=applyClubFilters;const summaries=[...tbody.querySelectorAll('.mp-cancel-summary')];const groups=[];headers.forEach(h=>{const text=(h.querySelector('td')?.textContent||'').replace(/[▸▾]/g,'').trim(),ym=text.match(/\b(?:20\d{2}|—)\b/),year=ym?.[0]||'—',program=(ym?text.replace(ym[0],''):'').replace(/\d+\s*pend\.?/i,'').trim();const members=[];let n=h.nextElementSibling;while(n&&!n.classList.contains('cg-header')){members.push(n);n=n.nextElementSibling}groups.push({h,members,year,program})});
+ // Replace repeated canceled installment rows with one reversible-data-preserving summary row.
+ groups.forEach(g=>{const canceled=g.members.filter(r=>r.classList.contains('canceled'));if(!canceled.length)return;const ids=canceled.flatMap(r=>[...r.querySelectorAll('[onclick]')].map(el=>el.getAttribute('onclick')||'').map(s=>s.match(/cReverterMov\('([^']+)'\)/)?.[1]).filter(Boolean));const plans=new Map();ids.forEach(id=>{const m=((typeof cMovimentos!=='undefined'?cMovimentos:[])).find(x=>x.id===id);if(!m)return;const p=((typeof cPlanos!=='undefined'?cPlanos:[])).find(x=>x.id===m.planoId);if(!p)return;const item=plans.get(p.id)||{p,movs:[]};item.movs.push(m);plans.set(p.id,item)});canceled.forEach(r=>r.style.display='none');const html=[...plans.values()].map(({p,movs})=>{const d=p.encerradoEm||movs.map(m=>m.date).filter(Boolean).sort().pop()||'';const canceledN=movs.length,total=p.totalMeses||((typeof cMovimentos!=='undefined'?cMovimentos:[])).filter(m=>m.planoId===p.id).length||canceledN;return `<tr class="mp-cancel-summary" data-program="${p.programa||''}" data-year="${d.slice(0,4)||'—'}"><td colspan="6"><strong>${p.nome||'Plano'}</strong> · cancelado em ${d?d.split('-').reverse().join('/'):'—'} · ${canceledN} de ${total} parcelas canceladas</td></tr>`}).join('');if(html){const last=g.members[g.members.length-1]||g.h;last.insertAdjacentHTML('afterend',html)}});applyClubFilters()}
+function applyClubFilters(){const box=$('mpClubFilters'),tbody=$('cExtratoBody');if(!box||!tbody)return;const checked=type=>[...box.querySelectorAll(`input[data-filter="${type}"]:checked`)].map(x=>x.value);const ys=checked('Ano'),ps=checked('Programa');let h=tbody.firstElementChild;while(h){if(!h.classList.contains('cg-header')){h=h.nextElementSibling;continue}const txt=(h.querySelector('td')?.textContent||'').replace(/[▸▾]/g,'').trim(),ym=txt.match(/\b(?:20\d{2}|—)\b/),year=ym?.[0]||'—',program=(ym?txt.replace(ym[0],''):'').replace(/\d+\s*pend\.?/i,'').trim(),show=(!ys.length||ys.includes(year))&&(!ps.length||ps.includes(program));h.style.display=show?'':'none';let n=h.nextElementSibling;while(n&&!n.classList.contains('cg-header')){if(n.classList.contains('mp-cancel-summary')){const sy=n.dataset.year||year,sp=n.dataset.program||program;n.style.display=show&&(!ys.length||ys.includes(sy))&&(!ps.length||ps.includes(sp))?'':'none'}else if(!n.classList.contains('canceled'))n.style.display=show?'':'none';n=n.nextElementSibling}h=n}}
+const oldClubRender=window.cRenderExtrato;if(oldClubRender)window.cRenderExtrato=function(){oldClubRender();addClubFilters()};
+/* Present movement descriptions and labels */
+function prepareUi(){buildSidebar();removeStars();groupEditTypes();const adjust=document.querySelector('#modalMovement .mov-cat-btn[data-cat="saida"]');if(adjust){const label=adjust.querySelector('span:last-child');if(label)label.textContent='Ajuste';adjust.title='Ajuste';const svg=adjust.querySelector('svg');if(svg)svg.innerHTML='<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2.56v-.1a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.56-1.03H6v-2.56h.1A1.7 1.7 0 0 0 7.66 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.03 5.1V5h2.56v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.52 11H21v2.56h-.1A1.7 1.7 0 0 0 19.4 15z'};document.querySelectorAll('#modalMovement label,#modalEditMov label').forEach(l=>l.textContent=l.textContent.replace(/\s*\*\s*$/,''));patchExpiries();window.renderVencimentos?.();window.cRenderExtrato?.();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',prepareUi,{once:true});else prepareUi();
+window.addEventListener('resize',()=>{if(innerWidth>680)$('sidebar')?.classList.remove('sb-mobile-open')});document.addEventListener('click',e=>{const s=$('sidebar');if(innerWidth<=680&&s?.classList.contains('sb-mobile-open')&&!s.contains(e.target)&&!$('btnSidebarToggle')?.contains(e.target))s.classList.remove('sb-mobile-open')});
+})();
+
 </script>
 </body>
 </html>
