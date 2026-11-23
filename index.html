@@ -941,6 +941,16 @@ body.sidebar-layout .ticker-inner{width:max-content;min-width:max-content;flex:0
 body.sidebar-layout .ticker-item{width:max-content;max-width:none;flex:0 0 auto;overflow:visible;justify-content:flex-start;padding:0 clamp(7px,1vw,14px)}
 body.sidebar-layout .ticker-name,body.sidebar-layout .ticker-val{max-width:none;overflow:visible;text-overflow:clip;white-space:nowrap}
 </style>
+<style id="mala-pronta-adjustments-20261123">
+/* Maiúsculas consistentes no menu lateral. */
+.sidebar-item,.sidebar-subitem,.sidebar-prog-item,.sidebar-op-btn span{text-transform:uppercase}
+/* Ticker alinhado ao centro e com rolagem horizontal quando necessário. */
+body.sidebar-layout .topbar{align-items:center}
+body.sidebar-layout .ticker{box-sizing:border-box;align-items:center;flex:1 1 0;height:34px;min-height:34px}
+body.sidebar-layout .ticker-inner{height:100%;align-items:stretch}
+body.sidebar-layout .ticker-item{height:100%;align-self:stretch;box-sizing:border-box;line-height:1.1}
+@media(max-width:680px){body.sidebar-layout .ticker{height:30px;min-height:30px}}
+</style>
 
 </head>
 <body>
@@ -1001,12 +1011,12 @@ body.sidebar-layout .ticker-name,body.sidebar-layout .ticker-val{max-width:none;
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       <span>Carteira</span>
     </button>
-    <button class="sidebar-item sidebar-reports-toggle" id="sbNavRelatorios" type="button" aria-expanded="true" aria-controls="sbReportsSubmenu" onclick="toggleSidebarReports()">
+    <button class="sidebar-item sidebar-reports-toggle" id="sbNavRelatorios" type="button" aria-expanded="false" aria-controls="sbReportsSubmenu" onclick="toggleSidebarReports()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <span>Relatórios</span>
       <svg class="sidebar-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <div class="sidebar-submenu" id="sbReportsSubmenu" aria-label="Submenus de relatórios">
+    <div class="sidebar-submenu collapsed" id="sbReportsSubmenu" aria-label="Submenus de relatórios">
       <button class="sidebar-subitem" data-report-page="rotas" onclick="showPage('rotas',null)"><span>Rotas de Emissão</span></button>
       <button class="sidebar-subitem" data-report-page="emissoes" onclick="showPage('emissoes',null)"><span>Passagens Emitidas</span></button>
       <button class="sidebar-subitem" data-report-page="relatorios" onclick="showPage('relatorios',null)"><span>Movimentos</span></button>
@@ -5965,13 +5975,18 @@ function getAlerts(){
     if(!p.expiry && !p.vencimento) return;
     const expiryStr = p.expiry || p.vencimento;
     const exp=new Date(expiryStr+'T00:00:00');
+    if(Number.isNaN(exp.getTime())) return;
     const diff=Math.round((exp-today)/(1000*60*60*24));
     const saldo=computeStats(p.id).balance||0;
     if(saldo<=0) return; // sem saldo, sem alerta
-    if(diff<=90){ // alerta para vencimentos nos próximos 90 dias
-      alerts.push({ prog:p, diff, exp, saldo, expiryStr });
+    if(diff<=90){
+      alerts.push({ prog:p, diff, exp, saldo, expiryStr, kind:'miles' });
     }
   });
+  // Créditos futuros das assinaturas ativas também aparecem no sininho.
+  if(typeof window._getClubDueAlerts==='function'){
+    try{ alerts.push(...window._getClubDueAlerts(today)); }catch(e){ console.warn('Não foi possível carregar alertas de clubes',e); }
+  }
   alerts.sort((a,b)=>a.diff-b.diff);
   return alerts;
 }
@@ -6009,26 +6024,36 @@ function renderAlertsPanel(){
     return;
   }
   list.innerHTML=alerts.map(a=>{
-    const urgent=a.diff<=0;
-    const hot=a.diff<=30 && a.diff>0;
-    const warn=a.diff>30;
-    const color=urgent?'#ef4444':hot?'#f5a623':'#eab308';
-    const bg=urgent?'rgba(239,68,68,.08)':hot?'rgba(245,166,35,.08)':'rgba(234,179,8,.06)';
-    const label=urgent?'EXPIRADO':a.diff===0?'HOJE':a.diff===1?'AMANHÃ':`${a.diff} dias`;
-    const icon=urgent?'💀':hot?'🔥':'⚠️';
-    return `<div style="padding:.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;background:${bg}">
+    const expired=a.diff<0;
+    const hot=a.diff<=30 && a.diff>=0;
+    const color=expired?'#ef4444':hot?'#f5a623':'#eab308';
+    const bg=expired?'rgba(239,68,68,.08)':hot?'rgba(245,166,35,.08)':'rgba(234,179,8,.06)';
+    const label=expired?'EXPIRADO':a.diff===0?'HOJE':a.diff===1?'AMANHÃ':`${a.diff} dias`;
+    const icon=expired?'💀':hot?'🔥':'⚠️';
+    const clube=a.kind==='club';
+    const itemClick=clube?'openClubDueAlert()':'';
+    const details=clube
+      ? `${fmt(a.saldo)} milhas previstas · crédito ${a.expiryStr.split('-').reverse().join('/')}`
+      : `${fmt(a.saldo)} milhas · vence ${a.expiryStr.split('-').reverse().join('/')}`;
+    return `<div${clube?' role="button" tabindex="0"':''} onclick="${itemClick}" style="padding:.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;background:${bg}${clube?';cursor:pointer':''}">
       <div style="width:40px;height:40px;border-radius:8px;background:${p=>p};display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:var(--surface2);border:1.5px solid ${color}">
         ${a.prog.icon?`<img src="${a.prog.icon}" style="width:28px;height:28px;border-radius:5px;object-fit:cover">`:`<span style="font-size:.7rem;font-weight:800;color:${a.prog.color||'var(--gold)'}">${esc((a.prog.name||'?').substring(0,3).toUpperCase())}</span>`}
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.prog.name)}</div>
-        <div style="font-size:.7rem;color:var(--text-muted);margin-top:1px">${fmt(a.saldo)} milhas · vence ${a.expiryStr.split('-').reverse().join('/')}</div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(clube?(a.planName||a.prog.name):a.prog.name)}</div>
+        ${clube?`<div style="font-size:.68rem;color:var(--text-dim);margin-top:1px">${esc(a.prog.name)}</div>`:''}
+        <div style="font-size:.7rem;color:var(--text-muted);margin-top:1px">${details}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div style="font-size:.68rem;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:.04em">${icon} ${label}</div>
       </div>
     </div>`;
   }).join('');
+}
+function openClubDueAlert(){
+  showPage('clube',document.getElementById('navTabClube'));
+  if(typeof clubeShowTab==='function') clubeShowTab('planos');
+  const panel=document.getElementById('alertsPanel'); if(panel) panel.style.display='none';
 }
 function renderColorGrid(){
   const g=document.getElementById('colorGrid'); if(!g) return;
@@ -6433,6 +6458,7 @@ function cSalvar(){
     localStorage.setItem('clube_movimentos', JSON.stringify(cMovimentos));
     localStorage.setItem('clube_gid', String(_cGid));
   }catch(e){}
+  if(typeof updateAlertsBadge==='function') updateAlertsBadge();
 }
 function cCarregar(){
   try{
@@ -6772,7 +6798,49 @@ function cUpdateBadges(){
   const pendentes=cMovimentos.filter(m=>m.status==='pendente'||m.status==='em_revisao').length;
   const pb=document.getElementById('cPlanosBadge'); if(pb){pb.textContent=ativos;pb.style.display=ativos?'':'none';}
   const eb=document.getElementById('cExtratoBadge'); if(eb){eb.textContent=pendentes;eb.style.display=pendentes?'':'none';}
+  if(typeof updateAlertsBadge==='function') updateAlertsBadge();
 }
+window._getClubDueAlerts=function(todayRef){
+  const today=new Date(todayRef||new Date()); today.setHours(0,0,0,0);
+  const todayMs=today.getTime();
+  const todayIso=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const out=[];
+  const active=cPlanos.filter(p=>p.status==='ativo');
+  for(const plan of active){
+    const due=[];
+    cMovimentos.filter(m=>m.planoId===plan.id&&m.status==='pendente'&&m.date>=todayIso).forEach(m=>{
+      const date=new Date(m.date+'T00:00:00');
+      if(!Number.isNaN(date.getTime())) due.push({dateStr:m.date,pts:Number(m.pts)||0});
+    });
+    if(plan.modalidade==='mensal'&&!due.length&&plan.inicio){
+      const start=new Date(plan.inicio+'T00:00:00');
+      if(!Number.isNaN(start.getTime())){
+        const day=start.getDate();
+        let offset=(today.getFullYear()-start.getFullYear())*12+(today.getMonth()-start.getMonth());
+        for(let i=0;i<240;i++,offset++){
+          const y=start.getFullYear()+Math.floor((start.getMonth()+offset)/12);
+          const mo=(start.getMonth()+offset)%12;
+          const lastDay=new Date(y,mo+1,0).getDate();
+          const candidate=new Date(y,mo,Math.min(day,lastDay));
+          candidate.setHours(0,0,0,0);
+          if(candidate.getTime()>=todayMs){
+            due.push({dateStr:`${candidate.getFullYear()}-${String(candidate.getMonth()+1).padStart(2,'0')}-${String(candidate.getDate()).padStart(2,'0')}`,pts:Number(plan.milhasMes)||0});
+            break;
+          }
+        }
+      }
+    }
+    const program=(db.programs||[]).find(p=>p.id===plan.programaId);
+    const programName=program?.name||plan.programa||plan.nome||'Clube';
+    due.forEach(item=>{
+      const exp=new Date(item.dateStr+'T00:00:00');
+      const diff=Math.round((exp-today)/(1000*60*60*24));
+      if(diff<0||diff>90) return;
+      out.push({prog:{name:programName,color:program?.color||'var(--gold)'},planName:plan.nome||programName,diff,exp,saldo:item.pts,expiryStr:item.dateStr,kind:'club'});
+    });
+  }
+  return out;
+};
 
 // ——— Render planos ———
 let _cFiltroPlanos='ativos';
@@ -7089,7 +7157,7 @@ function cCancelarMov(id){
   m.status='cancelado';
   cRemoverMovSistema(id);
   cRenderExtrato(); cUpdateBadges(); cSalvar();
-  cToast('Crédito cancelado.',4000,()=>{ m.status=prev; if(prev==='confirmado') cCriarMovSistema(m); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); });
+  cToast('Crédito cancelado.',4000,()=>{ m.status=prev; cCriarMovSistema(m); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); });
 }
 window.cCancelarMov=cCancelarMov;
 
@@ -7386,28 +7454,25 @@ function renderVencimentos(){
       if(!l.date){ ptsSemData+=pts; return; }
       const exp=new Date(l.date+'T00:00:00');
       const dias=Math.round((exp-today)/(1000*60*60*24));
-      if(dias<=30) pts30+=pts;
-      else if(dias<=90) pts90+=pts;
+      if(dias>=0 && dias<=30) pts30+=pts;
+      else if(dias>30 && dias<=90) pts90+=pts;
     });
   });
-  const fmtKpi=n=>n>=1000000?(n/1000000).toFixed(1).replace('.',',')+'M':n>=1000?(n/1000).toFixed(1).replace('.',',')+'k':n.toLocaleString('pt-BR');
+  const fmtKpi=n=>Math.round(n).toLocaleString('pt-BR');
   const kpiStyle=(border)=>`display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--surface2);border:1px solid ${border};border-radius:var(--radius);padding:1rem .5rem;gap:.25rem`;
   const kpis=document.getElementById('vencKpis');
   if(kpis) kpis.innerHTML=`
     <div style="${kpiStyle('var(--red)')}">
-      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Vencem em 30d</div>
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Vence em 30 dias</div>
       <div style="font-size:1.65rem;font-weight:700;color:${pts30>0?'var(--red)':'#fff'};line-height:1.1">${fmtKpi(pts30)}</div>
-      <div style="font-size:.68rem;color:rgba(255,255,255,.45)">pontos / milhas</div>
     </div>
     <div style="${kpiStyle('var(--gold)')}">
-      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Vencem em 90d</div>
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Vence em 90 dias</div>
       <div style="font-size:1.65rem;font-weight:700;color:${pts90>0?'var(--gold)':'#fff'};line-height:1.1">${fmtKpi(pts90)}</div>
-      <div style="font-size:.68rem;color:rgba(255,255,255,.45)">pontos / milhas</div>
     </div>
     <div style="${kpiStyle('var(--border)')}">
       <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55)">Sem data</div>
       <div style="font-size:1.65rem;font-weight:700;color:#fff;line-height:1.1">${fmtKpi(ptsSemData)}</div>
-      <div style="font-size:.68rem;color:rgba(255,255,255,.45)">pontos / milhas</div>
     </div>`;
 
   // Lista
