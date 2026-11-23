@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // REGRA EXCLUSIVA DO EMULADOR LOCAL DE TESTE.
+    // Nunca publique este arquivo nem o use em produção.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
