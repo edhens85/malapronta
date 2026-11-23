@@ -52,8 +52,18 @@
     appId: "1:381444088838:web:3f006b6fd2c19dacb54f87"
   };
   firebase.initializeApp(firebaseConfig);
+  const useLocalEmulators =
+    ['localhost', '127.0.0.1'].includes(location.hostname) &&
+    new URLSearchParams(location.search).get('e2e') === '1';
   const auth = firebase.auth();
   const firestore = firebase.firestore();
+  window._fbFirestoreRestBase = useLocalEmulators
+    ? `http://127.0.0.1:8080/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`
+    : `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+  if (useLocalEmulators) {
+    auth.useEmulator('http://127.0.0.1:9099', { disableWarnings: true });
+    firestore.useEmulator('127.0.0.1', 8080);
+  }
 
   window._fbAuth = auth;
   window._fbFirestore = firestore;
@@ -75,7 +85,7 @@
   window._fbGetDocREST = async (uid) => {
     const token = await auth.currentUser.getIdToken(true); // força refresh do token
     window._fbLastToken = token;
-    const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?t=${Date.now()}`;
+    const url = `${window._fbFirestoreRestBase}/users/${uid}?t=${Date.now()}`;
     const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
     if(!res.ok) throw new Error('REST ' + res.status);
     const json = await res.json();
@@ -153,7 +163,7 @@
         const token = window._fbLastToken || (auth.currentUser ? await auth.currentUser.getIdToken() : null);
         if(!token) return;
         window._fbLastToken = token;
-        const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?t=${Date.now()}`;
+        const url = `${window._fbFirestoreRestBase}/users/${uid}?t=${Date.now()}`;
         const res = await fetch(url, { headers:{ Authorization:`Bearer ${token}` }, cache:'no-store' });
         if(!res.ok) return;
         const json = await res.json();
@@ -2657,7 +2667,7 @@ function _saveToFirestoreKeepalive(){
     const body = JSON.stringify({fields:{db:_toFV(db)}});
     const uid = window._fbCurrentUid;
     const token = window._fbLastToken;
-    const url = `https://firestore.googleapis.com/v1/projects/gestao-de-milhas-eb741/databases/(default)/documents/users/${uid}?updateMask.fieldPaths=db`;
+    const url = `${window._fbFirestoreRestBase}/users/${uid}?updateMask.fieldPaths=db`;
     fetch(url, {
       method:'PATCH',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
