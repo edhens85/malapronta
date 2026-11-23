@@ -86,6 +86,7 @@ test('tema claro mantém texto e ícones visíveis', async ({ page }) => {
 });
 
 test('submenu de Relatórios abre as três páginas', async ({ page }) => {
+  await page.locator('#sidebar').hover();
   const submenu = page.locator('#sbReportsSubmenu');
   const toggle = page.locator('#sbNavRelatorios');
   if (await submenu.evaluate(el => el.classList.contains('collapsed'))) await toggle.click();
