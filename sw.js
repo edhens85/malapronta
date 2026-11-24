@@ -1,5 +1,6 @@
-const CACHE = 'malapronta-v2';
-const ASSETS = ['/', '/index.html', '/extrato-ano.js'];
+const CACHE = 'malapronta-v3';
+const ASSETS = ['/', '/index.html', '/extrato-ano.js', '/ui-business-rules.js'];
+const ENHANCEMENTS = ['<script src="/extrato-ano.js"></script>', '<script src="/ui-business-rules.js"></script>'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
@@ -13,20 +14,20 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-function injectExtratoEnhancement(response) {
+async function enhanceHtml(response) {
   if (!response || !response.headers.get('content-type')?.includes('text/html')) return response;
-  return response.text().then(html => {
-    if (!html.includes('/extrato-ano.js')) {
-      html = html.replace(/<\/body>/i, '<script src="/extrato-ano.js"></script></body>');
-    }
-    const headers = new Headers(response.headers);
-    headers.delete('content-length');
-    return new Response(html, { status: response.status, statusText: response.statusText, headers });
-  });
+  let html = await response.text();
+  for (const script of ENHANCEMENTS) {
+    const src = script.match(/src="([^"]+)"/)[1];
+    if (!html.includes(src)) html = html.replace(/<\/body>/i, `${script}</body>`);
+  }
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+  return new Response(html, { status: response.status, statusText: response.statusText, headers });
 }
 
-// Network-first: serve current HTML with the optional Club statement enhancement,
-// falling back to the cached app and applying the same injection while offline.
+// Network-first: keep the current app fresh and inject additive UI behavior;
+// when offline, use the cached app and inject the same enhancements.
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
@@ -37,10 +38,10 @@ self.addEventListener('fetch', event => {
     fetch(request).then(response => {
       const clone = response.clone();
       caches.open(CACHE).then(cache => cache.put(request, clone));
-      return isAppPage ? injectExtratoEnhancement(response) : response;
+      return isAppPage ? enhanceHtml(response) : response;
     }).catch(async () => {
       const cached = await caches.match(request);
-      return isAppPage ? injectExtratoEnhancement(cached) : cached;
+      return isAppPage ? enhanceHtml(cached) : cached;
     })
   );
 });
