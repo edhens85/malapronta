@@ -7157,21 +7157,19 @@ window.cConfirmar=cConfirmar;
 
 function cCancelarMov(id){
   const m=cMovimentos.find(x=>x.id===id); if(!m) return;
-  const prev=m.status;
-  m.status='cancelado';
+  const idx=cMovimentos.findIndex(x=>x.id===id);
+  const removed={...m};
   cRemoverMovSistema(id);
+  cMovimentos=cMovimentos.filter(x=>x.id!==id);
   cRenderExtrato(); cUpdateBadges(); cSalvar();
-  cToast('Crédito cancelado.',4000,()=>{ m.status=prev; cCriarMovSistema(m); cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.'); });
+  cToast('Parcela cancelada e removida do extrato.',4000,()=>{
+    if(idx>=0) cMovimentos.splice(idx,0,removed);
+    else cMovimentos.push(removed);
+    if(removed.status==='confirmado') cCriarMovSistema(removed);
+    cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido.');
+  });
 }
 window.cCancelarMov=cCancelarMov;
-
-function cReverterMov(id){
-  const m=cMovimentos.find(x=>x.id===id); if(!m) return;
-  m.status='pendente';
-  cRemoverMovSistema(id);
-  cRenderExtrato(); cUpdateBadges(); cSalvar(); cToast('Revertido para pendente.');
-}
-window.cReverterMov=cReverterMov;
 
 function cConfirmarTodos(){
   const list=cFilterPlano?cMovimentos.filter(m=>m.planoId===cFilterPlano):cMovimentos;
