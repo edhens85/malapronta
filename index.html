@@ -7197,23 +7197,32 @@ window.cReativarPlano=cReativarPlano;
 
 function cExcluirPlano(planoId){
   const plano=cPlanos.find(p=>p.id===planoId); if(!plano) return;
-  const nMovs=cMovimentos.filter(m=>m.planoId===planoId).length;
+  const movsPlano=cMovimentos.filter(m=>m.planoId===planoId);
+  const nMovs=movsPlano.length;
   document.getElementById('cConfirmMsg').innerHTML=
-    `<b>Excluir permanentemente "${plano.nome}"?</b><br><span style="font-size:.82rem;color:var(--text-muted)">Isso remove o clube e ${nMovs} movimentação(ões) do histórico. Esta ação não pode ser desfeita.</span>`;
+    `<b>Excluir permanentemente "${plano.nome}"?</b><br><span style="font-size:.82rem;color:var(--text-muted)">Isso remove o clube e ${nMovs} movimentação(ões) do extrato e do clube. Esta ação não pode ser desfeita.</span>`;
   document.getElementById('cConfirmOk').textContent='Excluir';
   document.getElementById('cConfirmOk').style.background='var(--red)';
   document.getElementById('cConfirmOk').onclick=()=>{
     cFecharConfirm();
-    // remove movimentos do sistema principal (db.movements)
-    cMovimentos.filter(m=>m.planoId===planoId).forEach(m=>cRemoverMovSistema(m.id));
-    // remove movimentos e plano do clube
+    // Remove apenas movimentos vinculados a este plano (preservando créditos gerais confirmados no passado fora do plano)
+    movsPlano.forEach(m=>cRemoverMovSistema(m.id));
     cMovimentos=cMovimentos.filter(m=>m.planoId!==planoId);
     cPlanos=cPlanos.filter(p=>p.id!==planoId);
-    // remove PDF do IndexedDB se houver
-    try{ const req=indexedDB.open('clube_pdfs',1); req.onsuccess=e=>{ const db2=e.target.result; if(db2.objectStoreNames.contains('pdfs')){ const tx=db2.transaction('pdfs','readwrite'); tx.objectStore('pdfs').delete(planoId); } }; }catch(e){}
+    if(cFilterPlano===planoId) cFilterPlano='';
+    try{
+      const req=indexedDB.open('clube_pdfs',1);
+      req.onsuccess=e=>{
+        const db2=e.target.result;
+        if(db2.objectStoreNames.contains('pdfs')){
+          const tx=db2.transaction('pdfs','readwrite');
+          tx.objectStore('pdfs').delete(planoId);
+        }
+      };
+    }catch(e){}
+    if(typeof cRemoverAlertasPlano==='function') cRemoverAlertasPlano(planoId);
     cRenderPlanos(); cRenderExtrato(); cUpdateBadges(); cSalvar();
     cToast('Clube excluído permanentemente.');
-    // reset botão para próximo uso
     document.getElementById('cConfirmOk').textContent='Confirmar';
     document.getElementById('cConfirmOk').style.background='';
   };
