@@ -7009,7 +7009,12 @@ function cRenderExtrato(){
   });
   const listBase=cFilterPlano?cMovimentos.filter(m=>m.planoId===cFilterPlano):
     [...cMovimentos,...(cFilterPlano?[]:assinaturasConvertidas)];
-  const list=listBase;
+  const planoIdsAtivos=new Set(cPlanos.map(p=>p.id));
+  const list=listBase.filter(m=>{
+    if(m.status==='cancelado') return false;
+    if(!m._fromDb && m.planoId && !planoIdsAtivos.has(m.planoId)) return false;
+    return true;
+  });
   if(!list.length){
     tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem 0;font-size:.82rem">Nenhum movimento.</td></tr>';
     document.getElementById('cExtratoResumo').textContent='';
