@@ -6752,7 +6752,7 @@ function cSimularRegistro(){
     planoData={...planoData,cpm:custo/(pts/1000),custoMensal:custo,milhasMes:pts};
     const hj=new Date(); const [iy,im,id2]=inicio.split('-').map(Number);
     let mes=1;
-    for(let y=iy,m=im;;y+=m>12?1:0,m=m>12?1:m+1){
+    for(let y=iy,m=im;;){
       const dateStr=`${y}-${String(m).padStart(2,'0')}-${String(id2).padStart(2,'0')}`;
       novosMovs.push({id:cUid(),planoId,grupoId,date:dateStr,pts,status:'pendente',mes:mes++,total:null});
       if(y>hj.getFullYear()||(y===hj.getFullYear()&&m>=hj.getMonth()+1)) break;
