@@ -2409,8 +2409,6 @@ function getValueLabel(t){
   if(t==='acumulo_simples') return 'Valor (opcional)';
   return 'Valor';
 }
-// Tipos que podem ser marcados PENDENTE (aguardando confirmação de crédito)
-const MOV_PENDENTE_TYPES = new Set(['bonus_transferencia','transferencia_recebida','bonus']);
 
 const CIAS_PRESET = [
   // Nacionais
@@ -2766,17 +2764,6 @@ function computeStats(progId){
   return {balance:last._bal, invest:last._invest, cpm:last._cpm};
 }
 
-function getCpmBefore(progId){
-  // CPM just before the last movement (used for resgate cost preview)
-  const movs = getMovsSorted(progId);
-  if(!movs.length) return 0;
-  let bal=0, invest=0;
-  for(const m of movs){
-    if(MOV_CREDIT.has(m.type)){ bal+=m.points; invest+=(m.value||0); }
-    else if(MOV_DEBIT.has(m.type)){ const c=bal>0?invest/bal:0; bal-=m.points; invest-=c*m.points; if(invest<0)invest=0; if(bal<0)bal=0; }
-  }
-  return bal>0?(invest/bal)*1000:0;
-}
 
 // ═══════════════════════════════════════════════
 //  RENDER
@@ -7297,6 +7284,7 @@ function ceRebuildRows(redistribuir=true){
   if(redistribuir) ceDistribuirMilhas();
   _cePresetCredits={};
   ceCalcCpm();
+  ceUpdateSoma();
 }
 window.ceRebuildRows=ceRebuildRows;
 
@@ -7322,6 +7310,7 @@ function ceParcelaBlur(el){
     if(resto>0) ultimo.value=fmtNum(resto);
   }
   ceCalcCpm();
+  ceUpdateSoma();
 }
 window.ceParcelaBlur=ceParcelaBlur;
 
@@ -7346,6 +7335,19 @@ function ceCalcCpm(){
   }
 }
 window.ceCalcCpm=ceCalcCpm;
+
+function ceUpdateSoma(){
+  let total=0;
+  document.querySelectorAll('.cep-pts').forEach(el=>{ total+=parsePts(el); });
+  const somaEl=document.getElementById('ceParcelasSoma');
+  if(!somaEl) return;
+  if(document.querySelectorAll('.ce-mes-row').length>0){
+    somaEl.style.display='flex';
+    const valEl=document.getElementById('ceParcelasSomaVal');
+    if(valEl) valEl.textContent=fmtNum(total)+' milhas';
+  } else somaEl.style.display='none';
+}
+window.ceUpdateSoma=ceUpdateSoma;
 
 function ceOnPdfChange(input){ const f=input.files[0]; if(!f) return; const nome=f.name.replace(/\.pdf$/i,''); const nomeEl=document.getElementById('cePdfNome'); if(!nomeEl.value) nomeEl.value=nome; document.getElementById('cePdfInfo').textContent=f.name+' ('+Math.round(f.size/1024)+' KB)'; document.getElementById('cePdfInfo').style.display=''; }
 window.ceOnPdfChange=ceOnPdfChange;
